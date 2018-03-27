@@ -160,6 +160,7 @@ struct tokenlist* lexer(const char* input) {
     current_tok->token = thistoken;
     current_tok->next = NULL;
   }
+  post_process_lexer(start);
   return start;
 }
 void tokenlist_print(struct tokenlist* start) {
@@ -221,6 +222,11 @@ void post_process_lexer(struct tokenlist* start){
     if(!current){
         continue;
     }
+    int i=0;
+    while(current->name[i]){
+        current->name[i]=tolower(current->name[i]);
+        i++;
+    }
     if(!strcmp(current->name,"if")){
         current->type=LEXER_IF;
     }else if(!strcmp(current->name,"else")){
@@ -247,7 +253,8 @@ struct token* create_token(){
 }
 struct token * copy_token(struct token *token){
     struct token* result=create_token();
-    result->name=malloc(strlen(token->name));
+    result->name=malloc(strlen(token->name)+1);
+//    printf("%s\n",token->name);
     strcpy(result->name,token->name);
     result->type=token->type;
     result->end=token->end;

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -MP -MD
+CFLAGS = -g -MP -MD -Wall
 SOURCES=$(wildcard *.c)
 OBJECTS=$(SOURCES:.c=.o)
 EXEC=terp

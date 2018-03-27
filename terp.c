@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "token.h"
+#include "ast.h"
 /**
  *  Inst type Prototype(since the JIT doesn't make it easy to get a normal C
  *struct in there)
@@ -42,4 +43,14 @@ int main(int argc, const char** args) {
   tokenlist_print(tokens);
   tokenlist_free(tokens);
   }
+  printf("\n\nSecond thingy\n");
+  const char *i2=": hello goodbye if eeee else 2 then ;";
+  if((tokens=lexer(i2))){
+      tokenlist_print(tokens);
+  }
+  struct tokenlist *func_end;
+  struct ast_node* func=parse_function(tokens,&func_end);
+  ast_print(func);
+  free_ast_node(func);
+  tokenlist_free(tokens);
 }

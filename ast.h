@@ -16,6 +16,7 @@ struct ast_node{
     int immediatecount;
     int childcount;
     int type;
+    unsigned char *ordering;
 };
 struct ast_node* create_ast_node();
 /**
@@ -30,4 +31,6 @@ struct ast_node* parse_if(struct tokenlist* start, struct tokenlist **end);
 void free_ast_node(struct ast_node*);
 int ast_add_token(struct ast_node* parent,struct token* token);
 struct ast_node* ast_simple_node_from_token(struct token *token);
+int ast_add_simple_node_from_token(struct ast_node* parent,struct token *token);
+void ast_print(struct ast_node* node);
 #endif
