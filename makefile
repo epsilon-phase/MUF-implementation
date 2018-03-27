@@ -1,11 +1,12 @@
 CC = gcc
-CFLAGS = -g
+CFLAGS = -g -MP -MD
 SOURCES=$(wildcard *.c)
-	OBJECTS=$(SOURCES:.c=.o)
+OBJECTS=$(SOURCES:.c=.o)
 EXEC=terp
 terp: $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDFLAGS) $(CFLAGS) -o $@
 
+-include $(SOURCES:.c=.d)
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
