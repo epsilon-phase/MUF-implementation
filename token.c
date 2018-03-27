@@ -230,3 +230,10 @@ void post_process_lexer(struct tokenlist* start){
     }
   }
 }
+void free_token(struct token *token){
+    if(!token)
+        return;
+    if(token->name)
+        free(token->name);
+    free(token);
+}

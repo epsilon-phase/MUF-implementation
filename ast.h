@@ -1,28 +1,13 @@
 #ifndef AST_H
 #include "token.h"
-struct ast_node;
-struct ast_if{
-    struct ast_node **success_body,
-                    **fail_body;
-    unsigned int success_count;
-    unsigned int fail_count;
-};
-struct ast_function{
-    struct ast_node **children;
-    const char* function_name;
-    unsigned int childcount;
-};
-struct ast_file{
-    struct ast_function **functions;
-    unsigned int count;
-};
 struct ast_node{
-    union{
-        struct ast_if *ifbody;
-        struct token *simple;
-        struct ast_function *func;
-        struct ast_file *file;
-    } body;
+    struct ast_node **children;
+    struct token **immediate;
+    int immediatecount;
+    int childcount;
     int type;
 };
+struct ast_node* create_ast_node();
+struct ast_node* parse_function(struct tokenlist *start);
+void free_ast_node(struct ast_node*);
 #endif
