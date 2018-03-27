@@ -237,3 +237,21 @@ void free_token(struct token *token){
         free(token->name);
     free(token);
 }
+struct token* create_token(){
+    struct token *result=malloc(sizeof(struct token));
+    result->type=0;
+    result->start=0;
+    result->end=0;
+    result->name=NULL;
+    return result;
+}
+struct token * copy_token(struct token *token){
+    struct token* result=create_token();
+    result->name=malloc(strlen(token->name));
+    strcpy(result->name,token->name);
+    result->type=token->type;
+    result->end=token->end;
+    result->start=token->start;
+    result->line=token->line;
+    return result;
+}

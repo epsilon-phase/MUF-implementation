@@ -29,4 +29,6 @@ void tokenlist_print(struct tokenlist *start);
 struct tokenlist *lexer(const char *token);
 void post_process_lexer(struct tokenlist *start);
 void free_token(struct token *token);
+struct token* create_token();
+struct token* copy_token(struct token *token);
 #endif
