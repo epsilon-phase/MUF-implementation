@@ -20,20 +20,29 @@ enum lexer_token {
   //This can't be inferred from the program's lexing pass, it must be taken into account
   //Post AST creation.
   LEXER_SVAR,
+  LEXER_TRY,
+  LEXER_CATCH,
+  LEXER_CATCH_DETAILED,
+  LEXER_ENDCATCH,
   LEXER_WORD,
   LEXER_INVALID,
   LEXER_NOTHING = -1
 };
 #define LEXER_LOOP_END(X) (X == LEXER_REPEAT || X == LEXER_UNTIL)
 #define LEXER_BLOCK_END(X)                                                     \
-  (X == LEXER_FUNC_END || X == LEXER_ELSE || X == LEXER_THEN||X==LEXER_UNTIL||X==LEXER_REPEAT)
+  (X == LEXER_FUNC_END || X == LEXER_ELSE || X == LEXER_THEN||X==LEXER_UNTIL||X==LEXER_REPEAT\
+   ||X==LEXER_CATCH||X==LEXER_CATCH_DETAILED||X==LEXER_ENDCATCH)
 #define LEXER_LOOP_START(X) (X == LEXER_FOR || X==LEXER_FOREACH || X==LEXER_BEGIN)
+#define LEXER_PRIMITIVE(X) (X==LEXER_INT||X==LEXER_DOUBLE||X==LEXER_STRING)
 struct token {
   unsigned int line;
   unsigned int start;
   unsigned int end;
   unsigned int type;
   char *name;
+#ifdef TOKEN_TROUBLES
+  short number;
+#endif
 };
 struct tokenlist {
   struct token *token;
@@ -48,4 +57,5 @@ void post_process_lexer(struct tokenlist *start);
 void free_token(struct token *token);
 struct token *create_token();
 struct token *copy_token(struct token *token);
+void number_tokenlist(struct tokenlist *tokenlist);
 #endif

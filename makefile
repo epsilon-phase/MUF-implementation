@@ -1,6 +1,10 @@
+ifndef CC
 CC = gcc
+endif
 CFLAGS = -g -MP -MD -Wall 
-#CFLAGS+=-fsanitize=leak -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined
+ifdef DEBUG
+CFLAGS+=-fsanitize=leak -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -O0
+endif
 SOURCES=$(wildcard *.c)
 OBJECTS=$(SOURCES:.c=.o)
 EXEC=terp

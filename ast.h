@@ -9,6 +9,7 @@ enum ast_node_type{
     ast_for,
     ast_foreach,
     ast_begin,
+    ast_try,
     ast_simple,
     ast_variable
 };
@@ -19,6 +20,7 @@ struct ast_node{
     int childcount;
     int type;
     unsigned char *ordering;
+    struct ast_node* parent;
 };
 struct ast_node* create_ast_node();
 struct ast_node* parse_file(struct tokenlist *start, struct tokenlist **end);
@@ -33,6 +35,7 @@ struct ast_node* parse_function(struct tokenlist *start,struct tokenlist **end);
 struct ast_node* parse_body(struct tokenlist* start,struct tokenlist**end);
 struct ast_node* parse_loop(struct tokenlist* start,struct tokenlist **end);
 struct ast_node* parse_if(struct tokenlist* start, struct tokenlist **end);
+struct ast_node* parse_try(struct tokenlist* start, struct tokenlist **end);
 void free_ast_node(struct ast_node*);
 int ast_add_token(struct ast_node* parent,struct token* token);
 struct ast_node* ast_simple_node_from_token(struct token *token);

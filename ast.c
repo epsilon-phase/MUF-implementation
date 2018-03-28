@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+void watcher(){}
 // Macro magic. Touchy shit.
 #define eprintf(args, ...) fprintf(stderr, args, ##__VA_ARGS__);
 #define print_token(TOK)                                                       \
@@ -16,6 +17,7 @@ struct ast_node *create_ast_node() {
   result->childcount = 0;
   result->tokencount = 0;
   result->ordering = NULL;
+  result->parent=NULL;
   result->type = -1;
   return result;
 }
@@ -29,6 +31,7 @@ void ast_add_child(struct ast_node *parent, struct ast_node *child) {
     parent->children = malloc(sizeof(struct ast_node *));
   }
   parent->children[parent->childcount] = child;
+  child->parent=parent;
   parent->childcount++;
   ast_record_order(parent, 1);
 }
@@ -51,7 +54,7 @@ void free_ast_node(struct ast_node *item) {
   free(item);
 }
 #define clean_up_and_null                                                      \
-  free_ast_node(result);                                                       \
+  watcher();free_ast_node(result);                                                       \
   return NULL
 struct ast_node *parse_file(struct tokenlist *start, struct tokenlist **end) {
   struct ast_node *result = create_ast_node();
@@ -59,18 +62,24 @@ struct ast_node *parse_file(struct tokenlist *start, struct tokenlist **end) {
   while (start&&start->token) {
     if (start->token->type == LEXER_FUNC_START) {
       struct ast_node *func = parse_function(start, &next);
-      if(!func){eprintf("Failed to parse function\n");}
+      if(!func){eprintf("Failed to parse function\n");
+        clean_up_and_null;
+      }
       ast_add_child(result, func);
       start=next;
     } else if (start->token->type == LEXER_LVAR ||
                start->token->type == LEXER_VAR) {
       struct ast_node *var = parse_variable(start, &next);
+      if(!var){
+          clean_up_and_null;
+      }
       ast_add_child(result, var);
       start=next;
     } else {
       eprintf(
           "Hmm... This isn't what I can recognize as a top level statement.\n");
       print_token(start->token);
+      clean_up_and_null;
       start = start->next;
     }
   }
@@ -95,9 +104,9 @@ struct ast_node *parse_variable(struct tokenlist *start,
   ast_add_token(result, start->token);
   start = start->next;
 
-  if (start->token->type != LEXER_WORD) {
+  if (!start||!start->token||start->token->type != LEXER_WORD) {
     eprintf("What... This isn't a valid variable name.\n");
-    print_token(start->token);
+    if(start&&start->token){print_token(start->token);}
     clean_up_and_null;
   }
 //  ast_add_simple_node_from_token(result, start->token);
@@ -109,23 +118,27 @@ struct ast_node *parse_variable(struct tokenlist *start,
 }
 struct ast_node *parse_function(struct tokenlist *start,
                                 struct tokenlist **end) {
+    eprintf("parse_function called\n");
   if (!start || !start->token)
     return NULL;
   struct tokenlist *current = start;
   struct ast_node *result = create_ast_node();
   if (current->token->type != LEXER_FUNC_START) {
+      eprintf("Failed to find function\n");
     // Not necessarily an error, but he isn't a function jim.
     clean_up_and_null;
-  }
-  ast_add_simple_node_from_token(result,current->token);
+  }else{eprintf("Found functino start\n");}
+  ast_add_token(result,current->token);
   current = current->next;
+  print_token(current->token);
+//  if(!current||!current->token)clean_up_and_null;
   if (ast_add_token(result, current->token)) {
     eprintf("Failure to add token(this occurred when collecting the function "
             "name)\n");
   }
   eprintf("Function Name: ");print_token(current->token);
   current = current->next;
-  if (current->next) {
+  if (current&&current->next) {
     struct tokenlist *next;
     struct ast_node *body = parse_body(current, &next);
     if (!body) {
@@ -157,51 +170,36 @@ struct ast_node *parse_function(struct tokenlist *start,
 struct ast_node *parse_body(struct tokenlist *start, struct tokenlist **end) {
   struct ast_node *result = create_ast_node();
   struct tokenlist *current = start;
+  struct tokenlist *last_incidence=NULL;
   eprintf("First token:");
   print_token(current->token);
-  while (current && current->next && current->next->token &&
-         /*current->next->token->type!=LEXER_FUNC_END
-         &&current->next->token->type!=LEXER_THEN
-         &&current->next->token->type!=LEXER_ELSE*/
-         !LEXER_BLOCK_END(current->next->token->type)) {
-    if (current->token->type == LEXER_VAR) {
-      struct tokenlist *next;
-      struct ast_node *potential_var = parse_variable(current, &next);
-      eprintf("Noticed Lexer var\n");
-      if (potential_var) {
-        ast_add_child(result, potential_var);
-        current = next;
-      }else{
-          eprintf("Something went wrong with the variable.\n");
-          clean_up_and_null;
-      }
-    }else if (current->token->type == LEXER_IF) {
-      struct tokenlist *next;
-      struct ast_node *ifbody = parse_if(current, &next);
-      if (!ifbody) {
-        eprintf("Error, if did not parse properly.\n");
-        clean_up_and_null;
-      }
-      ast_add_child(result, ifbody);
-      current = next;
-    }else if (LEXER_LOOP_START(current->token->type)) {
-      struct tokenlist *next;
-      struct ast_node *loop_body = parse_loop(current, &next);
-      if (!loop_body) {
-        eprintf("Error, loop did not parse properly.\n");
-        clean_up_and_null;
-      }
-      ast_add_child(result, loop_body);
-      current = next;
+  struct ast_node *child=NULL;
+  struct tokenlist *next=NULL;
+  while (current && current->next 
+          && current->next->token 
+         &&!LEXER_BLOCK_END(current->token->type)
+         /*&&!LEXER_BLOCK_END(current->next->token->type)*/) {
+    struct token* tok=current->token;
+    if(tok->type==LEXER_VAR){
+        child=parse_variable(current,&next);
+    }else if(tok->type==LEXER_IF){
+        child=parse_if(current,&next);
+    }else if(LEXER_LOOP_START(tok->type)){
+        child=parse_loop(current,&next);
+    }else if(LEXER_TRY==tok->type){
+        child=parse_try(current,&next);
     }else{
-//      print_token(current->token);
-      if(current->token->type!=LEXER_WORD
-         &&current->token->type!=LEXER_INT
-         &&current->token->type!=LEXER_STRING
-         &&current->token->type!=LEXER_DOUBLE)continue;
-      ast_add_simple_node_from_token(result, current->token);
-      if (current->next)
-        current = current->next;
+        if(LEXER_PRIMITIVE(tok->type)||tok->type==LEXER_WORD){
+            child=ast_simple_node_from_token(tok);
+            next=current->next;
+        }
+     }
+    if(child){
+        ast_add_child(result,child);
+        current=next;
+        child=NULL;
+    }else{
+        clean_up_and_null;
     }
   }
   if (!LEXER_BLOCK_END(current->token->type)) {
@@ -250,7 +248,7 @@ struct ast_node *parse_if(struct tokenlist *start, struct tokenlist **end) {
   if (start->token->type != LEXER_IF) {
     clean_up_and_null;
   }
-  ast_add_simple_node_from_token(result, start->token);
+  ast_add_token(result, start->token);
   struct ast_node *success_body = parse_body(start->next, &nextblock);
   if (success_body) {
     ast_add_child(result, success_body);
@@ -263,7 +261,7 @@ struct ast_node *parse_if(struct tokenlist *start, struct tokenlist **end) {
       eprintf("Failed to end if block. What a pity >.>\n");
       clean_up_and_null;
     } else {
-      ast_add_simple_node_from_token(result, nextblock->token);
+      ast_add_token(result, nextblock->token);
       struct ast_node *failbody = parse_body(nextblock->next, &nextblock);
       if (!failbody) {
         eprintf("Failed to parse body of else.\n");
@@ -277,12 +275,43 @@ struct ast_node *parse_if(struct tokenlist *start, struct tokenlist **end) {
     }
   }
   if (nextblock->token->type == LEXER_THEN) {
-    ast_add_simple_node_from_token(result, nextblock->token);
+    ast_add_token(result, nextblock->token);
     *end = nextblock->next;
   } else
     *end = nextblock;
   result->type = ast_if;
   return result;
+}
+struct ast_node *parse_try(struct tokenlist *start,struct tokenlist **end){
+    struct ast_node* result=create_ast_node();
+    ast_add_token(result,start->token);
+    struct ast_node *try_body=parse_body(start->next,&start);
+    if(!try_body){
+        eprintf("Try body failed to parse.\n");
+        clean_up_and_null;
+    }
+    ast_add_child(result,try_body);
+    if(start->token->type!=LEXER_CATCH&&start->token->type!=LEXER_CATCH_DETAILED){
+        eprintf("No catch or catch detailed found to end try block. Found ");
+        print_token(start->token);
+        eprintf(" instead");
+        clean_up_and_null;
+    }
+    ast_add_token(result,start->token);
+    struct ast_node *catch_body=parse_body(start->next,&start);
+    if(!catch_body){
+        eprintf("Failed to parse catch body\n");
+        clean_up_and_null;
+    }
+    ast_add_child(result,catch_body);
+    if(start->token->type!=LEXER_ENDCATCH){
+        eprintf("Unterminated catch block, found ");
+        print_token(start->token); eprintf(" instead.\n");
+        clean_up_and_null;
+    }
+    result->type=ast_try;
+    *end=start->next;
+    return result;
 }
 int ast_add_token(struct ast_node *parent, struct token *token) {
   if (!parent) {
@@ -368,7 +397,12 @@ void ast_node_type_to_string(char *stuffz, struct ast_node *node) {
   for (int j = 0; j < depth + 2; j++)                                          \
     printf(" ");
 void ast_inner_print(struct ast_node *node, int depth) {
+    if(!node){
+        printf("NULL: Sorry, it seems the parser didn't catch what you meant.\n");
+        return;
+    }
   char buffer[40];
+  memset(buffer,0,40);
   ast_node_type_to_string(buffer, node);
   indent int child_iter = 0;
   int token_iter = 0;
@@ -391,7 +425,9 @@ void ast_inner_print(struct ast_node *node, int depth) {
     i++;
   }
 }
-void ast_print(struct ast_node *node) { ast_inner_print(node, 0); }
+void ast_print(struct ast_node *node) { 
+    ast_inner_print(node, 0); 
+}
 void ast_record_order(struct ast_node *parent, unsigned char is_child) {
   if (parent->ordering) {
     unsigned char *tmp = malloc(parent->childcount + parent->tokencount);

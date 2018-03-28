@@ -6,6 +6,7 @@
 #include <string.h>
 #include "token.h"
 #include "ast.h"
+#include "options.h"
 /**
  *  Inst type Prototype(since the JIT doesn't make it easy to get a normal C
  *struct in there)
@@ -37,7 +38,25 @@
 #define MAX_STACK_DEPTH 32
 char *read_file(const char* file);
 int main(int argc, const char** args) {
-  const char* i = ": hello \"fun boy\" 123 ; \n : 5 5 5 ; : abcd if 2 then ; : ebcd ++ ;";
+    struct options* options=calloc(sizeof(struct options),1);
+    options->files=NULL;
+ for(int i=1;i<argc;i++){
+     if(args[i][0]!='-'){
+//         if(options->files)
+           options->files=realloc(options->files,sizeof(void*)*(options->filecount+1));
+//         else
+//             options->files=malloc(sizeof(char*));
+       options->files[options->filecount]=malloc(strlen(args[i])+1);
+       strcpy(options->files[options->filecount],args[i]);
+       options->filecount++;
+     }else if(!strcmp(args[i],"-tokens")){
+         options->print_tokens=1;
+     }else if(!strcmp(args[i],"-parse")){
+         options->print_ast=1;
+     }
+ }
+ if(options->filecount==0){
+    const char* i = ": hello \"fun boy\" 123 ; \n : 5 5 5 ; : abcd if 2 then ; : ebcd ++ ;";
   struct tokenlist* tokens = NULL;
   if((tokens=lexer(i))){
   tokenlist_print(tokens);
@@ -83,16 +102,37 @@ int main(int argc, const char** args) {
   ast_print(func);
   free_ast_node(func);
   free(buffer);
-
+ }
+ for(int i=0;i<options->filecount;i++){
+    
+     char* buffer=read_file(options->files[i]);
+     if(!buffer)continue;
+     struct tokenlist* tokens=lexer(buffer),*end;
+     if(tokens&&options->print_tokens)tokenlist_print(tokens);
+     struct ast_node* file=parse_file(tokens,&end);
+     if(file&&options->print_ast)ast_print(file);
+     free_ast_node(file);
+     tokenlist_free(tokens);
+     free(buffer);
+ }
+ for(int i=0;i<options->filecount;i++){
+     free(options->files[i]);
+ }
+ free(options->files);
+ free(options);
 }
 char *read_file(const char* fn){
     char *output;
-    FILE *f=fopen(fn,"rb");
+    FILE *f;
+    int seat_of_the_pants=0;
+        seat_of_the_pants=1;
+        f=fopen(fn,"rb");
     if(!f){fprintf(stderr,"Failed to open file %s",fn);}
     fseek(f,0,SEEK_END);
     long long fsize=ftell(f);
     fseek(f,0,SEEK_SET);
     output=malloc(sizeof(char)*(fsize+1));
+    memset(output,0,fsize+1);
     fread(output,sizeof(char),fsize,f);
     fclose(f);
     output[fsize]=0;
