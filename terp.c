@@ -53,4 +53,11 @@ int main(int argc, const char** args) {
   ast_print(func);
   free_ast_node(func);
   tokenlist_free(tokens);
+  const char* i3=": hello 1 15 1 for 1 + repeat ;";
+  if(tokens=lexer(i3)){
+      tokenlist_print(tokens);
+  }
+  func=parse_function(tokens,&func_end);
+  ast_print(func);
+  tokenlist_free(tokens);
 }

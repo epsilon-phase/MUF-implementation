@@ -9,12 +9,19 @@ enum lexer_token {
   LEXER_IF,
   LEXER_ELSE,
   LEXER_THEN,
+  LEXER_FOR,
+  LEXER_BEGIN,
+  LEXER_FOREACH,
+  LEXER_REPEAT,
+  LEXER_UNTIL,
   LEXER_WORD,
   LEXER_INVALID,
   LEXER_NOTHING = -1
 };
+#define LEXER_LOOP_END(X) (X == LEXER_REPEAT || X == LEXER_UNTIL)
 #define LEXER_BLOCK_END(X)                                                     \
-  (X == LEXER_FUNC_END || X == LEXER_ELSE || X == LEXER_THEN)
+  (X == LEXER_FUNC_END || X == LEXER_ELSE || X == LEXER_THEN||X==LEXER_UNTIL||X==LEXER_REPEAT)
+#define LEXER_LOOP_START(X) (X == LEXER_FOR || LEXER_FOREACH || LEXER_BEGIN)
 struct token {
   unsigned int line;
   unsigned int start;

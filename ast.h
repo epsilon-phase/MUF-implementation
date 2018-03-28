@@ -7,6 +7,7 @@ enum ast_node_type{
     ast_body,
     ast_if,
     ast_for,
+    ast_foreach,
     ast_begin,
     ast_simple
 };
@@ -27,6 +28,7 @@ struct ast_node* create_ast_node();
  */
 struct ast_node* parse_function(struct tokenlist *start,struct tokenlist **end);
 struct ast_node* parse_body(struct tokenlist* start,struct tokenlist**end);
+struct ast_node* parse_loop(struct tokenlist* start,struct tokenlist **end);
 struct ast_node* parse_if(struct tokenlist* start, struct tokenlist **end);
 void free_ast_node(struct ast_node*);
 int ast_add_token(struct ast_node* parent,struct token* token);
