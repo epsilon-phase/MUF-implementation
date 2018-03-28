@@ -21,7 +21,7 @@ enum lexer_token {
 #define LEXER_LOOP_END(X) (X == LEXER_REPEAT || X == LEXER_UNTIL)
 #define LEXER_BLOCK_END(X)                                                     \
   (X == LEXER_FUNC_END || X == LEXER_ELSE || X == LEXER_THEN||X==LEXER_UNTIL||X==LEXER_REPEAT)
-#define LEXER_LOOP_START(X) (X == LEXER_FOR || LEXER_FOREACH || LEXER_BEGIN)
+#define LEXER_LOOP_START(X) (X == LEXER_FOR || X==LEXER_FOREACH || X==LEXER_BEGIN)
 struct token {
   unsigned int line;
   unsigned int start;

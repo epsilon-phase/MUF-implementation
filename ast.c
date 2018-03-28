@@ -82,10 +82,12 @@ struct ast_node *parse_function(struct tokenlist *start,
     clean_up_and_null;
   } else if (current->token->type != LEXER_FUNC_END) {
     eprintf("Error, function not closed.\n");
+    eprintf("Found %s instead\n",current->token->name);
+    if(current->next)
+        eprintf("Next token was %s\n",current->next->token->name);
     clean_up_and_null;
   }
   if (current->next)
-    ;
   current = current->next;
   *end = current;
   result->type = ast_function;
@@ -117,6 +119,7 @@ struct ast_node *parse_body(struct tokenlist *start, struct tokenlist **end) {
         clean_up_and_null;
       }
       ast_add_child(result, loop_body);
+      current = next;
     } else {
       ast_add_simple_node_from_token(result, current->token);
     }
@@ -136,6 +139,7 @@ struct ast_node *parse_loop(struct tokenlist *start, struct tokenlist **end) {
   struct ast_node *result = create_ast_node();
   if (ast_add_simple_node_from_token(result, start->token)) {
     eprintf("Failed to add token to node, how odd.\n");
+    clean_up_and_null;
   }
   parse_body(start->next, &nextblock);
   if (!LEXER_LOOP_END(nextblock->token->type)) {

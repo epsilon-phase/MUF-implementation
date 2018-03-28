@@ -242,7 +242,7 @@ void post_process_lexer(struct tokenlist *start) {
       continue;
     }
     int i = 0;
-    while (current->name[i]) {
+    while (current->name[i]&&current->type==LEXER_WORD) {
       current->name[i] = tolower(current->name[i]);
       i++;
     }
