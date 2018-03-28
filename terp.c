@@ -35,7 +35,7 @@
 #define C_DOUBLE_T 2
 #define C_STRING_T 3
 #define MAX_STACK_DEPTH 32
-
+char *read_file(const char* file);
 int main(int argc, const char** args) {
   const char* i = ": hello \"fun boy\" 123 ; \n : 5 5 5 ; : abcd if 2 then ; : ebcd ++ ;";
   struct tokenlist* tokens = NULL;
@@ -51,8 +51,8 @@ int main(int argc, const char** args) {
   struct tokenlist *func_end;
   struct ast_node* func=parse_function(tokens,&func_end);
   ast_print(func);
-  free_ast_node(func);
   tokenlist_free(tokens);
+  free_ast_node(func);
   const char* i3=": hello 1 15 1 for 1 + repeat ;";
   if(tokens=lexer(i3)){
       tokenlist_print(tokens);
@@ -60,4 +60,42 @@ int main(int argc, const char** args) {
   func=parse_function(tokens,&func_end);
   ast_print(func);
   tokenlist_free(tokens);
+  free_ast_node(func);
+  if(tokens=lexer(": eee var e3 e3 @ var pec ;")){
+      tokenlist_print(tokens);
+  }
+  func=parse_function(tokens,&func_end);
+  tokenlist_free(tokens);
+  ast_print(func);
+  free_ast_node(func);
+  printf("Attempting to parse file: bigger_test.muf\n");
+  char* buffer=read_file("bigger_test.muf");
+  printf("Read:\n");
+  tokens=NULL;
+  if(tokens=lexer(buffer)){
+      tokenlist_print(tokens);
+  }else{ fprintf(stderr,"Tokenizing bigger_test.muf failed :(\n");}
+  func=parse_file(tokens,&func_end);
+  if(!func){
+      fprintf(stderr,"Whoa, that failed >.<\n");
+  }
+  tokenlist_free(tokens);
+  ast_print(func);
+  free_ast_node(func);
+  free(buffer);
+
+}
+char *read_file(const char* fn){
+    char *output;
+    FILE *f=fopen(fn,"rb");
+    if(!f){fprintf(stderr,"Failed to open file %s",fn);}
+    fseek(f,0,SEEK_END);
+    long long fsize=ftell(f);
+    fseek(f,0,SEEK_SET);
+    output=malloc(sizeof(char)*(fsize+1));
+    fread(output,sizeof(char),fsize,f);
+    fclose(f);
+    output[fsize]=0;
+    printf("File of %d bytes read.\n",fsize);
+    return output;
 }

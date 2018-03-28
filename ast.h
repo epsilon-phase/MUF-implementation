@@ -9,17 +9,20 @@ enum ast_node_type{
     ast_for,
     ast_foreach,
     ast_begin,
-    ast_simple
+    ast_simple,
+    ast_variable
 };
 struct ast_node{
     struct ast_node **children;
-    struct token **immediate;
-    int immediatecount;
+    struct token **tokens;
+    int tokencount;
     int childcount;
     int type;
     unsigned char *ordering;
 };
 struct ast_node* create_ast_node();
+struct ast_node* parse_file(struct tokenlist *start, struct tokenlist **end);
+struct ast_node* parse_variable(struct tokenlist *start,struct tokenlist **end);
 /**
  * Attempt to parse a function. Places the last position in the token list in the end
  * parameter.

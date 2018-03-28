@@ -1,5 +1,6 @@
 #ifndef TOKEN_H
 #define TOKEN_H
+#include <stdio.h>
 enum lexer_token {
   LEXER_INT,
   LEXER_DOUBLE,
@@ -14,6 +15,11 @@ enum lexer_token {
   LEXER_FOREACH,
   LEXER_REPEAT,
   LEXER_UNTIL,
+  LEXER_VAR,
+  LEXER_LVAR,
+  //This can't be inferred from the program's lexing pass, it must be taken into account
+  //Post AST creation.
+  LEXER_SVAR,
   LEXER_WORD,
   LEXER_INVALID,
   LEXER_NOTHING = -1
@@ -33,6 +39,8 @@ struct tokenlist {
   struct token *token;
   struct tokenlist *next;
 };
+void print_token_name(FILE*,struct token* t);
+struct tokenlist *create_tokenlist();
 void tokenlist_free(struct tokenlist *start);
 void tokenlist_print(struct tokenlist *start);
 struct tokenlist *lexer(const char *token);

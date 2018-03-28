@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+struct tokenlist *create_tokenlist(){
+    struct tokenlist* result=malloc(sizeof(struct tokenlist));
+    result->token=NULL;
+    result->next=NULL;
+    return result;
+}
 // return the end of the match, -1 for not a word
 int glob_word(const char *input, int start) {
   int end = start;
@@ -51,19 +57,19 @@ int glob_float(const char *input, int start) {
   return isspace(input[end]) ? end - 1 : -1;
 }
 struct tokenlist *lexer(const char *input) {
-  struct tokenlist *start = malloc(sizeof(struct tokenlist));
+  struct tokenlist *start =create_tokenlist() ;
   struct tokenlist *current_tok = start;
   size_t current_position = 0;
   char buffer[64];
   memset(buffer, 0, 64);
   int bufferpos = 0;
-  int curstart = 0;
+  int curstart = 0,cur_offset=0;
   int line = 0;
   int offset = 0;
-  int current_guess;
+  int current_guess=-1;
   int instring = 0;
   int escaping = false;
-  char curchar;
+  char curchar=1;
   while ((curchar = input[current_position]) != 0) {
     if (isspace(curchar) && !instring && current_guess != LEXER_NOTHING) {
       if (current_guess != -1) {
@@ -74,11 +80,11 @@ struct tokenlist *lexer(const char *input) {
         thistoken->type = current_guess;
         thistoken->line = line;
         thistoken->end = offset;
-        thistoken->start = curstart;
+        thistoken->start = cur_offset;
         memset(buffer, 0, bufferpos);
         bufferpos = 0;
         current_tok->token = thistoken;
-        current_tok->next = malloc(sizeof(struct tokenlist));
+        current_tok->next = create_tokenlist();
         current_tok = current_tok->next;
         current_tok->next = NULL;
       }
@@ -118,6 +124,7 @@ struct tokenlist *lexer(const char *input) {
       } else {
         int globbed;
         curstart = current_position;
+        cur_offset=offset;
         globbed = glob_integer(input, current_position);
         if (globbed != -1) {
           current_guess = LEXER_INT;
@@ -167,55 +174,111 @@ struct tokenlist *lexer(const char *input) {
   post_process_lexer(start);
   return start;
 }
-void tokenlist_print(struct tokenlist *start) {
-  while (start != NULL && start->token != NULL) {
-    switch (start->token->type) {
+void print_token_name(FILE *f,struct token* t){
+    switch (t->type) {
     case LEXER_INT:
-      printf("INTEGER:");
+      fprintf(f,"INTEGER:");
       break;
     case LEXER_DOUBLE:
-      printf("DOUBLE:");
+      fprintf(f,"DOUBLE:");
       break;
     case LEXER_STRING:
-      printf("STRING:");
+      fprintf(f,"STRING:");
       break;
     case LEXER_WORD:
-      printf("WORD:");
+      fprintf(f,"WORD:");
       break;
     case LEXER_FUNC_START:
-      printf("FUNC_START:");
+      fprintf(f,"FUNC_START:");
       break;
     case LEXER_FUNC_END:
-      printf("FUNC_END:");
+      fprintf(f,"FUNC_END:");
       break;
     case LEXER_IF:
-      printf("IF:");
+      fprintf(f,"IF:");
       break;
     case LEXER_ELSE:
-      printf("ELSE:");
+      fprintf(f,"ELSE:");
       break;
     case LEXER_THEN:
-      printf("THEN:");
+      fprintf(f,"THEN:");
       break;
     case LEXER_FOR:
-      printf("FOR:");
+      fprintf(f,"FOR:");
       break;
     case LEXER_FOREACH:
-      printf("FOREACH:");
+      fprintf(f,"FOREACH:");
       break;
     case LEXER_BEGIN:
-      printf("BEGIN");
+      fprintf(f,"BEGIN");
       break;
     case LEXER_REPEAT:
-      printf("REPEAT:");
+      fprintf(f,"REPEAT:");
       break;
     case LEXER_UNTIL:
-      printf("UNTIL:");
+      fprintf(f,"UNTIL:");
+      break;
+    case LEXER_VAR:
+      fprintf(f,"VARIABLE:");
+      break;
+    case LEXER_LVAR:
+      fprintf(f,"LVARIABLE:");
       break;
     default:
-      printf("UNKNOWN:");
+      fprintf(f,"UNKNOWN:");
       break;
     }
+}
+void tokenlist_print(struct tokenlist *start) {
+  while (start != NULL && start->token != NULL) {
+      print_token_name(stdout,start->token);
+//    switch (start->token->type) {
+//    case LEXER_INT:
+//      printf("INTEGER:");
+//      break;
+//    case LEXER_DOUBLE:
+//      printf("DOUBLE:");
+//      break;
+//    case LEXER_STRING:
+//      printf("STRING:");
+//      break;
+//    case LEXER_WORD:
+//      printf("WORD:");
+//      break;
+//    case LEXER_FUNC_START:
+//      printf("FUNC_START:");
+//      break;
+//    case LEXER_FUNC_END:
+//      printf("FUNC_END:");
+//      break;
+//    case LEXER_IF:
+//      printf("IF:");
+//      break;
+//    case LEXER_ELSE:
+//      printf("ELSE:");
+//      break;
+//    case LEXER_THEN:
+//      printf("THEN:");
+//      break;
+//    case LEXER_FOR:
+//      printf("FOR:");
+//      break;
+//    case LEXER_FOREACH:
+//      printf("FOREACH:");
+//      break;
+//    case LEXER_BEGIN:
+//      printf("BEGIN");
+//      break;
+//    case LEXER_REPEAT:
+//      printf("REPEAT:");
+//      break;
+//    case LEXER_UNTIL:
+//      printf("UNTIL:");
+//      break;
+//    default:
+//      printf("UNKNOWN:");
+//      break;
+//    }
     printf(" %s (%d,%d)\n", start->token->name, start->token->start,
            start->token->line);
     start = start->next;
@@ -262,6 +325,12 @@ void post_process_lexer(struct tokenlist *start) {
       current->type = LEXER_REPEAT;
     } else if (!strcmp(current->name, "until")) {
       current->type = LEXER_UNTIL;
+    }else if(!strcmp(current->name,"var")
+            ||!strcmp(current->name,"variable")
+            ||!strcmp(current->name,"var!")){
+        current->type=LEXER_VAR;
+    }else if(!strcmp(current->name,"lvar")){
+        current->type=LEXER_LVAR;
     }
   }
 }
