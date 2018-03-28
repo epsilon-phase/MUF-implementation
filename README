@@ -1,0 +1,9 @@
+# Purpose
+
+This is the start of a project to create a JIT compiler for MUF.
+
+This will use libgccjit.
+
+With any luck, it will end up producing code suitable for inclusion in ProtoMUCK or a derivative thereof, or a proof of concept which will prove its viability.
+
+(C) 2018 Hexaferrum
