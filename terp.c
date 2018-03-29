@@ -122,12 +122,14 @@ int main(int argc, const char** args) {
  free(options);
 }
 char *read_file(const char* fn){
-    char *output;
+    char *output=NULL;;
     FILE *f;
     int seat_of_the_pants=0;
         seat_of_the_pants=1;
         f=fopen(fn,"rb");
-    if(!f){fprintf(stderr,"Failed to open file %s",fn);}
+    if(!f){
+        fprintf(stderr,"Failed to open file %s",fn);
+    }else{
     fseek(f,0,SEEK_END);
     long long fsize=ftell(f);
     fseek(f,0,SEEK_SET);
@@ -137,5 +139,6 @@ char *read_file(const char* fn){
     fclose(f);
     output[fsize]=0;
     printf("File of %d bytes read.\n",fsize);
+    }
     return output;
 }
