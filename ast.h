@@ -41,4 +41,5 @@ int ast_add_token(struct ast_node* parent,struct token* token);
 struct ast_node* ast_simple_node_from_token(struct token *token);
 int ast_add_simple_node_from_token(struct ast_node* parent,struct token *token);
 void ast_print(struct ast_node* node);
+int fix_ast(struct ast_node* root);
 #endif

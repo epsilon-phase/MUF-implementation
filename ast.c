@@ -441,3 +441,42 @@ void ast_record_order(struct ast_node *parent, unsigned char is_child) {
   }
   parent->ordering[parent->childcount + parent->tokencount - 1] = is_child;
 }
+void print_first_ast_location(struct ast_node* loc){
+    if(loc&&loc->childcount+loc->tokencount){
+        if(loc->ordering[0]){
+            print_first_ast_location(loc->children[0]);
+        }else{
+            eprintf(" at location beginning with %d,%d\n",loc->tokens[0]->line,loc->tokens[0]->start);
+        }
+
+    }
+}
+        
+int inner_fix_ast(struct ast_node *root,
+        int infunction){
+    if(!root){return 0;}
+    int child_retval=0;
+    for(int i=0;i<root->childcount;i++){
+        if(root->type==ast_function)
+            child_retval=inner_fix_ast(root->children[i],1);
+        else
+            child_retval=inner_fix_ast(root->children[i],infunction);
+        if(child_retval){
+            print_first_ast_location(root);
+            return child_retval;
+        }
+    }
+    for(int i=0;i<root->tokencount;i++){
+        if(root->tokens[i]->type==LEXER_VAR){
+            root->tokens[i]->type=infunction?LEXER_SVAR:LEXER_VAR;
+        }
+        if(root->tokens[i]->type==LEXER_LVAR && infunction){
+            eprintf("LVars are not supposed to be declared inside a function\n");
+            return -1;
+        }
+    }
+    return 0;
+}
+int fix_ast(struct ast_node *root){
+    return inner_fix_ast(root,0);
+}
