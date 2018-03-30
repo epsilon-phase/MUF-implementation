@@ -93,4 +93,8 @@ struct instruction_pointer{
 struct scope_vars{
 
 };
+struct variable{
+};
+struct program* compile_program(struct tokenlist* tl);
+struct instruction* allocate_instruction();
 #endif
