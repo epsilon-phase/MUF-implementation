@@ -2,99 +2,111 @@
 #define INTERPRETER_H
 #include "token.h"
 #include "ast.h"
-#define MAX_CALL_STACK 1000
-#define MAX_DATA_STACK 1000
-#define MAX_VARIABLES 100
-struct program;
-struct stack_cell;
-struct instruction;
-struct instruction_pointer;
-struct scope_vars;
-struct variables;
-struct lvariables;
-struct function;
-struct frame{
-    size_t stack_depth;
-    size_t call_stack_depth;
-    size_t variable_count;
-    struct instruction_pointer *callstack[MAX_CALL_STACK];
-    struct scope_vars *scope_stack[MAX_CALL_STACK];
+#ifndef MAX_VAR_COUNT
+#define MAX_VAR_COUNT 32
+#endif
+#ifndef MAX_LVAR_COUNT
+#define MAX_LVAR_COUNT 32
+#endif
+struct word{
+  size_t position;
+  const char* name;
 };
-
-struct program{
-    struct instruction *bytecode;
-    size_t bytecode_length;
-    struct function *functions;
-    size_t function_address;
-    struct variables *gvars;
-    size_t gvar_count;
-    struct lvariables *lvars;
-    size_t lvar_count;
+struct stack_cell;
+struct variable{
+  struct stack_cell *contents;
 };
 struct stack_cell{
-    enum {
-        int_cell,
-        string_cell,
-        float_cell,
-        svar_cell,
-        lvar_cell,
-        address_cell,
-        mark,
-        array_cell
-    }cell_type;
-    union{
-        int number;
-        double fnumber;
-        const char *string;
-        struct stack_cell *scope_variable;
-        struct instruction_pointer* address;
-    }data;
+  enum{
+    t_int,
+    t_float,
+    t_string,
+    t_address,
+    t_var,
+    t_svar,
+    t_lvar,
+    t_lock,
+    t_dbref,
+    t_array
+  } type;
+  union{
+    int number;
+    double fnumber;
+    const char* str;
+    size_t address;
+    struct variable* var;
+  } data;
 };
 struct instruction{
-    enum{
-        push_primitive,
-        jmp_if,
-        jmp,
-        pop,
-        popn,
-        dup,
-        dupn,
-        intostr,
-        m_atoi,
-        stof,
-        stod,
-        cmp_gt,
-        cmp_ge,
-        cmp_lt,
-        cmp_le,
-        cmp_eq,
-        cmp_strcmp,
-        cmp_instr,
-        m_tolower,
-        m_toupper,
-        explode,
-        reverse,
-        rotate,
-        pick,
-        over,
-        tuck,
-        dereference,
-        assign
-    }type;
-    union{
-        size_t jmp_offset;
-        struct stack_cell* cell;
-    } data;
+  enum
+  {
+    i_push_primitive,
+    i_pop,
+    i_popn,
+    i_dup,
+    i_dupn,
+    i_plus,
+    i_minus,
+    i_divide,
+    i_multiplty,
+    i_increment,
+    i_jmp,
+    i_jmp_if,
+    i_strcat,
+    i_strlen,
+    i_smatch,
+    i_strcmp,
+    i_equal,
+    i_gt,
+    i_lt,
+    i_gte,
+    i_lte,
+    i_not_equal,
+    i_not,
+    i_and,
+    i_or,
+    i_rot,
+    i_rotn,
+    i_over,
+    i_nip,
+    i_swap,
+    i_exit,
+    i_abort,
+    i_explode,
+    i_reverse,
+    i_split,
+    i_rsplit,
+    i_call,
+    i_foriter,
+    i_break,
+    i_continue
+  } type;
+  union{
+    size_t address;
+    struct stack_cell* information;
+  } data;
 };
-struct instruction_pointer{
-    struct program* exec_context;
-    size_t position;
+struct program{
+  struct word **words;
+  size_t word_count;
+  struct variable vars[MAX_VAR_COUNT];
+  struct variable lvars[MAX_LVAR_COUNT];
+  struct instruction *bytecode;
+  size_t bytecode_size;
+  size_t bytecode_capacity;
 };
-struct scope_vars{
-
+struct for_vars{
+  int start,end,step;
 };
-struct variable{
+#define stack_type_def(T,A_Name) T *A_Name##stack;\
+  size_t A_Name##_size;\
+  size_t A_Name##_capacity;
+struct frame{
+  stack_type_def(struct for_vars,for_);
+  stack_type_def(size_t,call_);
+  struct program* program;
+  struct stack_cell* stack;
+  size_t stack_count;
+  size_t stack_capacity;
 };
-struct program* compile_program(struct tokenlist* tl);
-struct instruction* allocate_instruction();
 #endif

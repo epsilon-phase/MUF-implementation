@@ -1,7 +1,7 @@
 ifndef CC
 CC = gcc
 endif
-CFLAGS = -g -MP -MD -Wall 
+CFLAGS = -g -MP -MD -Wall -Wextra
 ifdef DEBUG
 CFLAGS+=-fsanitize=leak -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -O0
 endif
