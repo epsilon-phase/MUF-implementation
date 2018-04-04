@@ -79,7 +79,8 @@ struct instruction{
     i_call,
     i_foriter,
     i_break,
-    i_continue
+    i_continue,
+    i_notify
   } type;
   union{
     size_t address;

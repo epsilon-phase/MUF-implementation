@@ -58,4 +58,5 @@ void free_token(struct token *token);
 struct token *create_token();
 struct token *copy_token(struct token *token);
 void number_tokenlist(struct tokenlist *tokenlist);
+void insert_token(struct tokenlist *tl,struct token *t);
 #endif

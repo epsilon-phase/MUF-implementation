@@ -1,0 +1,13 @@
+root = true
+
+[*]
+end_of_line=lf
+insert_final_newline=true
+
+[*.{c,h}]
+indent_style=space
+indend_size=2
+
+[{m,M}akefile]
+indent_style = tab
+

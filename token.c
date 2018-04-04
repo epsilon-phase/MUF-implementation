@@ -418,4 +418,11 @@ void number_tokenlist(struct tokenlist *tokenlist) {
     tokenlist = tokenlist->next;
   }
 }
+void insert_token(struct tokenlist *tl,struct token *t){
+    if(!tl)return;
+    struct token* tmp=tl->next;
+    tl->next=create_tokenlist();
+    tl->next->token=t;
+    tl->next->next=tmp;
+}
 #endif
