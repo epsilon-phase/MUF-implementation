@@ -56,7 +56,9 @@ struct tokenlist *lexer(const char *token);
 void post_process_lexer(struct tokenlist *start);
 void free_token(struct token *token);
 struct token *create_token();
+struct token *create_populated_token(const char*name, unsigned int type);
 struct token *copy_token(struct token *token);
 void number_tokenlist(struct tokenlist *tokenlist);
 void insert_token(struct tokenlist *tl,struct token *t);
+void append_token(struct tokenlist* tl,struct token*);
 #endif

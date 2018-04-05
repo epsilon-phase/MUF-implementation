@@ -1,4 +1,5 @@
 #ifndef AST_H
+#define AST_H
 #include "token.h"
 enum ast_node_type{
     ast_none=-1,

@@ -27,7 +27,8 @@ struct stack_cell{
     t_lvar,
     t_lock,
     t_dbref,
-    t_array
+    t_array,
+    t_invalid
   } type;
   union{
     int number;
@@ -52,6 +53,7 @@ struct instruction{
     i_increment,
     i_jmp,
     i_jmp_if,
+    i_jmp_not_if,
     i_strcat,
     i_strlen,
     i_smatch,
@@ -78,6 +80,7 @@ struct instruction{
     i_rsplit,
     i_call,
     i_foriter,
+    i_forpush,
     i_break,
     i_continue,
     i_notify
@@ -110,4 +113,12 @@ struct frame{
   size_t stack_count;
   size_t stack_capacity;
 };
+struct program* build(struct tokenlist* tl);
+struct instruction simple_instruction_from_type(int t);
+struct stack_cell *stack_ptr_from_rval(struct stack_cell n);
+struct stack_cell create_prim_int(int);
+struct stack_cell create_prim_double(double);
+struct stack_cell create_prim_string(const char*);
+struct variable* create_variable(const char* name);
+
 #endif

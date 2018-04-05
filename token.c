@@ -418,11 +418,24 @@ void number_tokenlist(struct tokenlist *tokenlist) {
     tokenlist = tokenlist->next;
   }
 }
+#endif
 void insert_token(struct tokenlist *tl,struct token *t){
     if(!tl)return;
-    struct token* tmp=tl->next;
+    struct tokenlist* tmp=tl->next;
     tl->next=create_tokenlist();
     tl->next->token=t;
     tl->next->next=tmp;
 }
-#endif
+void append_token(struct tokenlist* tl,struct token* t){
+  while(tl&&tl->next){
+    tl=tl->next;
+  }
+  tl->next=create_tokenlist();
+  tl->next->token=t;
+}
+struct token *create_populated_token(const char*name, unsigned int type){
+  struct token *t=create_token();
+  t->type=type;
+  t->name=strdup(name);
+  return t;
+}

@@ -7,6 +7,7 @@
 #include "token.h"
 #include "ast.h"
 #include "options.h"
+#include "interpreter.h"
 /**
  *  Inst type Prototype(since the JIT doesn't make it easy to get a normal C
  *struct in there)
@@ -54,7 +55,7 @@ int main(int argc, const char** args) {
      }else if(!strcmp(args[i],"-parse")){
          options->print_ast=1;
      }
- }
+ }/*
  if(options->filecount==0){
     const char* i = ": hello \"fun boy\" 123 ; \n : 5 5 5 ; : abcd if 2 then ; : ebcd ++ ;";
   struct tokenlist* tokens = NULL;
@@ -114,12 +115,16 @@ int main(int argc, const char** args) {
      free_ast_node(file);
      tokenlist_free(tokens);
      free(buffer);
- }
+ }*/
  for(int i=0;i<options->filecount;i++){
      free(options->files[i]);
  }
  free(options->files);
  free(options);
+ struct tokenlist *test=create_tokenlist();
+ test->token=create_populated_token("dup",LEXER_WORD);
+ append_token(test,create_populated_token("pop",LEXER_WORD));
+ struct program* prog=build(test);
 }
 char *read_file(const char* fn){
     char *output=NULL;;
