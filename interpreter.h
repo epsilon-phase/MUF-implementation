@@ -33,61 +33,63 @@ struct stack_cell{
   union{
     int number;
     double fnumber;
-    const char* str;
+    char* str;
     size_t address;
     struct variable* var;
   } data;
 };
+enum instruction_opcode{
+  i_push_primitive,
+  i_pop,
+  i_popn,
+  i_dup,
+  i_dupn,
+  i_plus,
+  i_minus,
+  i_divide,
+  i_multiply,
+  i_increment,
+  i_jmp,
+  i_jmp_if,
+  i_jmp_not_if,
+  i_strcat,
+  i_strlen,
+  i_smatch,
+  i_strcmp,
+  i_equal,
+  i_gt,
+  i_lt,
+  i_gte,
+  i_lte,
+  i_not_equal,
+  i_not,
+  i_and,
+  i_or,
+  i_rot,
+  i_rotn,
+  i_over,
+  i_nip,
+  i_swap,
+  i_exit,
+  i_abort,
+  i_explode,
+  i_reverse,
+  i_split,
+  i_rsplit,
+  i_call,
+  i_foriter,
+  i_forpush,
+  i_break,
+  i_continue,
+  i_notify,
+  i_read,
+  i_intostr
+};
 struct instruction{
-  enum
-  {
-    i_push_primitive,
-    i_pop,
-    i_popn,
-    i_dup,
-    i_dupn,
-    i_plus,
-    i_minus,
-    i_divide,
-    i_multiplty,
-    i_increment,
-    i_jmp,
-    i_jmp_if,
-    i_jmp_not_if,
-    i_strcat,
-    i_strlen,
-    i_smatch,
-    i_strcmp,
-    i_equal,
-    i_gt,
-    i_lt,
-    i_gte,
-    i_lte,
-    i_not_equal,
-    i_not,
-    i_and,
-    i_or,
-    i_rot,
-    i_rotn,
-    i_over,
-    i_nip,
-    i_swap,
-    i_exit,
-    i_abort,
-    i_explode,
-    i_reverse,
-    i_split,
-    i_rsplit,
-    i_call,
-    i_foriter,
-    i_forpush,
-    i_break,
-    i_continue,
-    i_notify
-  } type;
+  char type;
   union{
     size_t address;
-    struct stack_cell* information;
+    struct stack_cell information;
   } data;
 };
 struct program{
@@ -114,11 +116,13 @@ struct frame{
   size_t stack_capacity;
 };
 struct program* build(struct tokenlist* tl);
+void print_bytecode(struct program* p);
 struct instruction simple_instruction_from_type(int t);
 struct stack_cell *stack_ptr_from_rval(struct stack_cell n);
 struct stack_cell create_prim_int(int);
 struct stack_cell create_prim_double(double);
 struct stack_cell create_prim_string(const char*);
 struct variable* create_variable(const char* name);
+void free_program(struct program** p);
 
 #endif

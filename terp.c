@@ -121,10 +121,21 @@ int main(int argc, const char** args) {
  }
  free(options->files);
  free(options);
- struct tokenlist *test=create_tokenlist();
- test->token=create_populated_token("dup",LEXER_WORD);
- append_token(test,create_populated_token("pop",LEXER_WORD));
+ //struct tokenlist *test=create_tokenlist();
+ //test->token=create_populated_token("dup",LEXER_WORD);
+ //append_token(test,create_populated_token("pop",LEXER_WORD));
+ struct tokenlist *test=lexer("1 if 2 else 4 then dup");
  struct program* prog=build(test);
+ printf("bytecode opcode size: %zd\n",sizeof(struct instruction));
+ print_bytecode(prog);
+ tokenlist_free(test);
+ test=lexer("1 2 * if 3 3 + 4 > if 2 then 5 / then +");
+ tokenlist_print(test);
+ free_program(&prog);
+ prog=build(test);
+ print_bytecode(prog);
+ tokenlist_free(test);
+ free_program(&prog);
 }
 char *read_file(const char* fn){
     char *output=NULL;;
@@ -143,7 +154,7 @@ char *read_file(const char* fn){
     fread(output,sizeof(char),fsize,f);
     fclose(f);
     output[fsize]=0;
-    printf("File of %d bytes read.\n",fsize);
+    printf("File of %lld bytes read.\n",fsize);
     }
     return output;
 }

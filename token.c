@@ -112,11 +112,15 @@ struct tokenlist *lexer(const char *input) {
           buffer[bufferpos++] = '\t';
           break;
         }
+        escaping=false;
       } else { // Not escaping the next character;
         if (curchar == '"') {
           instring = false;
-        } else
+        }else if(curchar=='\\'){
+          escaping=true;
+        } else{
           buffer[bufferpos++] = curchar;
+        }
       }
     } else {
       if (curchar == '"') {
@@ -311,8 +315,8 @@ void tokenlist_print(struct tokenlist *start) {
     //      printf("UNKNOWN:");
     //      break;
     //    }
-    printf(" %s (%d,%d)\n", start->token->name, start->token->start,
-           start->token->line);
+    printf(" %s (%d,%d)\n", start->token->name, start->token->line,
+           start->token->start);
     start = start->next;
   }
 }

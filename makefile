@@ -4,6 +4,7 @@ endif
 CFLAGS = -g -MP -MD -Wall -Wextra
 ifdef DEBUG
 CFLAGS+=-fsanitize=leak -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -O0
+LDFLAGS+=-lasan
 endif
 SOURCES=$(wildcard *.c)
 OBJECTS=$(SOURCES:.c=.o)
