@@ -288,13 +288,16 @@ void print_stack_cell(struct stack_cell* sc){
   switch(sc->type){
     case t_int:
     case t_dbref:
-      printf("%i",sc->data.number);
+      printf("INT:%i",sc->data.number);
       break;
     case t_float:
-      printf("%f",sc->data.fnumber);
+      printf("FLOAT:%f",sc->data.fnumber);
       break;
     case t_string:
-      printf("%s",sc->data.str);
+      printf("STRING:%s",sc->data.str);
+      break;
+    default:
+      printf("OTHER");
       break;
   }
 }
@@ -341,7 +344,7 @@ void free_block_stack(struct block_stack* s){
   free(s->stuff);
   free(s);
 }
-void print_bytecode(struct program* p){
+const char* obtain_bytecode_name(char t){
   const char *inames[]={
     "i_push_primitive",
     "i_pop",
@@ -390,14 +393,17 @@ void print_bytecode(struct program* p){
     "i_read",
     "i_intostr"
   };
+  return inames[t];
+}
+void print_bytecode(struct program* p){
   int max_opcode_name=0;
   for(int i=0;i<=i_intostr;i++){
-    max_opcode_name=strlen(inames[i])>max_opcode_name?strlen(inames[i]):max_opcode_name;
+    max_opcode_name=strlen(obtain_bytecode_name(i))>max_opcode_name?strlen(obtain_bytecode_name(i)):max_opcode_name;
   }
   printf("Address |%*s| argument\n",max_opcode_name,"Opcode");
   for(size_t i=0;i<p->bytecode_size;i++){
     struct instruction *current=&p->bytecode[i];
-    printf("%-8zi|%-*s|",i,max_opcode_name,inames[current->type]);
+    printf("%-8zi|%-*s|",i,max_opcode_name,obtain_bytecode_name(current->type));
     if(current->type==i_push_primitive){
       switch(current->data.information.type){
         case t_string:

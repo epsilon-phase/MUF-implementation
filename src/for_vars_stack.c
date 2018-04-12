@@ -12,8 +12,8 @@ struct stack_cell iter_for_vars_stack(struct for_vars_stack* st){
   int start=r->start,
       end=r->end,
       step=r->step;
-  struct stack_cell result;
-  if((start<end&&step>0)||(start>end&&step<0)){
+  struct stack_cell result;printf("FOR %i <= %i, (%i)",start,end,step);
+  if((start<=end&&step>0)||(start>=end&&step<0)){
     result.type=t_int;
     result.data.number=start;
     r->start+=step;

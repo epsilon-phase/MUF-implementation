@@ -190,7 +190,7 @@ PRIM_SIG(p_for_push){
   struct for_vars r;
   r.start=start.data.number;
   r.end=end.data.number;
-  r.step=end.data.number;
+  r.step=step.data.number;
   push_for_vars_stack(frame->fstack,r);
   free_stack_cell(step);
   free_stack_cell(end);
@@ -218,7 +218,7 @@ PRIM_SIG(p_foriter){
   if(r.type!=t_invalid){
     push_data_stack(frame->stack,r);
   }else{
-    frame->instr_pointer=frame->program->bytecode[frame->instr_pointer].data.address-1;
+    frame->instr_pointer=frame->program->bytecode[frame->instr_pointer].data.address;
   }
 }
 PRIM_SIG(p_gt){

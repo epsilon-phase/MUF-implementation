@@ -17,13 +17,26 @@ struct frame create_frame(struct program* prog,const char* arguments,struct fram
   return result;
 }
 void execute_program(struct frame* frame){
+  int counter=0;
   while(frame->instr_pointer<frame->program->bytecode_size){
-    printf("Instruction at address %zi ",frame->instr_pointer);
+    if(counter!=0&&counter%40==0){
+      printf("\x1b[J");
+    }
+    printf("Instruction [%s]  at address %zi ",
+           obtain_bytecode_name(frame->program->bytecode[frame->instr_pointer].type),
+            frame->instr_pointer);
     for(int i=0;i<frame->stack->size;i++){
       print_stack_cell(&frame->stack->stack[i]);
       printf(",");
     }
-    printf("\r");
+    if(counter%40>0&&counter%20==0){
+      printf("\x1b[20A\x1b[50G");
+    }
+    if(counter%40<20){
+      printf("\n");
+    }else{
+      printf("\x1b[50G\x1b[B");
+    }
     switch(frame->program->bytecode[frame->instr_pointer].type){
       case i_jmp:
         p_jmp(frame);
@@ -85,7 +98,7 @@ void execute_program(struct frame* frame){
       case i_push_primitive:
         p_push_primitive(frame);
         break;
-    }
+    }counter++;
     frame->instr_pointer++;
   }
     for(int i=0;i<frame->stack->size;i++){
