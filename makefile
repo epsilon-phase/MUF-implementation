@@ -6,7 +6,8 @@ ifdef DEBUG
 CFLAGS+=-fsanitize=leak -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -O0
 LDFLAGS+=-lasan
 endif
-SOURCES=$(wildcard *.c)
+VPATH=./src
+SOURCES=$(wildcard src/*.c)
 OBJECTS=$(SOURCES:.c=.o)
 EXEC=terp
 terp: $(OBJECTS)

@@ -260,6 +260,9 @@ void print_token_name(FILE *f, struct token *t) {
   case LEXER_CATCH_DETAILED:
     fprintf(f, "CATCH_DETAILED");
     break;
+  case LEXER_BREAK:
+    fprintf(f,"BREAK");
+    break;
   default:
     fprintf(f, "UNKNOWN:");
     break;
@@ -375,6 +378,10 @@ void post_process_lexer(struct tokenlist *start) {
       current->type = LEXER_CATCH_DETAILED;
     } else if (!strcmp(name, "endcatch")) {
       current->type = LEXER_ENDCATCH;
+    }else if (!strcmp(name,"break")){
+        current->type=LEXER_BREAK;
+    }else if (!strcmp(name,"continue")){
+        current->type=LEXER_CONTINUE;
     }
   }
 }

@@ -35,3 +35,9 @@ void push_for_vars_stack(struct for_vars_stack* st,struct for_vars fv){
   }
   st->stuff[st->size++]=fv;
 }
+struct for_vars* peek_for_vars_stack(struct for_vars_stack* fs){
+  return &fs->stuff[fs->size-1];
+}
+void free_for_vars_stack(struct for_vars_stack* e){
+  free(e->stuff);
+}

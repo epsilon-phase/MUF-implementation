@@ -25,6 +25,9 @@ size_t pop_position_stack(struct position_stack *s);
 size_t peek_position_stack(struct position_stack *s);
 void free_position_stack(struct position_stack *s);
 struct instruction instruction_from_i(int type);
+void close_loop(struct program*,
+        struct block,
+        struct position_stack*);
 void add_instruction(struct program *prog, struct instruction i) {
   if (!prog) return;
   if (!prog->bytecode) {
@@ -52,10 +55,8 @@ void add_instruction(struct program *prog, struct instruction i) {
 #define COMPILER_STATE_IN_LOOP 1 << 2
 #define BUILTIN_WORD_MATCH(T, V, S)                   \
   {                                                   \
-    printf("Testing %s against %s\n", T->name,V);                \
     if (!strcmp(T->name, V)) {                        \
       add_instruction(result, instruction_from_i(S)); \
-      printf("Found %s against %s\n", T->name, V);    \
       break;                                          \
     }                                                 \
   }
@@ -64,6 +65,7 @@ struct program *build(struct tokenlist *tl) {
   memset(result, 0, sizeof(struct program));
   struct token *current_token = tl->token;
   struct block_stack *blocks = create_block_stack();
+  struct position_stack *unfilled_breaks=create_position_stack();
   unsigned int state = 0;
   unsigned char p_useful = 0;
   while (current_token) {
@@ -150,13 +152,25 @@ struct program *build(struct tokenlist *tl) {
           add_instruction(result, simple_instruction_from_type(i_jmp));
           result->bytecode[result->bytecode_size - 1].data.address =
               tmp.position;
+          close_loop(result,tmp,unfilled_breaks);
         }
         break;
+      case LEXER_BREAK:
+        push_position_stack(unfilled_breaks,result->bytecode_size);
+        add_instruction(result,simple_instruction_from_type(i_break));
+        break;
+      case LEXER_CONTINUE:
+        push_position_stack(unfilled_breaks,result->bytecode_size);
+        add_instruction(result,simple_instruction_from_type(i_continue));
       case LEXER_UNTIL:
         break;
       case LEXER_FOREACH:
         break;
       case LEXER_FOR:
+        add_instruction(result,simple_instruction_from_type(i_forpush));
+        push_block(blocks,bs_for,result->bytecode_size);
+        push_position_stack(unfilled_breaks,result->bytecode_size);
+        add_instruction(result,simple_instruction_from_type(i_foriter));
         break;
       case LEXER_LVAR:
         break;
@@ -176,6 +190,7 @@ struct program *build(struct tokenlist *tl) {
         match("<", i_lt);
         match(">", i_gt);
         match("intostr",i_intostr);
+        match("notify", i_notify);
         match("read",i_read);
         match("rot",i_rot);
         match("rotate",i_rotn);
@@ -204,6 +219,7 @@ struct program *build(struct tokenlist *tl) {
       current_token = NULL;
     }
   }
+  free_position_stack(unfilled_breaks);
   free_block_stack(blocks);
   return result;
 }
@@ -258,6 +274,29 @@ struct stack_cell create_prim_string(const char *data) {
   result.type = t_string;
   result.data.str = strdup(data);
   return result;
+}
+struct stack_cell create_prim_invalid(const char* message){
+  struct stack_cell result;
+  result.type=t_invalid;
+  if(message)
+  result.data.str=strdup(message);
+  else
+    result.data.str=NULL;
+  return result;
+}
+void print_stack_cell(struct stack_cell* sc){
+  switch(sc->type){
+    case t_int:
+    case t_dbref:
+      printf("%i",sc->data.number);
+      break;
+    case t_float:
+      printf("%f",sc->data.fnumber);
+      break;
+    case t_string:
+      printf("%s",sc->data.str);
+      break;
+  }
 }
 struct stack_cell *stack_ptr_from_rval(struct stack_cell n) {
   struct stack_cell *result = malloc(sizeof(struct stack_cell));
@@ -344,6 +383,7 @@ void print_bytecode(struct program* p){
     "i_call",
     "i_foriter",
     "i_forpush",
+    "i_forpop",
     "i_break",
     "i_continue",
     "i_notify",
@@ -372,23 +412,72 @@ void print_bytecode(struct program* p){
     }
     }else if(current->type==i_jmp
         ||current->type==i_jmp_if
-        ||current->type==i_jmp_not_if){
+        ||current->type==i_jmp_not_if
+        ||current->type==i_foriter
+        ||current->type==i_break
+        ||current->type==i_continue){
       printf("%8zi",current->data.address);
     }
     printf("\n");
   }
 }
-void free_stack_cell(struct stack_cell *sc){
-  if(sc->type==t_string&&sc->data.str)
-    free(sc->data.str);
+void free_stack_cell(struct stack_cell sc){
+  if(sc.type==t_string&&sc.data.str)
+    free(sc.data.str);
+  else if(sc.type==t_invalid&&sc.data.str){
+    free(sc.data.str);
+  }
 }
 void free_program(struct program** pr){
   struct program* p=*pr;
   for(size_t i=0;i<p->bytecode_size;i++){
     if(p->bytecode[i].type==i_push_primitive){
-      free_stack_cell(&p->bytecode[i].data.information);
+      free_stack_cell(p->bytecode[i].data.information);
     }
   }
   free(p->bytecode);
   free(*pr);
+}
+void close_loop(struct program* result,
+        struct block tmp,
+        struct position_stack* unfilled_breaks){
+          while(unfilled_breaks->size>0){
+              //See what loops existed at the time of the creation of these breaks
+              size_t cur=peek_position_stack(unfilled_breaks);
+              if(cur>=tmp.position){
+                  pop_position_stack(unfilled_breaks);
+                  if(result->bytecode[cur].type==i_break){
+                    result->bytecode[cur].data.address=result->bytecode_size-1;
+                  }else if(result->bytecode[cur].type==i_continue){
+                      result->bytecode[cur].data.address=tmp.position-1;
+                  }else if(result->bytecode[cur].type==i_foriter){
+                    result->bytecode[cur].data.address=result->bytecode_size-1;
+                  }
+              }else
+                  break;
+          }
+          if(tmp.type==bs_for){
+            add_instruction(result,simple_instruction_from_type(i_forpop));
+          }
+}
+struct stack_cell copy_stack_cell(struct stack_cell n){
+  struct stack_cell copy;
+  copy.type=n.type;
+  switch(n.type){
+    case t_string:
+      copy.data.str=strdup(n.data.str);
+      break;
+    case t_int:
+      copy.data.number=n.data.number;
+      break;
+    case t_float:
+      copy.data.fnumber=n.data.fnumber;
+      break;
+    case t_address:
+      copy.data.address=n.data.address;
+      break;
+     default:
+      break;
+  }
+  return copy;
 }

@@ -15,6 +15,8 @@ enum lexer_token {
   LEXER_FOREACH,
   LEXER_REPEAT,
   LEXER_UNTIL,
+  LEXER_BREAK,
+  LEXER_CONTINUE,
   LEXER_VAR,
   LEXER_LVAR,
   //This can't be inferred from the program's lexing pass, it must be taken into account

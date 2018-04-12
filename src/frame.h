@@ -8,6 +8,8 @@ struct for_vars_stack{
 struct for_vars_stack *create_for_vars_stack();
 void pop_for_vars_stack(struct for_vars_stack*);
 void push_for_vars_stack(struct for_vars_stack*,struct for_vars);
+void free_for_vars_stack(struct for_vars_stack*);
+struct for_vars* peek_for_vars_stack(struct for_vars_stack*);
 struct stack_cell iter_for_vars_stack(struct for_vars_stack*);
 //RC stack type
 struct data_stack{
@@ -26,4 +28,7 @@ struct frame{
   struct frame* parent;
   size_t instr_pointer;
 };
+struct frame create_frame(struct program* prog,const char* arguments,struct frame* parent);
+void execute_program(struct frame* frame);
+void free_frame(struct frame* frame);
 #endif

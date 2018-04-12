@@ -8,6 +8,7 @@
 #include "ast.h"
 #include "options.h"
 #include "interpreter.h"
+#include "frame.h"
 /**
  *  Inst type Prototype(since the JIT doesn't make it easy to get a normal C
  *struct in there)
@@ -136,6 +137,23 @@ int main(int argc, const char** args) {
  print_bytecode(prog);
  tokenlist_free(test);
  free_program(&prog);
+ test=lexer("1 1 4 5 for + repeat");
+ prog=build(test);
+ print_bytecode(prog);
+ free_program(&prog);
+ tokenlist_free(test);
+ test=lexer("1 1 4 5 for + dup 2 % 0 = if break else continue then repeat");
+ prog=build(test);
+ print_bytecode(prog);
+ free_program(&prog);
+ tokenlist_free(test);
+ test=lexer("1 1 5 1 for + repeat 1 ");
+ prog=build(test);
+ print_bytecode(prog);
+ struct frame f=create_frame(prog,NULL,NULL);
+ execute_program(&f);
+ free_program(&prog);
+ tokenlist_free(test);
 }
 char *read_file(const char* fn){
     char *output=NULL;;

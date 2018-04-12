@@ -16,8 +16,7 @@ struct stack_cell;
 struct variable{
   struct stack_cell *contents;
 };
-struct stack_cell{
-  enum{
+enum{
     t_int,
     t_float,
     t_string,
@@ -29,7 +28,9 @@ struct stack_cell{
     t_dbref,
     t_array,
     t_invalid
-  } type;
+} stack_type;
+struct stack_cell{
+  char type;
   union{
     int number;
     double fnumber;
@@ -79,6 +80,7 @@ enum instruction_opcode{
   i_call,
   i_foriter,
   i_forpush,
+  i_forpop,
   i_break,
   i_continue,
   i_notify,
@@ -91,7 +93,7 @@ struct instruction{
     size_t address;
     struct stack_cell information;
   } data;
-};
+} __attribute__((packed));
 struct program{
   struct word **words;
   size_t word_count;
@@ -104,25 +106,18 @@ struct program{
 struct for_vars{
   int start,end,step;
 };
-#define stack_type_def(T,A_Name) T *A_Name##stack;\
-  size_t A_Name##_size;\
-  size_t A_Name##_capacity;
-struct frame{
-  stack_type_def(struct for_vars,for_);
-  stack_type_def(size_t,call_);
-  struct program* program;
-  struct stack_cell* stack;
-  size_t stack_count;
-  size_t stack_capacity;
-};
 struct program* build(struct tokenlist* tl);
 void print_bytecode(struct program* p);
 struct instruction simple_instruction_from_type(int t);
 struct stack_cell *stack_ptr_from_rval(struct stack_cell n);
+struct stack_cell copy_stack_cell(struct stack_cell n);
+void free_stack_cell(struct stack_cell);
+int is_stack_cell_true(struct stack_cell);
 struct stack_cell create_prim_int(int);
 struct stack_cell create_prim_double(double);
 struct stack_cell create_prim_string(const char*);
+struct stack_cell create_prim_invalid(const char*);
+void print_stack_cell(struct stack_cell*);
 struct variable* create_variable(const char* name);
 void free_program(struct program** p);
-
 #endif

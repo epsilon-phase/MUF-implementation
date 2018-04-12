@@ -1,7 +1,7 @@
 #include "frame.h"
 #include <stdlib.h>
 
-struct data_stack* create(size_t capacity){
+struct data_stack* create_data_stack(size_t capacity){
   struct data_stack* result=malloc(sizeof(struct data_stack));
   result->links=1;
   result->stack=malloc(sizeof(struct stack_cell)*capacity);
@@ -19,7 +19,7 @@ void release_data_stack(struct data_stack *st){
       free_stack_cell(st->stack[i]);
     }
     free(st->stack);
-    free(st);
+    free(st);//Hmm... This could be dangerous, but since it's not like you ever get it as not a pointer, maybe it's okay?
   }
 }
 struct stack_cell pop_data_stack(struct data_stack *st){
