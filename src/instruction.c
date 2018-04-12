@@ -12,6 +12,7 @@ PRIM_SIG(p_pop){
   pop_data_stack(frame->stack);
 }
 PRIM_SIG(p_plus){
+  //The order here is wrong, but since it's addition, that doesn't even matter a little bit.
   struct stack_cell x=pop_data_stack(frame->stack),
                     y=pop_data_stack(frame->stack);
   struct stack_cell r;

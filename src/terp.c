@@ -147,11 +147,14 @@ int main(int argc, const char** args) {
  print_bytecode(prog);
  free_program(&prog);
  tokenlist_free(test);
- test=lexer("1 1 5 1 for + repeat 1 ");
+ printf("\x1b[2J");
+ test=lexer("1 1 5 1 for + dup + repeat 1 ");
  prog=build(test);
  print_bytecode(prog);
  struct frame f=create_frame(prog,NULL,NULL);
  execute_program(&f);
+ free_frame(&f);
+
  free_program(&prog);
  tokenlist_free(test);
 }
