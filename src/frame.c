@@ -22,7 +22,7 @@ void execute_program(struct frame* frame){
 //    if(counter!=0&&counter%40==0){
 //      printf("\x1b[J");
 //    }
-    if(0){
+    if(1){
     printf("Instruction [%s]  at address %zi ",
            obtain_bytecode_name(frame->program->bytecode[frame->instr_pointer].type),
             frame->instr_pointer);
@@ -125,8 +125,14 @@ void execute_program(struct frame* frame){
       case i_atoi:
         p_atoi(frame);
         break;
+      case i_strtod:
+        p_strtod(frame);
+        break;
       case i_notify:
         p_notify(frame);
+        break;
+      case i_swap:
+        p_swap(frame);
         break;
     }counter++;
     frame->instr_pointer++;

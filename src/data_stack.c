@@ -39,6 +39,8 @@ struct stack_cell pop_data_stack(struct data_stack *st){
 void push_data_stack(struct data_stack *st,struct stack_cell sc){
   if(st->size==st->capacity){
     //Oh no!!!!
+    st->stack=realloc(st->stack,st->capacity*2*sizeof(struct stack_cell));
+    st->capacity*=2;
   }
   st->stack[st->size++]=copy_stack_cell(sc);
   //Does it make sense to free the caller's stack_cell?

@@ -9,6 +9,7 @@ PRIM_SIG(p_dup) {
   struct stack_cell x = pop_data_stack(frame->stack);
   push_data_stack(frame->stack, x);
   push_data_stack(frame->stack, x);
+  free_stack_cell(x);
 }
 PRIM_SIG(p_dupn) {
   struct stack_cell n = pop_data_stack(frame->stack);
@@ -17,6 +18,7 @@ PRIM_SIG(p_dupn) {
   for (size_t i = frame->stack->size - n.data.number; i < original; i++) {
     push_data_stack(frame->stack, copy_stack_cell(frame->stack->stack[i]));
   }
+  free_stack_cell(n);
 }
 PRIM_SIG(p_pop) { pop_data_stack(frame->stack); }
 PRIM_SIG(p_popn) {
@@ -251,6 +253,14 @@ PRIM_SIG(p_rotate) {
     }
     frame->stack->stack[frame->stack->size - n.data.number] = r;
   }
+}
+PRIM_SIG(p_swap){
+    struct stack_cell y=pop_data_stack(frame->stack),
+                      x=pop_data_stack(frame->stack);
+    push_data_stack(frame->stack,y);
+    push_data_stack(frame->stack,x);
+    free_stack_cell(x);
+    free_stack_cell(y);
 }
 PRIM_SIG(p_jmp) {
   frame->instr_pointer =
@@ -614,6 +624,17 @@ PRIM_SIG(p_atoi) {
   result.data.number = atoi(r.data.str);
   push_data_stack(frame->stack, result);
   free_stack_cell(r);
+}
+PRIM_SIG(p_strtod){
+    struct stack_cell s=pop_data_stack(frame->stack);
+    assert(s.type==t_string);
+    char *end=NULL;
+    double l=strtod(s.data.str,&end);
+    struct stack_cell result;
+    result.type=t_float;
+    result.data.fnumber=l;
+    push_data_stack(frame->stack,result);
+    free_stack_cell(s);
 }
 PRIM_SIG(p_intostr) {
   struct stack_cell r = pop_data_stack(frame->stack);

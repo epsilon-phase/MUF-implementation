@@ -15,6 +15,7 @@ PRIM_SIG(p_divide);
 PRIM_SIG(p_power);
 PRIM_SIG(p_rot);
 PRIM_SIG(p_rotate);
+PRIM_SIG(p_swap);
 PRIM_SIG(p_jmp);
 PRIM_SIG(p_jmp_if);
 PRIM_SIG(p_jmp_not_if);
