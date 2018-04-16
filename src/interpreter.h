@@ -30,7 +30,6 @@ enum{
     t_invalid
 } stack_type;
 struct stack_cell{
-  char type;
   union{
     int number;
     double fnumber;
@@ -38,6 +37,7 @@ struct stack_cell{
     size_t address;
     struct variable* var;
   } data;
+  char type;
 };
 enum instruction_opcode{
   i_push_primitive,
@@ -49,6 +49,7 @@ enum instruction_opcode{
   i_minus,
   i_divide,
   i_multiply,
+  i_power,
   i_increment,
   i_jmp,
   i_jmp_if,
@@ -88,11 +89,11 @@ enum instruction_opcode{
   i_intostr
 };
 struct instruction{
-  char type;
   union{
     size_t address;
     struct stack_cell information;
   } data;
+  char type;
 } __attribute__((packed));
 struct program{
   struct word **words;

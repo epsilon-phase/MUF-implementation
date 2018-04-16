@@ -187,6 +187,8 @@ struct program *build(struct tokenlist *tl) {
         match("-", i_minus);
         match("*", i_multiply);
         match("/",i_divide);
+        match("^",i_power);
+        match("pow", i_power);
         match("<", i_lt);
         match(">", i_gt);
         match("intostr",i_intostr);
@@ -206,6 +208,8 @@ struct program *build(struct tokenlist *tl) {
         match("=",i_equal);
         match("!=",i_not_equal);
         match("and",i_and);
+        match("rot",i_rot);
+        match("rotate",i_rotn);
         break;
     }
     if (p_useful) {
@@ -354,6 +358,7 @@ const char* obtain_bytecode_name(char t){
     "i_plus",
     "i_minus",
     "i_divide",
+    "i_power",
     "i_multiply",
     "i_increment",
     "i_jmp",
