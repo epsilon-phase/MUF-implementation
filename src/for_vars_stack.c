@@ -40,4 +40,5 @@ struct for_vars* peek_for_vars_stack(struct for_vars_stack* fs){
 }
 void free_for_vars_stack(struct for_vars_stack* e){
   free(e->stuff);
+  free(e);
 }
