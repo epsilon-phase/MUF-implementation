@@ -193,6 +193,7 @@ struct program *build(struct tokenlist *tl) {
         match(">", i_gt);
         match("intostr",i_intostr);
         match("atoi",i_atoi);
+        match("strtod",i_strtod);
         match("notify", i_notify);
         match("read",i_read);
         match("rot",i_rot);
