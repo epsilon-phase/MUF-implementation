@@ -2,7 +2,7 @@
 #define INSTRUCTION_H
 #include "frame.h"
 #include "interpreter.h"
-#define PRIM_SIG(N) void N (struct frame* frame)
+#define PRIM_SIG(N) struct frame* N (struct frame* frame)
 PRIM_SIG(p_dup);
 PRIM_SIG(p_dupn);
 PRIM_SIG(p_pop);

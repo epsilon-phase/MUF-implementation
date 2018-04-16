@@ -10,6 +10,7 @@ PRIM_SIG(p_dup) {
   push_data_stack(frame->stack, x);
   push_data_stack(frame->stack, x);
   free_stack_cell(x);
+  return frame;
 }
 PRIM_SIG(p_dupn) {
   struct stack_cell n = pop_data_stack(frame->stack);
@@ -19,19 +20,22 @@ PRIM_SIG(p_dupn) {
     push_data_stack(frame->stack, copy_stack_cell(frame->stack->stack[i]));
   }
   free_stack_cell(n);
+  return frame;
 }
-PRIM_SIG(p_pop) { pop_data_stack(frame->stack); }
+PRIM_SIG(p_pop) { pop_data_stack(frame->stack); return frame;}
 PRIM_SIG(p_popn) {
   struct stack_cell n = pop_data_stack(frame->stack);
   assert(n.type == t_int && n.data.number >= 0);
   for (int i = 0; i < n.data.number; i++)
     pop_data_stack(frame->stack);
+  return frame;
 }
 PRIM_SIG(p_depth) {
   struct stack_cell n;
   n.type = t_int;
   n.data.number = frame->stack->size;
   push_data_stack(frame->stack, n);
+  return frame;
 }
 PRIM_SIG(p_plus) {
   // The order here is wrong, but since it's addition, that doesn't even matter
@@ -71,6 +75,7 @@ PRIM_SIG(p_plus) {
     r.data.str = strdup("Error! Invalid types to add!");
   }
   push_data_stack(frame->stack, r);
+  return frame;
 }
 PRIM_SIG(p_minus) {
   struct stack_cell y = pop_data_stack(frame->stack),
@@ -108,6 +113,7 @@ PRIM_SIG(p_minus) {
     r.data.str = strdup("Error, invalid type to subtract!");
   }
   push_data_stack(frame->stack, r);
+  return frame;
 }
 PRIM_SIG(p_multiply) {
   struct stack_cell x = pop_data_stack(frame->stack),
@@ -145,6 +151,7 @@ PRIM_SIG(p_multiply) {
     r.data.str = strdup("Error, invalid type to multiply!");
   }
   push_data_stack(frame->stack, r);
+  return frame;
 }
 PRIM_SIG(p_divide) {
   struct stack_cell y = pop_data_stack(frame->stack),
@@ -184,6 +191,7 @@ PRIM_SIG(p_divide) {
   free_stack_cell(x);
   free_stack_cell(y);
   push_data_stack(frame->stack, r);
+  return frame;
 }
 PRIM_SIG(p_power) {
   struct stack_cell y = pop_data_stack(frame->stack),
@@ -224,6 +232,7 @@ PRIM_SIG(p_power) {
     r.data.str = strdup("Incorrect type for power function");
   }
   push_data_stack(frame->stack, r);
+  return frame;
 }
 PRIM_SIG(p_rot) {
   struct stack_cell z = pop_data_stack(frame->stack),
@@ -232,6 +241,7 @@ PRIM_SIG(p_rot) {
   push_data_stack(frame->stack, y);
   push_data_stack(frame->stack, z);
   push_data_stack(frame->stack, x);
+  return frame;
 }
 PRIM_SIG(p_rotate) {
   struct stack_cell n = pop_data_stack(frame->stack);
@@ -253,6 +263,7 @@ PRIM_SIG(p_rotate) {
     }
     frame->stack->stack[frame->stack->size - n.data.number] = r;
   }
+  return frame;
 }
 PRIM_SIG(p_swap){
     struct stack_cell y=pop_data_stack(frame->stack),
@@ -261,10 +272,12 @@ PRIM_SIG(p_swap){
     push_data_stack(frame->stack,x);
     free_stack_cell(x);
     free_stack_cell(y);
+  return frame;
 }
 PRIM_SIG(p_jmp) {
   frame->instr_pointer =
       frame->program->bytecode[frame->instr_pointer].data.address - 1;
+  return frame;
 }
 PRIM_SIG(p_jmp_if) {
   struct stack_cell x = pop_data_stack(frame->stack);
@@ -273,6 +286,7 @@ PRIM_SIG(p_jmp_if) {
     frame->instr_pointer =
         frame->program->bytecode[frame->instr_pointer].data.address - 1;
   free_stack_cell(x);
+  return frame;
 }
 PRIM_SIG(p_jmp_not_if) {
   struct stack_cell x = pop_data_stack(frame->stack);
@@ -281,6 +295,7 @@ PRIM_SIG(p_jmp_not_if) {
         frame->program->bytecode[frame->instr_pointer].data.address - 1;
   }
   free_stack_cell(x);
+  return frame;
 }
 PRIM_SIG(p_strcat) {
   struct stack_cell y = pop_data_stack(frame->stack),
@@ -289,9 +304,22 @@ PRIM_SIG(p_strcat) {
       realloc(x->data.str, strlen(x->data.str) + strlen(y.data.str) + 1);
   strcat(x->data.str, y.data.str);
   free_stack_cell(y);
+  return frame;
 }
-PRIM_SIG(p_strlen) {}
-PRIM_SIG(p_strcmp) {}
+PRIM_SIG(p_strlen) {
+  struct stack_cell r=pop_data_stack(frame->stack);
+  assert(r.type==t_string);
+  int rlen=strlen(r.data.str);
+  free_stack_cell(r);
+  r.type=t_int;
+  r.data.str=NULL;
+  r.data.number=rlen;
+  push_data_stack(frame->stack,r);
+  return frame;
+}
+PRIM_SIG(p_strcmp) {
+  return frame;
+}
 PRIM_SIG(p_for_push) {
   struct stack_cell step = pop_data_stack(frame->stack),
                     end = pop_data_stack(frame->stack),
@@ -307,8 +335,12 @@ PRIM_SIG(p_for_push) {
   free_stack_cell(step);
   free_stack_cell(end);
   free_stack_cell(start);
+  return frame;
 }
-PRIM_SIG(p_for_pop) { pop_for_vars_stack(frame->fstack); }
+PRIM_SIG(p_for_pop) {
+ pop_for_vars_stack(frame->fstack); 
+  return frame;
+}
 PRIM_SIG(p_foriter) {
   /*  struct for_vars* current=peek_for_vars_stack(frame->fstack);
 
@@ -331,6 +363,7 @@ PRIM_SIG(p_foriter) {
     frame->instr_pointer =
         frame->program->bytecode[frame->instr_pointer].data.address;
   }
+  return frame;
 }
 PRIM_SIG(p_gt) {
   struct stack_cell y = pop_data_stack(frame->stack),
@@ -374,6 +407,7 @@ PRIM_SIG(p_gt) {
     push_data_stack(frame->stack,
                     create_prim_invalid("Invalid type for comparison"));
   }
+  return frame;
 }
 PRIM_SIG(p_lt) {
   struct stack_cell y = pop_data_stack(frame->stack),
@@ -417,6 +451,7 @@ PRIM_SIG(p_lt) {
     push_data_stack(frame->stack,
                     create_prim_invalid("Invalid type for comparison"));
   }
+  return frame;
 }
 PRIM_SIG(p_lte) {
   struct stack_cell y = pop_data_stack(frame->stack),
@@ -460,6 +495,7 @@ PRIM_SIG(p_lte) {
     push_data_stack(frame->stack,
                     create_prim_invalid("Invalid type for comparison"));
   }
+  return frame;
 }
 PRIM_SIG(p_gte) {
   struct stack_cell y = pop_data_stack(frame->stack),
@@ -503,6 +539,7 @@ PRIM_SIG(p_gte) {
     push_data_stack(frame->stack,
                     create_prim_invalid("Invalid type for comparison"));
   }
+  return frame;
 }
 PRIM_SIG(p_equals) {
   struct stack_cell y = pop_data_stack(frame->stack),
@@ -547,6 +584,7 @@ PRIM_SIG(p_equals) {
     push_data_stack(frame->stack,
                     create_prim_invalid("Invalid type for comparison"));
   }
+  return frame;
 }
 PRIM_SIG(p_not_equals) {
   struct stack_cell y = pop_data_stack(frame->stack),
@@ -591,6 +629,7 @@ PRIM_SIG(p_not_equals) {
     push_data_stack(frame->stack,
                     create_prim_invalid("Invalid type for comparison"));
   }
+  return frame;
 }
 PRIM_SIG(p_push_primitive) {
   size_t istr = frame->instr_pointer;
@@ -598,12 +637,14 @@ PRIM_SIG(p_push_primitive) {
       copy_stack_cell(frame->program->bytecode[istr].data.information);
   push_data_stack(frame->stack, result);
   free_stack_cell(result);
+  return frame;
 }
 PRIM_SIG(p_notify) {
   struct stack_cell r = pop_data_stack(frame->stack);
   assert(r.type == t_string);
   printf("%s\n", r.data.str);
   free_stack_cell(r);
+  return frame;
 }
 PRIM_SIG(p_read) {
   char *line = malloc(100);
@@ -615,6 +656,7 @@ PRIM_SIG(p_read) {
   r.data.str = line;
   r.type = t_string;
   push_data_stack_nocopy(frame->stack, r);
+  return frame;
 }
 PRIM_SIG(p_atoi) {
   struct stack_cell r = pop_data_stack(frame->stack);
@@ -624,6 +666,7 @@ PRIM_SIG(p_atoi) {
   result.data.number = atoi(r.data.str);
   push_data_stack(frame->stack, result);
   free_stack_cell(r);
+  return frame;
 }
 PRIM_SIG(p_strtod){
     struct stack_cell s=pop_data_stack(frame->stack);
@@ -635,6 +678,7 @@ PRIM_SIG(p_strtod){
     result.data.fnumber=l;
     push_data_stack(frame->stack,result);
     free_stack_cell(s);
+  return frame;
 }
 PRIM_SIG(p_intostr) {
   struct stack_cell r = pop_data_stack(frame->stack);
@@ -656,4 +700,5 @@ PRIM_SIG(p_intostr) {
   push_data_stack(frame->stack, f);
   free_stack_cell(r);
   free_stack_cell(f);
+  return frame;
 }
