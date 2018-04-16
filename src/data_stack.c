@@ -10,6 +10,7 @@ struct data_stack* create_data_stack(size_t capacity){
   for(size_t i=0;i<capacity;i++){
     result->stack[i].type=t_invalid;
     result->stack[i].data.number=0;
+    result->stack[i].data.str=NULL;
   }
   return result;
 }
