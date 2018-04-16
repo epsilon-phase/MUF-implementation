@@ -45,6 +45,7 @@ enum instruction_opcode{
   i_popn,
   i_dup,
   i_dupn,
+  i_depth,
   i_plus,
   i_minus,
   i_divide,

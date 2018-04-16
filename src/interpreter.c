@@ -210,6 +210,7 @@ struct program *build(struct tokenlist *tl) {
         match("and",i_and);
         match("rot",i_rot);
         match("rotate",i_rotn);
+        match("depth",i_depth);
         break;
     }
     if (p_useful) {
@@ -300,6 +301,12 @@ void print_stack_cell(struct stack_cell* sc){
     case t_string:
       printf("STRING:%s",sc->data.str);
       break;
+    case t_invalid:
+      printf("INVALID:");
+      if(sc->data.str){
+          printf("%s",sc->data.str);
+      }
+      break;
     default:
       printf("OTHER");
       break;
@@ -355,6 +362,7 @@ const char* obtain_bytecode_name(char t){
     "i_popn",
     "i_dup",
     "i_dupn",
+    "i_depth",
     "i_plus",
     "i_minus",
     "i_divide",
@@ -438,6 +446,8 @@ void free_stack_cell(struct stack_cell sc){
   else if(sc.type==t_invalid&&sc.data.str){
     free(sc.data.str);
   }
+  sc.data.str=NULL;
+  
 }
 void free_program(struct program** pr){
   struct program* p=*pr;
@@ -458,7 +468,7 @@ void close_loop(struct program* result,
               if(cur>=tmp.position){
                   pop_position_stack(unfilled_breaks);
                   if(result->bytecode[cur].type==i_break){
-                    result->bytecode[cur].data.address=result->bytecode_size-1;
+                    result->bytecode[cur].data.address=result->bytecode_size;
                   }else if(result->bytecode[cur].type==i_continue){
                       result->bytecode[cur].data.address=tmp.position-1;
                   }else if(result->bytecode[cur].type==i_foriter){
