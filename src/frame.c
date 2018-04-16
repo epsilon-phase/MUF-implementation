@@ -119,6 +119,9 @@ void execute_program(struct frame* frame){
       case i_intostr:
         p_intostr(frame);
         break;
+      case i_read:
+        p_read(frame);
+        break;
       case i_notify:
         p_notify(frame);
         break;
