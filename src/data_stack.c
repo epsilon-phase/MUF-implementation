@@ -28,6 +28,7 @@ struct stack_cell pop_data_stack(struct data_stack *st){
   if(st->size>0){
     result=copy_stack_cell(st->stack[st->size-1]);
     free_stack_cell(st->stack[st->size-1]);
+    st->stack[st->size-1].data.str=NULL;
     st->size--;
   }else{
     result.type=t_invalid;
@@ -42,4 +43,7 @@ void push_data_stack(struct data_stack *st,struct stack_cell sc){
   st->stack[st->size++]=copy_stack_cell(sc);
   //Does it make sense to free the caller's stack_cell?
  // free_stack_cell(sc);
+}
+void push_data_stack_nocopy(struct data_stack *st,struct stack_cell sc){
+    st->stack[st->size++]=sc;
 }

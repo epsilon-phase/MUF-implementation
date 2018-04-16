@@ -7,6 +7,7 @@ PRIM_SIG(p_dup);
 PRIM_SIG(p_dupn);
 PRIM_SIG(p_pop);
 PRIM_SIG(p_popn);
+PRIM_SIG(p_depth);
 PRIM_SIG(p_plus);
 PRIM_SIG(p_minus);
 PRIM_SIG(p_multiply);
@@ -17,6 +18,9 @@ PRIM_SIG(p_rotate);
 PRIM_SIG(p_jmp);
 PRIM_SIG(p_jmp_if);
 PRIM_SIG(p_jmp_not_if);
+PRIM_SIG(p_strcat);
+PRIM_SIG(p_strlen);
+PRIM_SIG(p_strcmp);
 PRIM_SIG(p_for_push);
 PRIM_SIG(p_for_pop);
 PRIM_SIG(p_foriter);
@@ -27,6 +31,8 @@ PRIM_SIG(p_gte);
 PRIM_SIG(p_equals);
 PRIM_SIG(p_not_equals);
 PRIM_SIG(p_push_primitive);
+PRIM_SIG(p_notify);
+PRIM_SIG(p_intostr);
 # ifndef INSTRUCTION_C
 #   undef PRIM_SIG
 # endif

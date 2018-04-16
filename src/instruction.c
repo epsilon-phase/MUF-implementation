@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
 PRIM_SIG(p_dup){
   struct stack_cell x=pop_data_stack(frame->stack);
   push_data_stack(frame->stack,x);
@@ -25,6 +26,12 @@ PRIM_SIG(p_popn){
   assert(n.type==t_int&&n.data.number>=0);
   for(int i=0;i<n.data.number;i++)
       pop_data_stack(frame->stack);
+}
+PRIM_SIG(p_depth){
+    struct stack_cell n;
+    n.type=t_int;
+    n.data.number=frame->stack->size;
+    push_data_stack(frame->stack,n);
 }
 PRIM_SIG(p_plus){
   //The order here is wrong, but since it's addition, that doesn't even matter a little bit.
@@ -263,6 +270,19 @@ PRIM_SIG(p_jmp_not_if){
     frame->instr_pointer=frame->program->bytecode[frame->instr_pointer].data.address-1;
   }
   free_stack_cell(x);
+}
+PRIM_SIG(p_strcat){
+    struct stack_cell y=pop_data_stack(frame->stack),
+                      *x=&frame->stack->stack[frame->stack->size-1];
+    x->data.str=realloc(x->data.str,strlen(x->data.str)+strlen(y.data.str)+1);
+    strcat(x->data.str,y.data.str);
+    free_stack_cell(y);
+
+}
+PRIM_SIG(p_strlen){
+
+}
+PRIM_SIG(p_strcmp){
 }
 PRIM_SIG(p_for_push){
   struct stack_cell step=pop_data_stack(frame->stack),
@@ -537,5 +557,34 @@ error:
 }
 PRIM_SIG(p_push_primitive){
   size_t istr=frame->instr_pointer;
-  push_data_stack(frame->stack,copy_stack_cell(frame->program->bytecode[istr].data.information));
+  struct stack_cell result=copy_stack_cell(frame->program->bytecode[istr].data.information);
+  push_data_stack(frame->stack,result);
+  free_stack_cell(result);
+}
+PRIM_SIG(p_notify){
+    struct stack_cell r=pop_data_stack(frame->stack);
+    assert(r.type==t_string);
+    printf("%s\n",r.data.str);
+    free_stack_cell(r);
+}
+PRIM_SIG(p_intostr){
+    struct stack_cell r=pop_data_stack(frame->stack);
+    struct stack_cell f;
+    f.type=t_string;
+    switch(r.type){
+        case t_int:
+            f.data.str=malloc(12);
+            sprintf(f.data.str,"%d",r.data.number);
+            break;
+        case t_float:
+            f.data.str=malloc(snprintf(NULL,0,"%f",r.data.fnumber)+1);
+            sprintf(f.data.str,"%f",r.data.fnumber);
+            break;
+        case t_string:
+            f.data.str=strdup(r.data.str);
+            break;
+       }
+    push_data_stack(frame->stack,f);
+    free_stack_cell(r);
+    free_stack_cell(f);
 }

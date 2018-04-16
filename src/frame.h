@@ -21,6 +21,7 @@ struct data_stack* create_data_stack(size_t capacity);
 void release_data_stack(struct data_stack* st);
 struct stack_cell pop_data_stack(struct data_stack* st);
 void push_data_stack(struct data_stack *st, struct stack_cell sc);
+void push_data_stack_nocopy(struct data_stack *st, struct stack_cell sc);
 struct frame{
   struct program* program;
   struct data_stack* stack;

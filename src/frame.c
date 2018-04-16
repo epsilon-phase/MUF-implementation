@@ -19,9 +19,10 @@ struct frame create_frame(struct program* prog,const char* arguments,struct fram
 void execute_program(struct frame* frame){
   int counter=0;
   while(frame->instr_pointer<frame->program->bytecode_size){
-    if(counter!=0&&counter%40==0){
-      printf("\x1b[J");
-    }
+//    if(counter!=0&&counter%40==0){
+//      printf("\x1b[J");
+//    }
+    if(0){
     printf("Instruction [%s]  at address %zi ",
            obtain_bytecode_name(frame->program->bytecode[frame->instr_pointer].type),
             frame->instr_pointer);
@@ -29,14 +30,16 @@ void execute_program(struct frame* frame){
       print_stack_cell(&frame->stack->stack[i]);
       printf(",");
     }
-    if(counter%40>0&&counter%20==0){
-      printf("\x1b[20A\x1b[50G");
+    printf("\n");
     }
-    if(counter%40<20){
-      printf("\n");
-    }else{
-      printf("\x1b[50G\x1b[B");
-    }
+//    if(counter%40>0&&counter%20==0){
+//      printf("\x1b[20A\x1b[50G");
+//    }
+//    if(counter%40<20){
+//      printf("\n");
+//    }else{
+//      printf("\x1b[50G\x1b[B");
+//    }
     switch(frame->program->bytecode[frame->instr_pointer].type){
       case i_jmp:
         p_jmp(frame);
@@ -110,6 +113,15 @@ void execute_program(struct frame* frame){
       case i_popn:
         p_popn(frame);
         break;
+      case i_depth:
+        p_depth(frame);
+        break;
+      case i_intostr:
+        p_intostr(frame);
+        break;
+      case i_notify:
+        p_notify(frame);
+        break;
     }counter++;
     frame->instr_pointer++;
   }
@@ -118,7 +130,7 @@ void execute_program(struct frame* frame){
       printf(",");
     }
     printf("\n");
-    printf("\x1b[20B\x1b[50G");
+//    printf("\x1b[20B\x1b[50G");
 }
 void free_frame(struct frame* frame){
   free_for_vars_stack(frame->fstack);
