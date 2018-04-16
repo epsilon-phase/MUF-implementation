@@ -122,6 +122,9 @@ void execute_program(struct frame* frame){
       case i_read:
         p_read(frame);
         break;
+      case i_atoi:
+        p_atoi(frame);
+        break;
       case i_notify:
         p_notify(frame);
         break;

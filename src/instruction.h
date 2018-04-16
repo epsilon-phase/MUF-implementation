@@ -32,6 +32,9 @@ PRIM_SIG(p_equals);
 PRIM_SIG(p_not_equals);
 PRIM_SIG(p_push_primitive);
 PRIM_SIG(p_notify);
+PRIM_SIG(p_read);
+PRIM_SIG(p_atoi);
+PRIM_SIG(p_strtod);
 PRIM_SIG(p_intostr);
 # ifndef INSTRUCTION_C
 #   undef PRIM_SIG

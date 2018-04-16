@@ -192,6 +192,7 @@ struct program *build(struct tokenlist *tl) {
         match("<", i_lt);
         match(">", i_gt);
         match("intostr",i_intostr);
+        match("atoi",i_atoi);
         match("notify", i_notify);
         match("read",i_read);
         match("rot",i_rot);
@@ -404,6 +405,8 @@ const char* obtain_bytecode_name(char t){
     "i_continue",
     "i_notify",
     "i_read",
+    "i_atoi",
+    "i_strtod",
     "i_intostr"
   };
   return inames[t];

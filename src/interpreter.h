@@ -37,7 +37,7 @@ struct stack_cell{
     size_t address;
     struct variable* var;
   } data;
-  char type;
+  unsigned char type;
 };
 enum instruction_opcode{
   i_push_primitive,
@@ -87,6 +87,8 @@ enum instruction_opcode{
   i_continue,
   i_notify,
   i_read,
+  i_atoi,
+  i_strtod,
   i_intostr
 };
 struct instruction{
@@ -94,7 +96,7 @@ struct instruction{
     size_t address;
     struct stack_cell information;
   } data;
-  char type;
+  unsigned char type;
 } __attribute__((packed));
 struct program{
   struct word **words;
