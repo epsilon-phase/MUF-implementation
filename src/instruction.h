@@ -4,11 +4,16 @@
 #include "interpreter.h"
 #define PRIM_SIG(N) void N (struct frame* frame)
 PRIM_SIG(p_dup);
+PRIM_SIG(p_dupn);
 PRIM_SIG(p_pop);
+PRIM_SIG(p_popn);
 PRIM_SIG(p_plus);
 PRIM_SIG(p_minus);
 PRIM_SIG(p_multiply);
 PRIM_SIG(p_divide);
+PRIM_SIG(p_power);
+PRIM_SIG(p_rot);
+PRIM_SIG(p_rotate);
 PRIM_SIG(p_jmp);
 PRIM_SIG(p_jmp_if);
 PRIM_SIG(p_jmp_not_if);

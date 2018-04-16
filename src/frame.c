@@ -98,6 +98,18 @@ void execute_program(struct frame* frame){
       case i_push_primitive:
         p_push_primitive(frame);
         break;
+      case i_rot:
+        p_rot(frame);
+        break;
+      case i_rotn:
+        p_rotate(frame);
+        break;
+      case i_dupn:
+        p_dupn(frame);
+        break;
+      case i_popn:
+        p_popn(frame);
+        break;
     }counter++;
     frame->instr_pointer++;
   }
@@ -106,6 +118,7 @@ void execute_program(struct frame* frame){
       printf(",");
     }
     printf("\n");
+    printf("\x1b[20B\x1b[50G");
 }
 void free_frame(struct frame* frame){
   free_for_vars_stack(frame->fstack);
