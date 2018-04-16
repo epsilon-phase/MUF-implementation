@@ -26,7 +26,7 @@ int glob_word(const char *input, int start) {
 // Same as above, but different.
 int glob_integer(const char *input, int start) {
   int end = start;
-  while (input[end] && isdigit(input[end])) {
+  while (input[end] && (isdigit(input[end])||(end==start&&input[end]=='-'))) {
     end++;
   }
   if (end == start)
@@ -46,7 +46,8 @@ int glob_float(const char *input, int start) {
   int end = start;
   int seen_period = 0;
   while (input[end] &&
-         (isdigit(input[end]) || (!seen_period && input[end] == '.'))) {
+         (isdigit(input[end]) || (!seen_period && input[end] == '.')
+          ||(end==start&&input[end]=='-'))) {
     if (input[end] == '.') {
       seen_period = 1;
     }
