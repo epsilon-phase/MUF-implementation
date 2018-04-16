@@ -148,7 +148,7 @@ int main(int argc, const char** args) {
  free_program(&prog);
  tokenlist_free(test);
  printf("\x1b[2J");
- test=lexer("1 1 5 1 for + dup + repeat 1 ");
+ test=lexer("1 2 3 4 5 5 dupn -5.0 -5");
  prog=build(test);
  print_bytecode(prog);
  struct frame f=create_frame(prog,NULL,NULL);
