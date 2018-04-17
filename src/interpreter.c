@@ -83,7 +83,7 @@ struct program *build(struct tokenlist *tl) {
         break;
       case LEXER_STRING:
         p.type = i_push_primitive;
-        p.data.information =create_prim_string(current_token->name);
+        p.data.information = create_prim_string(current_token->name);
         p_useful = 1;
         break;
       /**
@@ -279,15 +279,21 @@ struct stack_cell create_prim_double(double f) {
 struct stack_cell create_prim_string(const char *data) {
   struct stack_cell result;
   result.type = t_string;
-  result.data.str = strdup(data);
+  result.data.str = malloc(sizeof(struct shared_string)+strlen(data)+1);
+  result.data.str->length=strlen(data);
+  result.data.str->links=1;
+  strcpy(result.data.str->str,data);
   return result;
 }
 struct stack_cell create_prim_invalid(const char* message){
   struct stack_cell result;
   result.type=t_invalid;
-  if(message)
-  result.data.str=strdup(message);
-  else
+  if(message){
+    result.data.str=malloc(sizeof(struct shared_string)+strlen(message)+1);
+    result.data.str->links=1;
+    result.data.str->length=strlen(message);
+    strcpy(result.data.str->str,message);
+  }else
     result.data.str=NULL;
   return result;
 }
@@ -301,12 +307,12 @@ void print_stack_cell(struct stack_cell* sc){
       printf("FLOAT:%f",sc->data.fnumber);
       break;
     case t_string:
-      printf("STRING:%s",sc->data.str);
+      printf("STRING:%s",sc->data.str->str);
       break;
     case t_invalid:
       printf("INVALID:");
       if(sc->data.str){
-          printf("%s",sc->data.str);
+          printf("%s",sc->data.str->str);
       }
       break;
     default:
@@ -424,7 +430,7 @@ void print_bytecode(struct program* p){
     if(current->type==i_push_primitive){
       switch(current->data.information.type){
         case t_string:
-        printf("%s",current->data.information.data.str);
+        printf("%s",current->data.information.data.str->str);
       break;
         case t_int:
         printf("%8i",current->data.information.data.number);
@@ -445,10 +451,9 @@ void print_bytecode(struct program* p){
   }
 }
 void free_stack_cell(struct stack_cell sc){
-  if(sc.type==t_string&&sc.data.str)
-    free(sc.data.str);
-  else if(sc.type==t_invalid&&sc.data.str){
-    free(sc.data.str);
+  if((sc.type==t_invalid||sc.type==t_string)&&sc.data.str){
+    if(!(--sc.data.str->links))
+      free(sc.data.str);
   }
   sc.data.str=NULL;
   
@@ -490,7 +495,8 @@ struct stack_cell copy_stack_cell(struct stack_cell n){
   copy.type=n.type;
   switch(n.type){
     case t_string:
-      copy.data.str=strdup(n.data.str);
+      copy.data.str=n.data.str;
+      copy.data.str->links++;
       break;
     case t_int:
       copy.data.number=n.data.number;

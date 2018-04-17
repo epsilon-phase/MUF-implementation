@@ -16,6 +16,11 @@ struct stack_cell;
 struct variable{
   struct stack_cell *contents;
 };
+struct shared_string{
+  unsigned int links;
+  unsigned int length;
+  char str[];
+};
 enum{
     t_int,
     t_float,
@@ -33,7 +38,7 @@ struct stack_cell{
   union{
     int number;
     double fnumber;
-    char* str;
+    struct shared_string *str;
     size_t address;
     struct variable* var;
   } data;
@@ -117,6 +122,7 @@ struct stack_cell *stack_ptr_from_rval(struct stack_cell n);
 struct stack_cell copy_stack_cell(struct stack_cell n);
 void free_stack_cell(struct stack_cell);
 int is_stack_cell_true(struct stack_cell);
+int are_stack_cell_equal(struct stack_cell,struct stack_cell);
 struct stack_cell create_prim_int(int);
 struct stack_cell create_prim_double(double);
 struct stack_cell create_prim_string(const char*);
