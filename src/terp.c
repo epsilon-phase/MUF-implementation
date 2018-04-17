@@ -148,7 +148,7 @@ int main(int argc, const char** args) {
  free_program(&prog);
  tokenlist_free(test);
  printf("\x1b[2J");
- test=lexer("1 2 3 4 5 5 dupn -5.0 -5 1 1 = if \"Logic True\" notify then begin depth 1 = if break then + repeat intostr notify");
+ test=lexer("\"Heya...\" notify read dup notify strtod pop 1 2 3 4 5 5 dupn -5.0 -5 1 1 = if \"Logic True\" notify then begin depth 1 = if break then + repeat intostr notify");
  prog=build(test);
  print_bytecode(prog);
  struct frame f=create_frame(prog,NULL,NULL);

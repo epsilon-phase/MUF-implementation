@@ -72,7 +72,7 @@ PRIM_SIG(p_plus) {
     }
   } else {
     r.type = t_invalid;
-    r.data.str = strdup("Error! Invalid types to add!");
+    r=create_prim_invalid("Error! Invalid types to add!");
   }
   push_data_stack(frame->stack, r);
   return frame;
@@ -109,8 +109,7 @@ PRIM_SIG(p_minus) {
       r.data.number = x.data.number - y.data.number;
     }
   } else {
-    r.type = t_invalid;
-    r.data.str = strdup("Error, invalid type to subtract!");
+    r = create_prim_invalid("Error, invalid type to subtract!");
   }
   push_data_stack(frame->stack, r);
   return frame;
@@ -148,7 +147,7 @@ PRIM_SIG(p_multiply) {
     }
   } else {
     r.type = t_invalid;
-    r.data.str = strdup("Error, invalid type to multiply!");
+    r=create_prim_invalid("Error, invalid type to multiply!");
   }
   push_data_stack(frame->stack, r);
   return frame;
@@ -186,7 +185,7 @@ PRIM_SIG(p_divide) {
     }
   } else {
     r.type = t_invalid;
-    r.data.str = strdup("Error, invalid type to divide!");
+    r=create_prim_invalid("Error, invalid type to divide!");
   }
   free_stack_cell(x);
   free_stack_cell(y);
@@ -229,7 +228,7 @@ PRIM_SIG(p_power) {
     }
   } else {
     r.type = t_invalid;
-    r.data.str = strdup("Incorrect type for power function");
+    r=create_prim_invalid("Incorrect type for power function");
   }
   push_data_stack(frame->stack, r);
   return frame;
@@ -301,15 +300,15 @@ PRIM_SIG(p_strcat) {
   struct stack_cell y = pop_data_stack(frame->stack),
                     *x = &frame->stack->stack[frame->stack->size - 1];
   x->data.str =
-      realloc(x->data.str, strlen(x->data.str) + strlen(y.data.str) + 1);
-  strcat(x->data.str, y.data.str);
+      realloc(x->data.str, sizeof(struct shared_string)+ strlen(x->data.str->str) + strlen(y.data.str->str) + 1);
+  strcat(x->data.str->str, y.data.str->str);
   free_stack_cell(y);
   return frame;
 }
 PRIM_SIG(p_strlen) {
   struct stack_cell r=pop_data_stack(frame->stack);
   assert(r.type==t_string);
-  int rlen=strlen(r.data.str);
+  int rlen=strlen(r.data.str->str);
   free_stack_cell(r);
   r.type=t_int;
   r.data.str=NULL;
@@ -642,20 +641,21 @@ PRIM_SIG(p_push_primitive) {
 PRIM_SIG(p_notify) {
   struct stack_cell r = pop_data_stack(frame->stack);
   assert(r.type == t_string);
-  printf("%s\n", r.data.str);
+  printf("%s\n", r.data.str->str);
   free_stack_cell(r);
   return frame;
 }
 PRIM_SIG(p_read) {
-  char *line = malloc(100);
+  char *line = NULL;
   size_t size = 100;
   if (-1 == getline(&line, &size, stdin)) {
     fprintf(stderr, "Fack!\n");
   }
   struct stack_cell r;
-  r.data.str = line;
-  r.type = t_string;
-  push_data_stack_nocopy(frame->stack, r);
+  r = create_prim_string(line);
+  if(line)free(line);
+    push_data_stack(frame->stack, r);
+  free_stack_cell(r);
   return frame;
 }
 PRIM_SIG(p_atoi) {
@@ -663,7 +663,7 @@ PRIM_SIG(p_atoi) {
   assert(r.type == t_string);
   struct stack_cell result;
   result.type = t_int;
-  result.data.number = atoi(r.data.str);
+  result.data.number = atoi(r.data.str->str);
   push_data_stack(frame->stack, result);
   free_stack_cell(r);
   return frame;
@@ -672,7 +672,7 @@ PRIM_SIG(p_strtod){
     struct stack_cell s=pop_data_stack(frame->stack);
     assert(s.type==t_string);
     char *end=NULL;
-    double l=strtod(s.data.str,&end);
+    double l=strtod(s.data.str->str,&end);
     struct stack_cell result;
     result.type=t_float;
     result.data.fnumber=l;
@@ -684,17 +684,22 @@ PRIM_SIG(p_intostr) {
   struct stack_cell r = pop_data_stack(frame->stack);
   struct stack_cell f;
   f.type = t_string;
+  int newlen;
   switch (r.type) {
   case t_int:
-    f.data.str = malloc(12);
-    sprintf(f.data.str, "%d", r.data.number);
+    f.data.str = malloc(sizeof(struct shared_string)+12);
+    sprintf(f.data.str->str, "%d", r.data.number);
     break;
   case t_float:
-    f.data.str = malloc(snprintf(NULL, 0, "%f", r.data.fnumber) + 1);
-    sprintf(f.data.str, "%f", r.data.fnumber);
+    newlen=snprintf(NULL, 0, "%f", r.data.fnumber) ;
+    f.data.str = malloc(sizeof(struct shared_string)+newlen
+        + 1);
+    f.data.str->links=1;
+    f.data.str->length=newlen;
+    sprintf(f.data.str->str, "%f", r.data.fnumber);
     break;
   case t_string:
-    f.data.str = strdup(r.data.str);
+    f=copy_stack_cell(r);
     break;
   }
   push_data_stack(frame->stack, f);

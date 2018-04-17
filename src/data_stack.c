@@ -47,5 +47,8 @@ void push_data_stack(struct data_stack *st,struct stack_cell sc){
  // free_stack_cell(sc);
 }
 void push_data_stack_nocopy(struct data_stack *st,struct stack_cell sc){
+//    if((sc.type==t_string||sc.type==t_invalid)&&sc.data.str)
+//      sc.data.str->links++;
     st->stack[st->size++]=sc;
+    
 }

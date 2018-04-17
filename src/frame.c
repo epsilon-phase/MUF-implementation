@@ -22,7 +22,7 @@ void execute_program(struct frame* frame){
 //    if(counter!=0&&counter%40==0){
 //      printf("\x1b[J");
 //    }
-    if(1){
+    if(0){
     printf("Instruction [%s]  at address %zi ",
            obtain_bytecode_name(frame->program->bytecode[frame->instr_pointer].type),
             frame->instr_pointer);
