@@ -688,6 +688,8 @@ PRIM_SIG(p_intostr) {
   switch (r.type) {
   case t_int:
     f.data.str = malloc(sizeof(struct shared_string)+12);
+    f.data.str->length=12;
+    f.data.str->links=1;
     sprintf(f.data.str->str, "%d", r.data.number);
     break;
   case t_float:
