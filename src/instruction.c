@@ -5,6 +5,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+PRIM_SIG(p_mark){
+  struct stack_cell r;
+  r.type=t_mark;
+  push_data_stack(frame->stack,r);
+}
+PRIM_SIG(p_mark_end){
+  size_t i;
+  for(i=0;frame->stack->size-i>0;i++){
+    if(frame->stack->stack[frame->stack->size-1-i].type==t_mark){
+      break;
+    }
+  }
+  for(size_t r=frame->stack->size-i-1;r<frame->stack->size-1;r--){
+    frame->stack->stack[r]=frame->stack->stack[r+1];
+  }
+  push_data_stack(frame->stack,create_prim_int((int)i));
+}
 PRIM_SIG(p_dup) {
   struct stack_cell x = pop_data_stack(frame->stack);
   push_data_stack(frame->stack, x);
@@ -265,15 +282,19 @@ PRIM_SIG(p_rotate) {
   return frame;
 }
 PRIM_SIG(p_swap){
-    struct stack_cell y=pop_data_stack(frame->stack),
-                      x=pop_data_stack(frame->stack);
-    push_data_stack(frame->stack,y);
-    push_data_stack(frame->stack,x);
-    free_stack_cell(x);
-    free_stack_cell(y);
+    //struct stack_cell y=pop_data_stack(frame->stack),
+    //                  x=pop_data_stack(frame->stack);
+    //push_data_stack(frame->stack,y);
+    //push_data_stack(frame->stack,x);
+    //free_stack_cell(x);
+    //free_stack_cell(y);
+  struct stack_cell tmp=frame->stack->stack[frame->stack->size-1];
+  frame->stack->stack[frame->stack->size-1]=frame->stack->stack[frame->stack->size-2];
+  frame->stack->stack[frame->stack->size-2]=tmp;
   return frame;
 }
 PRIM_SIG(p_jmp) {
+    // Minus one because the next instruction will be stepped to after this.
   frame->instr_pointer =
       frame->program->bytecode[frame->instr_pointer].data.address - 1;
   return frame;
@@ -290,6 +311,7 @@ PRIM_SIG(p_jmp_if) {
 PRIM_SIG(p_jmp_not_if) {
   struct stack_cell x = pop_data_stack(frame->stack);
   if (!is_stack_cell_true(x)) {
+    // Minus one because the next instruction will be stepped to after this.
     frame->instr_pointer =
         frame->program->bytecode[frame->instr_pointer].data.address - 1;
   }
@@ -298,11 +320,19 @@ PRIM_SIG(p_jmp_not_if) {
 }
 PRIM_SIG(p_strcat) {
   struct stack_cell y = pop_data_stack(frame->stack),
-                    *x = &frame->stack->stack[frame->stack->size - 1];
-  x->data.str =
-      realloc(x->data.str, sizeof(struct shared_string)+ strlen(x->data.str->str) + strlen(y.data.str->str) + 1);
-  strcat(x->data.str->str, y.data.str->str);
+                    x = pop_data_stack(frame->stack);
+  struct stack_cell z;
+  z.type=t_string;
+  z.data.str =
+      calloc(1,sizeof(struct shared_string)+ strlen(x.data.str->str) + strlen(y.data.str->str) + 1);
+  z.data.str->links=1;
+  z.data.str->length=strlen(z.data.str->str);
+  strcat(z.data.str->str, x.data.str->str);
+  strcat(z.data.str->str, y.data.str->str);
   free_stack_cell(y);
+  push_data_stack(frame->stack,z);
+  free_stack_cell(x);
+  free_stack_cell(z);
   return frame;
 }
 PRIM_SIG(p_strlen) {
@@ -679,6 +709,67 @@ PRIM_SIG(p_strtod){
     push_data_stack(frame->stack,result);
     free_stack_cell(s);
   return frame;
+}
+PRIM_SIG(p_split){
+  struct stack_cell y=pop_data_stack(frame->stack),
+                    x=pop_data_stack(frame->stack),
+                    a,b;
+  int j=0;
+  int k=0;
+  a.type=t_string;
+  b.type=t_string;
+  int found=strstr(x.data.str->str,y.data.str->str)-x.data.str->str;
+  if(found){
+    a.data.str=malloc(sizeof(struct shared_string)+found+1);
+    a.data.str->length=found;
+    memcpy(a.data.str->str,x.data.str->str,found);
+    a.data.str->str[found]=0;
+    a.data.str->links=1;
+    b.data.str=malloc(sizeof(struct shared_string)+strlen(x.data.str->str)-found);
+    strcpy(b.data.str->str,x.data.str->str+found+1);
+    b.data.str->length=strlen(b.data.str->str);
+    b.data.str->links=1;
+  }
+  free_stack_cell(x);
+  free_stack_cell(y);
+  push_data_stack(frame->stack,a);
+  push_data_stack(frame->stack,b);
+  free_stack_cell(a);
+  free_stack_cell(b);
+  return frame;
+}
+PRIM_SIG(p_explode){
+  struct stack_cell y=pop_data_stack(frame->stack),
+                    x=pop_data_stack(frame->stack),
+                    a,b;
+  a.type=t_string;
+  b.type=t_string;
+  char *thing=x.data.str->str,
+       *thing2;
+  int count=0;
+  while(thing2=strstr(thing,y.data.str->str)){
+    a.data.str=malloc(sizeof(struct shared_string)+thing2-thing+1);
+    a.data.str->links=1;
+    a.data.str->length=thing2-thing;
+    memcpy(a.data.str->str,thing,thing2-thing);
+    a.data.str->str[thing2-thing]=0;
+    push_data_stack(frame->stack,a);
+    free_stack_cell(a);
+    thing=thing2+strlen(y.data.str->str);count++;
+  }
+  if(thing){
+    a.data.str=malloc(sizeof(struct shared_string)+strlen(thing)+1);
+    a.data.str->links=1;
+    a.data.str->length=strlen(thing);
+    memcpy(a.data.str->str,thing,strlen(thing));
+    a.data.str->str[strlen(thing)]=0;
+    push_data_stack(frame->stack,a);
+    free_stack_cell(a);
+    count++;
+  }
+  push_data_stack(frame->stack,create_prim_int(count));
+  free_stack_cell(x);
+  free_stack_cell(y);
 }
 PRIM_SIG(p_intostr) {
   struct stack_cell r = pop_data_stack(frame->stack);

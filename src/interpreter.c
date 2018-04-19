@@ -209,10 +209,14 @@ struct program *build(struct tokenlist *tl) {
         match(">=",i_gte);
         match("=",i_equal);
         match("!=",i_not_equal);
+        match("split",i_split);
         match("and",i_and);
         match("rot",i_rot);
         match("rotate",i_rotn);
         match("depth",i_depth);
+        match("{",i_mark);
+        match("}",i_mark_end);
+        match("strcat",i_strcat);
         break;
     }
     if (p_useful) {
@@ -366,6 +370,8 @@ void free_block_stack(struct block_stack* s){
 const char* obtain_bytecode_name(char t){
   const char *inames[]={
     "i_push_primitive",
+    "i_mark",
+    "i_mark_end",
     "i_pop",
     "i_popn",
     "i_dup",
@@ -430,7 +436,7 @@ void print_bytecode(struct program* p){
     if(current->type==i_push_primitive){
       switch(current->data.information.type){
         case t_string:
-        printf("%s",current->data.information.data.str->str);
+        printf("\"%s\"",current->data.information.data.str->str);
       break;
         case t_int:
         printf("%8i",current->data.information.data.number);

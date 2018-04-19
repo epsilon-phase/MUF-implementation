@@ -32,6 +32,7 @@ enum{
     t_lock,
     t_dbref,
     t_array,
+    t_mark,
     t_invalid
 } stack_type;
 struct stack_cell{
@@ -46,6 +47,8 @@ struct stack_cell{
 };
 enum instruction_opcode{
   i_push_primitive,
+  i_mark,
+  i_mark_end,
   i_pop,
   i_popn,
   i_dup,

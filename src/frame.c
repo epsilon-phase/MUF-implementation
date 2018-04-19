@@ -134,6 +134,21 @@ void execute_program(struct frame* frame){
       case i_swap:
         p_swap(frame);
         break;
+      case i_mark:
+        p_mark(frame);
+        break;
+      case i_mark_end:
+        p_mark_end(frame);
+        break;
+      case i_strcat:
+        p_strcat(frame);
+        break;
+      case i_split:
+        p_split(frame);
+        break;
+      case i_explode:
+        p_explode(frame);
+        break;
     }counter++;
     frame->instr_pointer++;
   }

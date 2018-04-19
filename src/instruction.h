@@ -3,6 +3,9 @@
 #include "frame.h"
 #include "interpreter.h"
 #define PRIM_SIG(N) struct frame* N (struct frame* frame)
+PRIM_SIG(p_push_primitive);
+PRIM_SIG(p_mark);
+PRIM_SIG(p_mark_end);
 PRIM_SIG(p_dup);
 PRIM_SIG(p_dupn);
 PRIM_SIG(p_pop);
@@ -31,11 +34,12 @@ PRIM_SIG(p_lte);
 PRIM_SIG(p_gte);
 PRIM_SIG(p_equals);
 PRIM_SIG(p_not_equals);
-PRIM_SIG(p_push_primitive);
 PRIM_SIG(p_notify);
 PRIM_SIG(p_read);
 PRIM_SIG(p_atoi);
 PRIM_SIG(p_strtod);
+PRIM_SIG(p_split);
+PRIM_SIG(p_explode);
 PRIM_SIG(p_intostr);
 # ifndef INSTRUCTION_C
 #   undef PRIM_SIG
