@@ -107,7 +107,7 @@ struct instruction{
   unsigned char type;
 } __attribute__((packed));
 struct program{
-  struct word **words;
+  struct word *words;
   size_t word_count;
   struct variable vars[MAX_VAR_COUNT];
   struct variable lvars[MAX_LVAR_COUNT];

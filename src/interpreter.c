@@ -62,6 +62,8 @@ void add_instruction(struct program *prog, struct instruction i) {
   }
 struct program *build(struct tokenlist *tl) {
   struct program *result = malloc(sizeof(struct program));
+  result->words=NULL;
+  result->word_count=0;
   memset(result, 0, sizeof(struct program));
   struct token *current_token = tl->token;
   struct block_stack *blocks = create_block_stack();
@@ -71,6 +73,22 @@ struct program *build(struct tokenlist *tl) {
   while (current_token) {
     struct instruction p;
     switch (current_token->type) {
+      case LEXER_FUNC_START:
+          {
+              struct word w={.position=result->bytecode_size,.name=strdup(tl->next->token->name)};
+              tl=tl->next;
+              if(result->words)
+                  result->words=realloc(result->words,sizeof(struct word)*(++result->word_count));
+              else
+                  result->words=malloc(sizeof(struct word)*(++result->word_count));
+              result->words[result->word_count-1]=w;
+          }
+        break;
+      case LEXER_FUNC_END:
+        if(blocks->size!=0){
+        }
+        add_instruction(result,simple_instruction_from_type(i_exit));
+        break;
       case LEXER_INT:
         p.type = i_push_primitive;
         p.data.information =create_prim_int(atoi(current_token->name));
@@ -192,6 +210,7 @@ struct program *build(struct tokenlist *tl) {
         match("<", i_lt);
         match(">", i_gt);
         match("intostr",i_intostr);
+        match("call", i_call);
         match("atoi",i_atoi);
         match("strtod",i_strtod);
         match("notify", i_notify);

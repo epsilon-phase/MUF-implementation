@@ -87,7 +87,7 @@ struct tokenlist *lexer(const char *input) {
         thistoken->line = line;
         thistoken->end = offset;
         thistoken->start = cur_offset;
-        memset(buffer, 0, bufferpos);
+        memset(buffer, 0, buffer_size);
         bufferpos = 0;
         current_tok->token = thistoken;
         current_tok->next = create_tokenlist();

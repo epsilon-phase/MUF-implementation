@@ -293,6 +293,11 @@ PRIM_SIG(p_swap){
   frame->stack->stack[frame->stack->size-2]=tmp;
   return frame;
 }
+PRIM_SIG(p_exit){
+    if(frame->parent)
+        return frame->parent;
+    return frame;
+}
 PRIM_SIG(p_jmp) {
     // Minus one because the next instruction will be stepped to after this.
   frame->instr_pointer =
@@ -737,6 +742,19 @@ PRIM_SIG(p_split){
   free_stack_cell(a);
   free_stack_cell(b);
   return frame;
+}
+PRIM_SIG(p_call){
+    struct frame* result=malloc(sizeof(struct frame));
+    struct stack_cell r=pop_data_stack(frame->stack);
+    *result=create_frame(frame->program,NULL,frame);
+    for(size_t i=0;i<result->program->word_count;i++){
+        if(!strcmp(result->program->words[i].name,r.data.str->str)){
+            result->instr_pointer=result->program->words[i].position-1;
+            break;
+        }
+    }
+    free_stack_cell(r);
+    return result;
 }
 PRIM_SIG(p_explode){
   struct stack_cell y=pop_data_stack(frame->stack),

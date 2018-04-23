@@ -8,6 +8,7 @@ struct frame create_frame(struct program* prog,const char* arguments,struct fram
     result.stack=create_data_stack(30);
   }else{
     result.stack=parent->stack;
+    result.stack->links++;
   }
   if(arguments){
     push_data_stack(result.stack,create_prim_string(arguments));
@@ -145,6 +146,12 @@ void execute_program(struct frame* frame){
         break;
       case i_split:
         p_split(frame);
+        break;
+      case i_call:
+        frame=p_call(frame);
+        break;
+      case i_exit:
+        frame=p_exit(frame);
         break;
       case i_explode:
         p_explode(frame);

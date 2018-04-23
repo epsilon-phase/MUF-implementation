@@ -19,6 +19,7 @@ PRIM_SIG(p_power);
 PRIM_SIG(p_rot);
 PRIM_SIG(p_rotate);
 PRIM_SIG(p_swap);
+PRIM_SIG(p_exit);
 PRIM_SIG(p_jmp);
 PRIM_SIG(p_jmp_if);
 PRIM_SIG(p_jmp_not_if);
@@ -39,6 +40,7 @@ PRIM_SIG(p_read);
 PRIM_SIG(p_atoi);
 PRIM_SIG(p_strtod);
 PRIM_SIG(p_split);
+PRIM_SIG(p_call);
 PRIM_SIG(p_explode);
 PRIM_SIG(p_intostr);
 # ifndef INSTRUCTION_C
