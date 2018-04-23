@@ -114,6 +114,7 @@ struct program{
   struct instruction *bytecode;
   size_t bytecode_size;
   size_t bytecode_capacity;
+  size_t entry_point;
 };
 struct for_vars{
   int start,end,step;

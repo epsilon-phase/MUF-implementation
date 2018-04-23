@@ -82,6 +82,7 @@ struct program *build(struct tokenlist *tl) {
               else
                   result->words=malloc(sizeof(struct word)*(++result->word_count));
               result->words[result->word_count-1]=w;
+              result->entry_point=w.position;
           }
         break;
       case LEXER_FUNC_END:
