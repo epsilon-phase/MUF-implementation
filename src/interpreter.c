@@ -31,7 +31,7 @@ void close_loop(struct program*,
 void add_instruction(struct program *prog, struct instruction i) {
   if (!prog) return;
   if (!prog->bytecode) {
-    prog->bytecode = calloc(100, sizeof(struct instruction *));
+    prog->bytecode = calloc(100, sizeof(struct instruction));
     prog->bytecode_capacity = 10;
   }
   if (prog->bytecode_size == prog->bytecode_capacity-1) {
@@ -68,7 +68,7 @@ struct program *build(struct tokenlist *tl) {
   struct token *current_token = tl->token;
   struct block_stack *blocks = create_block_stack();
   struct position_stack *unfilled_breaks=create_position_stack();
-  unsigned int state = 0;
+  result->entry_point=0;
   unsigned char p_useful = 0;
   while (current_token) {
     struct instruction p;
@@ -306,7 +306,7 @@ struct stack_cell create_prim_string(const char *data) {
   result.data.str = malloc(sizeof(struct shared_string)+strlen(data)+1);
   result.data.str->length=strlen(data);
   result.data.str->links=1;
-  strcpy(result.data.str->str,data);
+  strncpy(result.data.str->str,data,strlen(data)+1);
   return result;
 }
 struct stack_cell create_prim_invalid(const char* message){
@@ -316,9 +316,10 @@ struct stack_cell create_prim_invalid(const char* message){
     result.data.str=malloc(sizeof(struct shared_string)+strlen(message)+1);
     result.data.str->links=1;
     result.data.str->length=strlen(message);
-    strcpy(result.data.str->str,message);
-  }else
+    strncpy(result.data.str->str,message,result.data.str->length);
+  }else{
     result.data.str=NULL;
+  }
   return result;
 }
 void print_stack_cell(struct stack_cell* sc){
@@ -360,6 +361,7 @@ struct block_stack *create_block_stack() {
   result->stuff = malloc(sizeof(struct block) * 10);
   result->capacity = 10;
   result->size = 0;
+  memset(result->stuff,0,sizeof(struct block)*10);
   return result;
 }
 void push_block(struct block_stack *stack, int type, size_t pos) {
@@ -387,7 +389,7 @@ void free_block_stack(struct block_stack* s){
   free(s->stuff);
   free(s);
 }
-const char* obtain_bytecode_name(char t){
+const char* obtain_bytecode_name(unsigned char t){
   const char *inames[]={
     "i_push_primitive",
     "i_mark",
@@ -445,7 +447,7 @@ const char* obtain_bytecode_name(char t){
   return inames[t];
 }
 void print_bytecode(struct program* p){
-  int max_opcode_name=0;
+  unsigned int max_opcode_name=0;
   for(int i=0;i<=i_intostr;i++){
     max_opcode_name=strlen(obtain_bytecode_name(i))>max_opcode_name?strlen(obtain_bytecode_name(i)):max_opcode_name;
   }
@@ -491,6 +493,10 @@ void free_program(struct program** pr){
       free_stack_cell(p->bytecode[i].data.information);
     }
   }
+  for(size_t i=0;i<(*pr)->word_count;i++){
+      free((*pr)->words[i].name);
+  }
+  free((*pr)->words);
   free(p->bytecode);
   free(*pr);
 }

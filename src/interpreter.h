@@ -10,7 +10,7 @@
 #endif
 struct word{
   size_t position;
-  const char* name;
+  char* name;
 };
 struct stack_cell;
 struct variable{
@@ -132,7 +132,7 @@ struct stack_cell create_prim_double(double);
 struct stack_cell create_prim_string(const char*);
 struct stack_cell create_prim_invalid(const char*);
 void print_stack_cell(struct stack_cell*);
-const char* obtain_bytecode_name(char);
+const char* obtain_bytecode_name(unsigned char);
 struct variable* create_variable(const char* name);
 void free_program(struct program** p);
 #endif
