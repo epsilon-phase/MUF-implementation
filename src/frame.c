@@ -19,6 +19,7 @@ struct frame create_frame(struct program* prog,const char* arguments,struct fram
 }
 void execute_program(struct frame* frame){
   int counter=0;
+  frame->instr_pointer=frame->program->entry_point;
   while(frame->instr_pointer<frame->program->bytecode_size){
 //    if(counter!=0&&counter%40==0){
 //      printf("\x1b[J");

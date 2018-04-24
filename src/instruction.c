@@ -9,6 +9,7 @@ PRIM_SIG(p_mark){
   struct stack_cell r;
   r.type=t_mark;
   push_data_stack(frame->stack,r);
+  return frame;
 }
 PRIM_SIG(p_mark_end){
   size_t i;
@@ -21,6 +22,7 @@ PRIM_SIG(p_mark_end){
     frame->stack->stack[r]=frame->stack->stack[r+1];
   }
   push_data_stack(frame->stack,create_prim_int((int)i));
+  return frame;
 }
 PRIM_SIG(p_dup) {
   struct stack_cell x = pop_data_stack(frame->stack);
@@ -215,7 +217,6 @@ PRIM_SIG(p_power) {
   assert(x.type == t_int || x.type == t_float);
   assert(y.type == t_int || y.type == t_float);
   struct stack_cell r;
-  double rd;
   if ((x.type == t_int || x.type == t_float) &&
       (y.type == t_int || y.type == t_float)) {
     r.type = x.type == t_float || y.type == t_float ? t_float : t_int;
@@ -294,8 +295,12 @@ PRIM_SIG(p_swap){
   return frame;
 }
 PRIM_SIG(p_exit){
-    if(frame->parent)
-        return frame->parent;
+    struct frame *tmp=frame->parent;
+    if(frame->parent){
+        free_frame(frame);
+        free(frame);
+        return tmp;
+    }
     return frame;
 }
 PRIM_SIG(p_jmp) {
@@ -719,8 +724,6 @@ PRIM_SIG(p_split){
   struct stack_cell y=pop_data_stack(frame->stack),
                     x=pop_data_stack(frame->stack),
                     a,b;
-  int j=0;
-  int k=0;
   a.type=t_string;
   b.type=t_string;
   int found=strstr(x.data.str->str,y.data.str->str)-x.data.str->str;
@@ -731,7 +734,7 @@ PRIM_SIG(p_split){
     a.data.str->str[found]=0;
     a.data.str->links=1;
     b.data.str=malloc(sizeof(struct shared_string)+strlen(x.data.str->str)-found);
-    strcpy(b.data.str->str,x.data.str->str+found+1);
+    strncpy(b.data.str->str,x.data.str->str+found+1,x.data.str->length-found);
     b.data.str->length=strlen(b.data.str->str);
     b.data.str->links=1;
   }
@@ -759,13 +762,12 @@ PRIM_SIG(p_call){
 PRIM_SIG(p_explode){
   struct stack_cell y=pop_data_stack(frame->stack),
                     x=pop_data_stack(frame->stack),
-                    a,b;
+                    a;
   a.type=t_string;
-  b.type=t_string;
   char *thing=x.data.str->str,
        *thing2;
   int count=0;
-  while(thing2=strstr(thing,y.data.str->str)){
+  while((thing2=strstr(thing,y.data.str->str))){
     a.data.str=malloc(sizeof(struct shared_string)+thing2-thing+1);
     a.data.str->links=1;
     a.data.str->length=thing2-thing;
@@ -788,6 +790,7 @@ PRIM_SIG(p_explode){
   push_data_stack(frame->stack,create_prim_int(count));
   free_stack_cell(x);
   free_stack_cell(y);
+  return frame;
 }
 PRIM_SIG(p_intostr) {
   struct stack_cell r = pop_data_stack(frame->stack);
