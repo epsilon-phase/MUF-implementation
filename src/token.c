@@ -6,12 +6,15 @@
 #include <string.h>
 struct tokenlist *create_tokenlist() {
   struct tokenlist *result = malloc(sizeof(struct tokenlist));
+  if(result==NULL){
+      fprintf(stderr,"Something went wrong allocating memory.\n");
+  }
   result->token = NULL;
   result->next = NULL;
   return result;
 }
 // return the end of the match, -1 for not a word
-int glob_word(const char *input, int start) {
+static int glob_word(const char *input, int start) {
   int end = start;
   if (!input[end])
     return -1;
@@ -24,7 +27,7 @@ int glob_word(const char *input, int start) {
   return end - 1;
 }
 // Same as above, but different.
-int glob_integer(const char *input, int start) {
+static int glob_integer(const char *input, int start) {
   int end = start;
   while (input[end] && (isdigit(input[end])||(end==start&&input[end]=='-'))) {
     end++;
@@ -42,7 +45,7 @@ int glob_integer(const char *input, int start) {
     return -1;
   }
 }
-int glob_float(const char *input, int start) {
+static int glob_float(const char *input, int start) {
   int end = start;
   int seen_period = 0;
   while (input[end] &&
@@ -64,7 +67,7 @@ struct tokenlist *lexer(const char *input) {
   char *buffer=malloc(64);
   size_t buffer_size=64;
   memset(buffer, 0, 64);
-  int bufferpos = 0;
+  unsigned int bufferpos = 0;
   int curstart = 0, cur_offset = 0;
   int line = 0;
   int offset = 0;
@@ -75,7 +78,7 @@ struct tokenlist *lexer(const char *input) {
   while ((curchar = input[current_position]) != 0) {
       if(bufferpos==buffer_size){
           buffer=realloc(buffer,buffer_size*2);
-          buffer_size++;
+          buffer_size*=2;
       }
     if (isspace(curchar) && !instring && current_guess != LEXER_NOTHING) {
       if (current_guess != -1) {
@@ -345,7 +348,7 @@ void post_process_lexer(struct tokenlist *start) {
       continue;
     }
     int i = 0;
-    while (current->name[i] && current->type == LEXER_WORD) {
+    while (current->name[i]!='\0' && current->type == LEXER_WORD) {
       current->name[i] = tolower(current->name[i]);
       i++;
     }
