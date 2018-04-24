@@ -251,6 +251,11 @@ PRIM_SIG(p_power) {
   push_data_stack(frame->stack, r);
   return frame;
 }
+PRIM_SIG(p_increment){
+    struct stack_cell *x=&frame->stack->stack[frame->stack->size-1];
+    
+    return frame;
+}
 PRIM_SIG(p_rot) {
   struct stack_cell z = pop_data_stack(frame->stack),
                     y = pop_data_stack(frame->stack),
@@ -359,7 +364,7 @@ PRIM_SIG(p_strlen) {
 PRIM_SIG(p_strcmp) {
   return frame;
 }
-PRIM_SIG(p_for_push) {
+PRIM_SIG(p_forpush) {
   struct stack_cell step = pop_data_stack(frame->stack),
                     end = pop_data_stack(frame->stack),
                     start = pop_data_stack(frame->stack);
@@ -376,7 +381,7 @@ PRIM_SIG(p_for_push) {
   free_stack_cell(start);
   return frame;
 }
-PRIM_SIG(p_for_pop) {
+PRIM_SIG(p_forpop) {
  pop_for_vars_stack(frame->fstack); 
   return frame;
 }
@@ -580,7 +585,7 @@ PRIM_SIG(p_gte) {
   }
   return frame;
 }
-PRIM_SIG(p_equals) {
+PRIM_SIG(p_equal) {
   struct stack_cell y = pop_data_stack(frame->stack),
                     x = pop_data_stack(frame->stack);
   assert(x.type == t_int || x.type == t_float || x.type == t_dbref);
@@ -625,7 +630,7 @@ PRIM_SIG(p_equals) {
   }
   return frame;
 }
-PRIM_SIG(p_not_equals) {
+PRIM_SIG(p_not_equal) {
   struct stack_cell y = pop_data_stack(frame->stack),
                     x = pop_data_stack(frame->stack);
   assert(x.type == t_int || x.type == t_float || x.type == t_dbref);
@@ -821,3 +826,53 @@ PRIM_SIG(p_intostr) {
   free_stack_cell(f);
   return frame;
 }
+PRIM** instructions=NULL;
+#define ASSOCIATE(NaMe) instructions[i_##NaMe]=p_##NaMe
+//Now this is an ugly hack <:(
+#define i_rotate i_rotn
+PRIM** get_instructions(){
+    if(instructions==NULL){
+        instructions=calloc(i_intostr+1,sizeof(PRIM*));
+        ASSOCIATE(push_primitive);
+        ASSOCIATE(mark);
+        ASSOCIATE(mark_end);
+        ASSOCIATE(dup);
+        ASSOCIATE(dupn);
+        ASSOCIATE(pop);
+        ASSOCIATE(popn);
+        ASSOCIATE(depth);
+        ASSOCIATE(plus);
+        ASSOCIATE(minus);
+        ASSOCIATE(divide);
+        ASSOCIATE(multiply);
+        ASSOCIATE(power);
+        ASSOCIATE(rot);
+        ASSOCIATE(rotate);
+        ASSOCIATE(swap);
+        ASSOCIATE(exit);
+        ASSOCIATE(jmp);
+        ASSOCIATE(jmp_not_if);
+        ASSOCIATE(strcat);
+        ASSOCIATE(strlen);
+        ASSOCIATE(strcmp);
+        ASSOCIATE(forpush);
+        ASSOCIATE(forpop);
+        ASSOCIATE(foriter);
+        ASSOCIATE(gt);
+        ASSOCIATE(lt);
+        ASSOCIATE(gte);
+        ASSOCIATE(lte);
+        ASSOCIATE(equal);
+        ASSOCIATE(not_equal);
+        ASSOCIATE(notify);
+        ASSOCIATE(read);
+        ASSOCIATE(atoi);
+        ASSOCIATE(strtod);
+        ASSOCIATE(split);
+        ASSOCIATE(call);
+        ASSOCIATE(explode);
+        ASSOCIATE(intostr);
+    }
+    return instructions;
+}
+#undef i_rotate

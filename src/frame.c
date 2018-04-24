@@ -20,6 +20,7 @@ struct frame create_frame(struct program* prog,const char* arguments,struct fram
 void execute_program(struct frame* frame){
   int counter=0;
   frame->instr_pointer=frame->program->entry_point;
+  PRIM** instructions=get_instructions();
   while(frame->instr_pointer<frame->program->bytecode_size){
 //    if(counter!=0&&counter%40==0){
 //      printf("\x1b[J");
@@ -42,6 +43,7 @@ void execute_program(struct frame* frame){
 //    }else{
 //      printf("\x1b[50G\x1b[B");
 //    }
+#if 0
     switch(frame->program->bytecode[frame->instr_pointer].type){
       case i_jmp:
         p_jmp(frame);
@@ -68,10 +70,10 @@ void execute_program(struct frame* frame){
         p_lte(frame);
         break;
       case i_equal:
-        p_equals(frame);
+        p_equal(frame);
         break;
       case i_not_equal:
-        p_not_equals(frame);
+        p_not_equal(frame);
         break;
       case i_break:
         p_jmp(frame);
@@ -80,10 +82,10 @@ void execute_program(struct frame* frame){
         p_jmp(frame);
         break;
       case i_forpop:
-        p_for_pop(frame);
+        p_forpop(frame);
         break;
       case i_forpush:
-        p_for_push(frame);
+        p_forpush(frame);
         break;
       case i_plus:
         p_plus(frame);
@@ -157,7 +159,16 @@ void execute_program(struct frame* frame){
       case i_explode:
         p_explode(frame);
         break;
-    }counter++;
+    }
+#endif
+    if(instructions[frame->program->bytecode[frame->instr_pointer].type]){
+        frame=(*instructions[frame->program->bytecode[frame->instr_pointer].type])(frame);
+    }else{
+        printf("Unimplemented instruction [%s]  at address %zi ",
+               obtain_bytecode_name(frame->program->bytecode[frame->instr_pointer].type),
+                frame->instr_pointer);
+    }
+    counter++;
     frame->instr_pointer++;
   }
     for(int i=0;i<frame->stack->size;i++){
