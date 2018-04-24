@@ -207,6 +207,7 @@ struct program *build(struct tokenlist *tl) {
         match("*", i_multiply);
         match("/",i_divide);
         match("^",i_power);
+        match("++",i_increment);
         match("pow", i_power);
         match("<", i_lt);
         match(">", i_gt);

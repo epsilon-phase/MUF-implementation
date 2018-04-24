@@ -253,7 +253,10 @@ PRIM_SIG(p_power) {
 }
 PRIM_SIG(p_increment){
     struct stack_cell *x=&frame->stack->stack[frame->stack->size-1];
-    
+    if(x->type==t_int)
+        x->data.number++;
+    else if(x->type==t_float)
+        x->data.fnumber++;
     return frame;
 }
 PRIM_SIG(p_rot) {
@@ -332,6 +335,12 @@ PRIM_SIG(p_jmp_not_if) {
   }
   free_stack_cell(x);
   return frame;
+}
+PRIM_SIG(p_break){
+    return p_jmp(frame);
+}
+PRIM_SIG(p_continue){
+    return p_jmp(frame);
 }
 PRIM_SIG(p_strcat) {
   struct stack_cell y = pop_data_stack(frame->stack),
@@ -731,8 +740,43 @@ PRIM_SIG(p_split){
                     a,b;
   a.type=t_string;
   b.type=t_string;
-  int found=strstr(x.data.str->str,y.data.str->str)-x.data.str->str;
+  char *found=strstr(x.data.str->str,y.data.str->str);
   if(found){
+    a.data.str=malloc(sizeof(struct shared_string)+(found-x.data.str->str)+1);
+    a.data.str->length=found-x.data.str->str;
+    memcpy(a.data.str->str,x.data.str->str,found-x.data.str->str);
+    a.data.str->str[found-x.data.str->str]=0;
+    a.data.str->links=1;
+    b.data.str=malloc(sizeof(struct shared_string)+strlen(x.data.str->str)-(found-x.data.str->str));
+    strncpy(b.data.str->str,x.data.str->str+(found-x.data.str->str)+1,x.data.str->length-(found-x.data.str->str));
+    b.data.str->length=strlen(b.data.str->str);
+    b.data.str->links=1;
+    free_stack_cell(x);
+    free_stack_cell(y);
+    push_data_stack(frame->stack,a);
+    push_data_stack(frame->stack,b);
+    free_stack_cell(a);
+    free_stack_cell(b);
+  }else{
+    push_data_stack(frame->stack,x);
+    free_stack_cell(y);
+    free_stack_cell(a);
+    free_stack_cell(b);
+  }
+  return frame;
+}
+PRIM_SIG(p_rsplit){
+  struct stack_cell y=pop_data_stack(frame->stack),
+                    x=pop_data_stack(frame->stack),
+                    a,b;
+  a.type=t_string;
+  b.type=t_string;
+  int found,tmp=strstr(x.data.str->str,y.data.str->str)-x.data.str->str;
+  if(tmp){
+    while(tmp){
+        found=tmp;
+        tmp=strstr(x.data.str->str+tmp,y.data.str->str)-x.data.str->str;
+    }
     a.data.str=malloc(sizeof(struct shared_string)+found+1);
     a.data.str->length=found;
     memcpy(a.data.str->str,x.data.str->str,found);
@@ -750,6 +794,7 @@ PRIM_SIG(p_split){
   free_stack_cell(a);
   free_stack_cell(b);
   return frame;
+
 }
 PRIM_SIG(p_call){
     struct frame* result=malloc(sizeof(struct frame));
@@ -846,12 +891,16 @@ PRIM** get_instructions(){
         ASSOCIATE(divide);
         ASSOCIATE(multiply);
         ASSOCIATE(power);
+        ASSOCIATE(increment);
         ASSOCIATE(rot);
         ASSOCIATE(rotate);
         ASSOCIATE(swap);
         ASSOCIATE(exit);
         ASSOCIATE(jmp);
+        ASSOCIATE(jmp_if);
         ASSOCIATE(jmp_not_if);
+        instructions[i_break]=p_break;
+        instructions[i_continue]=p_continue;
         ASSOCIATE(strcat);
         ASSOCIATE(strlen);
         ASSOCIATE(strcmp);

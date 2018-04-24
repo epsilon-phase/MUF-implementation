@@ -25,6 +25,8 @@ PRIM_SIG(p_exit);
 PRIM_SIG(p_jmp);
 PRIM_SIG(p_jmp_if);
 PRIM_SIG(p_jmp_not_if);
+PRIM_SIG(p_break);
+PRIM_SIG(p_continue);
 PRIM_SIG(p_strcat);
 PRIM_SIG(p_strlen);
 PRIM_SIG(p_strcmp);
