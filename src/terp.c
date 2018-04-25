@@ -47,7 +47,6 @@ const char *argp_program_bug_address="<alexwhite42000@gmail.com>";
 static char args_doc[]="FILE1 [input file] ARGUMENTS [passed in on the stack]";
 static char doc[]=
   "MUFJIT a MUF interpreter for the system, and one day, a JIT system/compiler for it.\
-   Written without reference to anything but the Protomuck documentation.\
    \vHexaferrum (c) 2018";
 static struct argp_option options[]=
   {
@@ -57,19 +56,11 @@ static struct argp_option options[]=
     {"log-output",    'l',"OUTPUT",0,"Write program output/stack information to a file.", 0}
   }
 ;
-struct arguments{
-  char *file;
-  char **other_files;
-  int print_bytecode,
-      print_stack,
-      run_tests;
-};
 static error_t parse_opt(int key,char* arg, struct argp_state *state);
 static struct argp argp={.options=options,.parser=parse_opt,.args_doc=args_doc,.doc=doc};
 int main(int argc, char** argv) {
   struct arguments arguments={.file=NULL,.other_files=NULL,.print_bytecode=0,.print_stack=0,.run_tests=0};
-  argp_parse(&argp,argc,argv,0,0,&arguments);
-  
+  argp_parse(&argp,argc,argv,0,0,&arguments); 
   return 0;
 }
 char *read_file(const char* fn){
@@ -98,7 +89,10 @@ static error_t parse_opt(int key,char* arg, struct argp_state *state){
       arguments->print_bytecode=1;
       break;
     case 's':
-      arguments->print_stack=1;
+      if(!arguments->print_stack){
+        arguments->print_stack=10;
+      }
+      arguments->print_stack--;
       break;
     case 't':
       arguments->run_tests=1;

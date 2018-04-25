@@ -17,7 +17,7 @@ struct frame create_frame(struct program* prog,const char* arguments,struct fram
   result.program=prog;
   return result;
 }
-void execute_program(struct frame* frame){
+void execute_program(struct frame* frame,struct arguments* args){
   int counter=0;
   frame->instr_pointer=frame->program->entry_point;
   PRIM** instructions=get_instructions();
@@ -25,15 +25,15 @@ void execute_program(struct frame* frame){
 //    if(counter!=0&&counter%40==0){
 //      printf("\x1b[J");
 //    }
-    if(0){
-    printf("Instruction [%s]  at address %zi ",
-           obtain_bytecode_name(frame->program->bytecode[frame->instr_pointer].type),
-            frame->instr_pointer);
-    for(int i=0;i<frame->stack->size;i++){
-      print_stack_cell(&frame->stack->stack[i]);
-      printf(",");
-    }
-    printf("\n");
+    if(counter%args->print_stack==0){
+      printf("Instruction [%s]  at address %zi ",
+             obtain_bytecode_name(frame->program->bytecode[frame->instr_pointer].type),
+             frame->instr_pointer);
+      for(unsigned int i=0;i<frame->stack->size;i++){
+        print_stack_cell(&frame->stack->stack[i]);
+        printf(",");
+      }
+      printf("\n");
     }
 //    if(counter%40>0&&counter%20==0){
 //      printf("\x1b[20A\x1b[50G");
@@ -171,7 +171,7 @@ void execute_program(struct frame* frame){
     counter++;
     frame->instr_pointer++;
   }
-    for(int i=0;i<frame->stack->size;i++){
+    for(unsigned int i=0;i<frame->stack->size;i++){
       print_stack_cell(&frame->stack->stack[i]);
       printf(",");
     }

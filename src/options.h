@@ -1,8 +1,10 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
-struct options{
-    size_t filecount;
-    char** files;
-    int print_tokens:1,print_ast:1,print_function_names:1;
+struct arguments{
+  char *file;
+  char **other_files;
+  int print_bytecode,
+      print_stack,
+      run_tests;
 };
 #endif

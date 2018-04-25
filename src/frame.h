@@ -1,6 +1,7 @@
 #ifndef FRAME_H
 #define FRAME_H
 #include "interpreter.h"
+#include "options.h"
 struct for_vars_stack{
   struct for_vars *stuff;
   size_t size,capacity;
@@ -30,6 +31,6 @@ struct frame{
   size_t instr_pointer;
 };
 struct frame create_frame(struct program* prog,const char* arguments,struct frame* parent);
-void execute_program(struct frame* frame);
+void execute_program(struct frame* frame,struct arguments*);
 void free_frame(struct frame* frame);
 #endif
