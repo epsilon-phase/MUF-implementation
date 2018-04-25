@@ -60,6 +60,8 @@ enum instruction_opcode{
   i_multiply,
   i_power,
   i_increment,
+  i_decrement,
+  i_modulo,
   i_jmp,
   i_jmp_if,
   i_jmp_not_if,

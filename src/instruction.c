@@ -259,6 +259,22 @@ PRIM_SIG(p_increment){
         x->data.fnumber++;
     return frame;
 }
+PRIM_SIG(p_decrement){
+  struct stack_cell *x=&frame->stack->stack[frame->stack->size-1];
+  assert(x->type==t_int||x->type==t_float);
+  if(x->type==t_int)
+      x->data.number--;
+  else if(x->type==t_float)
+      x->data.fnumber--;
+  return frame;
+}
+PRIM_SIG(p_modulo){
+  struct stack_cell y=pop_data_stack(frame->stack),
+                    *x=&frame->stack->stack[frame->stack->size-1];
+  assert(x->type==t_int&&y.type==t_int);
+  x->data.number%=y.data.number;
+  return frame;
+}
 PRIM_SIG(p_rot) {
   struct stack_cell z = pop_data_stack(frame->stack),
                     y = pop_data_stack(frame->stack),
@@ -892,6 +908,8 @@ PRIM** get_instructions(){
         ASSOCIATE(multiply);
         ASSOCIATE(power);
         ASSOCIATE(increment);
+        ASSOCIATE(decrement);
+        ASSOCIATE(modulo);
         ASSOCIATE(rot);
         ASSOCIATE(rotate);
         ASSOCIATE(swap);

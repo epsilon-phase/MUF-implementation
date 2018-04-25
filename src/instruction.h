@@ -18,6 +18,8 @@ PRIM_SIG(p_multiply);
 PRIM_SIG(p_divide);
 PRIM_SIG(p_power);
 PRIM_SIG(p_increment);
+PRIM_SIG(p_decrement);
+PRIM_SIG(p_modulo);
 PRIM_SIG(p_rot);
 PRIM_SIG(p_rotate);
 PRIM_SIG(p_swap);

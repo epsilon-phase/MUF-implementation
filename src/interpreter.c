@@ -208,6 +208,8 @@ struct program *build(struct tokenlist *tl) {
         match("/",i_divide);
         match("^",i_power);
         match("++",i_increment);
+        match("--",i_decrement);
+        match("%",i_modulo);
         match("pow", i_power);
         match("<", i_lt);
         match(">", i_gt);
@@ -406,6 +408,8 @@ const char* obtain_bytecode_name(unsigned char t){
     "i_power",
     "i_multiply",
     "i_increment",
+    "i_decrement",
+    "i_modulo",
     "i_jmp",
     "i_jmp_if",
     "i_jmp_not_if",
