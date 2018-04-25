@@ -53,14 +53,31 @@ static struct argp_option options[]=
     {"print-bytecode",'p',0,0,"Print a representation of the bytecode to the terminal",2},
     {"print-stack",   's',0,0,"Print the stack after each instruction.",2},
     {"tests",         't',0,0,"Run the tests.",2},
-    {"log-output",    'l',"OUTPUT",0,"Write program output/stack information to a file.", 0}
+    {"log-output",    'l',"OUTPUT",0,"Write program output/stack information to a file.", 0},
+    {0}
   }
 ;
 static error_t parse_opt(int key,char* arg, struct argp_state *state);
 static struct argp argp={.options=options,.parser=parse_opt,.args_doc=args_doc,.doc=doc};
 int main(int argc, char** argv) {
   struct arguments arguments={.file=NULL,.other_files=NULL,.print_bytecode=0,.print_stack=0,.run_tests=0};
-  argp_parse(&argp,argc,argv,0,0,&arguments); 
+  argp_parse(&argp,argc,argv,0,0,&arguments);
+  if(arguments.file){
+    char *read_stuff=read_file(arguments.file);
+    if(read_stuff){
+      struct tokenlist *tl=lexer(read_stuff);
+      struct program *prog=build(tl);
+      if(arguments.print_bytecode){
+        print_bytecode(prog);
+      }
+      struct frame f=create_frame(prog,NULL,NULL);
+      execute_program(&f,&arguments);
+      free_frame(&f);
+      free_program(&prog);
+      tokenlist_free(tl);
+      free(read_stuff);
+    }
+  }
   return 0;
 }
 char *read_file(const char* fn){
