@@ -44,6 +44,7 @@ PRIM_SIG(p_not_equal);
 PRIM_SIG(p_or);
 PRIM_SIG(p_and);
 PRIM_SIG(p_xor);
+PRIM_SIG(p_not);
 PRIM_SIG(p_notify);
 PRIM_SIG(p_read);
 PRIM_SIG(p_atoi);

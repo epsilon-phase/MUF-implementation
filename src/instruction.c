@@ -742,6 +742,18 @@ PRIM_SIG(p_xor){
   free_stack_cell(x);
   return frame;
 }
+PRIM_SIG(p_not){
+  struct stack_cell y=pop_data_stack(frame->stack),
+                    result={.type=t_int};
+  if(!is_stack_cell_true(y)){
+    result.data.number=1;
+  }else{
+    result.data.number=0;
+  }
+  push_data_stack(frame->stack,result);
+  free_stack_cell(y);
+  return frame;
+}
 PRIM_SIG(p_push_primitive) {
   size_t istr = frame->instr_pointer;
   struct stack_cell result =
