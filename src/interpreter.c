@@ -226,6 +226,8 @@ struct program *build(struct tokenlist *tl) {
         match("swap",i_swap);
         match("over",i_over);
         match("or",i_or);
+        match("and",i_and);
+        match("xor",i_xor);
         match("not",i_not);
         match("nip",i_nip);
         match("<=",i_lte);
@@ -426,6 +428,7 @@ const char* obtain_bytecode_name(unsigned char t){
     "i_not",
     "i_and",
     "i_or",
+    "i_xor",
     "i_rot",
     "i_rotn",
     "i_over",

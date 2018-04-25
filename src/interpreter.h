@@ -78,6 +78,7 @@ enum instruction_opcode{
   i_not,
   i_and,
   i_or,
+  i_xor,
   i_rot,
   i_rotn,
   i_over,

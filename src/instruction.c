@@ -700,6 +700,48 @@ PRIM_SIG(p_not_equal) {
   }
   return frame;
 }
+PRIM_SIG(p_or){
+  struct stack_cell y=pop_data_stack(frame->stack),
+                    x=pop_data_stack(frame->stack),
+                    result={.type=t_int};
+  if(is_stack_cell_true(x)||is_stack_cell_true(y)){
+    result.data.number=1;
+  }else{
+    result.data.number=0;
+  }
+  push_data_stack(frame->stack,result);
+  free_stack_cell(y);
+  free_stack_cell(x);
+  return frame;
+}
+PRIM_SIG(p_and){
+  struct stack_cell y=pop_data_stack(frame->stack),
+                    x=pop_data_stack(frame->stack),
+                    result={.type=t_int};
+  if(is_stack_cell_true(x)&&is_stack_cell_true(y)){
+    result.data.number=1;
+  }else{
+    result.data.number=0;
+  }
+  push_data_stack(frame->stack,result);
+  free_stack_cell(y);
+  free_stack_cell(x);
+  return frame;
+}
+PRIM_SIG(p_xor){
+  struct stack_cell y=pop_data_stack(frame->stack),
+                    x=pop_data_stack(frame->stack),
+                    result={.type=t_int};
+  if(!is_stack_cell_true(x)!=!is_stack_cell_true(y)){
+    result.data.number=1;
+  }else{
+    result.data.number=0;
+  }
+  push_data_stack(frame->stack,result);
+  free_stack_cell(y);
+  free_stack_cell(x);
+  return frame;
+}
 PRIM_SIG(p_push_primitive) {
   size_t istr = frame->instr_pointer;
   struct stack_cell result =
@@ -931,6 +973,9 @@ PRIM** get_instructions(){
         ASSOCIATE(lte);
         ASSOCIATE(equal);
         ASSOCIATE(not_equal);
+        ASSOCIATE(or);
+        ASSOCIATE(and);
+        ASSOCIATE(xor);
         ASSOCIATE(notify);
         ASSOCIATE(read);
         ASSOCIATE(atoi);
