@@ -4,11 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <argp.h>
+#include <error.h>
 #include "token.h"
 #include "ast.h"
 #include "options.h"
 #include "interpreter.h"
 #include "frame.h"
+#include "version.h"
 /**
  *  Inst type Prototype(since the JIT doesn't make it easy to get a normal C
  *struct in there)
@@ -39,131 +42,40 @@
 #define C_STRING_T 3
 #define MAX_STACK_DEPTH 32
 char *read_file(const char* file);
-int main(int argc, const char** args) {
-    struct options* options=calloc(sizeof(struct options),1);
-    options->files=NULL;
- for(int i=1;i<argc;i++){
-     if(args[i][0]!='-'){
-//         if(options->files)
-           options->files=realloc(options->files,sizeof(void*)*(options->filecount+1));
-//         else
-//             options->files=malloc(sizeof(char*));
-       options->files[options->filecount]=malloc(strlen(args[i])+1);
-       strcpy(options->files[options->filecount],args[i]);
-       options->filecount++;
-     }else if(!strcmp(args[i],"-tokens")){
-         options->print_tokens=1;
-     }else if(!strcmp(args[i],"-parse")){
-         options->print_ast=1;
-     }
- }/*
- if(options->filecount==0){
-    const char* i = ": hello \"fun boy\" 123 ; \n : 5 5 5 ; : abcd if 2 then ; : ebcd ++ ;";
-  struct tokenlist* tokens = NULL;
-  if((tokens=lexer(i))){
-  tokenlist_print(tokens);
-  tokenlist_free(tokens);
+const char *argp_program_version=MUFJIT_VERSION;
+const char *argp_program_bug_address="<alexwhite42000@gmail.com>";
+static char args_doc[]="FILE1 [input file] ARGUMENTS [passed in on the stack]";
+static char doc[]=
+  "MUFJIT a MUF interpreter for the system, and one day, a JIT system/compiler for it.\
+   Written without reference to anything but the Protomuck documentation.\
+   \vHexaferrum (c) 2018";
+static struct argp_option options[]=
+  {
+    {"print-bytecode",'p',0,0,"Print a representation of the bytecode to the terminal",2},
+    {"print-stack",   's',0,0,"Print the stack after each instruction.",2},
+    {"tests",         't',0,0,"Run the tests.",2},
+    {"log-output",    'l',"OUTPUT",0,"Write program output/stack information to a file.", 0}
   }
-  printf("\n\nSecond thingy\n");
-  const char *i2=": hello goodbye if eeee else 2 then ;";
-  if((tokens=lexer(i2))){
-      tokenlist_print(tokens);
-  }
-  struct tokenlist *func_end;
-  struct ast_node* func=parse_function(tokens,&func_end);
-  ast_print(func);
-  tokenlist_free(tokens);
-  free_ast_node(func);
-  const char* i3=": hello 1 15 1 for 1 + repeat ;";
-  if(tokens=lexer(i3)){
-      tokenlist_print(tokens);
-  }
-  func=parse_function(tokens,&func_end);
-  ast_print(func);
-  tokenlist_free(tokens);
-  free_ast_node(func);
-  if(tokens=lexer(": eee var e3 e3 @ var pec ;")){
-      tokenlist_print(tokens);
-  }
-  func=parse_function(tokens,&func_end);
-  tokenlist_free(tokens);
-  ast_print(func);
-  free_ast_node(func);
-  printf("Attempting to parse file: bigger_test.muf\n");
-  char* buffer=read_file("bigger_test.muf");
-  printf("Read:\n");
-  tokens=NULL;
-  if(tokens=lexer(buffer)){
-      tokenlist_print(tokens);
-  }else{ fprintf(stderr,"Tokenizing bigger_test.muf failed :(\n");}
-  func=parse_file(tokens,&func_end);
-  if(!func){
-      fprintf(stderr,"Whoa, that failed >.<\n");
-  }
-  tokenlist_free(tokens);
-  ast_print(func);
-  free_ast_node(func);
-  free(buffer);
- }
- for(int i=0;i<options->filecount;i++){
-    
-     char* buffer=read_file(options->files[i]);
-     if(!buffer)continue;
-     struct tokenlist* tokens=lexer(buffer),*end;
-     if(tokens&&options->print_tokens)tokenlist_print(tokens);
-     struct ast_node* file=parse_file(tokens,&end);
-     if(file&&options->print_ast)ast_print(file);
-     free_ast_node(file);
-     tokenlist_free(tokens);
-     free(buffer);
- }*/
- for(int i=0;i<options->filecount;i++){
-     free(options->files[i]);
- }
- free(options->files);
- free(options);
- //struct tokenlist *test=create_tokenlist();
- //test->token=create_populated_token("dup",LEXER_WORD);
- //append_token(test,create_populated_token("pop",LEXER_WORD));
- struct tokenlist *test=lexer("1 if 2 else 4 then dup");
- struct program* prog=build(test);
- printf("bytecode opcode size: %zd\n",sizeof(struct instruction));
- print_bytecode(prog);
- tokenlist_free(test);
- test=lexer("1 2 * if 3 3 + 4 > if 2 then 5 / then +");
- tokenlist_print(test);
- free_program(&prog);
- prog=build(test);
- print_bytecode(prog);
- tokenlist_free(test);
- free_program(&prog);
- test=lexer("1 1 4 5 for + repeat");
- prog=build(test);
- print_bytecode(prog);
- free_program(&prog);
- tokenlist_free(test);
- test=lexer("1 1 4 5 for + dup 2 % 0 = if break else continue then repeat");
- prog=build(test);
- print_bytecode(prog);
- free_program(&prog);
- tokenlist_free(test);
- printf("\x1b[2J");
- test=lexer("\"Heya...\" notify read dup notify strtod pop 1 2 3 4 5 5 dupn -5.0 -5 1 1 = if \"Logic True\" notify then begin depth 1 = if break then + repeat intostr notify");
- prog=build(test);
- print_bytecode(prog);
- struct frame f=create_frame(prog,NULL,NULL);
- execute_program(&f);
- free_frame(&f);
-
- free_program(&prog);
- tokenlist_free(test);
+;
+struct arguments{
+  char *file;
+  char **other_files;
+  int print_bytecode,
+      print_stack,
+      run_tests;
+};
+static error_t parse_opt(int key,char* arg, struct argp_state *state);
+static struct argp argp={.options=options,.parser=parse_opt,.args_doc=args_doc,.doc=doc};
+int main(int argc, char** argv) {
+  struct arguments arguments={.file=NULL,.other_files=NULL,.print_bytecode=0,.print_stack=0,.run_tests=0};
+  argp_parse(&argp,argc,argv,0,0,&arguments);
+  
+  return 0;
 }
 char *read_file(const char* fn){
     char *output=NULL;;
     FILE *f;
-    int seat_of_the_pants=0;
-        seat_of_the_pants=1;
-        f=fopen(fn,"rb");
+    f=fopen(fn,"rb");
     if(!f){
         fprintf(stderr,"Failed to open file %s",fn);
     }else{
@@ -178,4 +90,28 @@ char *read_file(const char* fn){
     printf("File of %lld bytes read.\n",fsize);
     }
     return output;
+}
+static error_t parse_opt(int key,char* arg, struct argp_state *state){
+  struct arguments *arguments=state->input;
+  switch(key){
+    case 'p':
+      arguments->print_bytecode=1;
+      break;
+    case 's':
+      arguments->print_stack=1;
+      break;
+    case 't':
+      arguments->run_tests=1;
+      break;
+    case ARGP_KEY_NO_ARGS:
+      break;
+    case ARGP_KEY_ARG:
+      arguments->file=arg;
+      arguments->other_files=&state->argv[state->next];
+      state->next=state->argc;
+      break;
+    default:
+      return ARGP_ERR_UNKNOWN;
+  }
+  return 0;
 }
