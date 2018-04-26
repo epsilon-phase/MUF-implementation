@@ -21,5 +21,5 @@ int are_stack_cell_equal(struct stack_cell a,struct stack_cell b){
             return a.data.fnumber==b.data.fnumber;
         case t_string:
             return a.data.str&&b.data.str&&!strcmp(a.data.str->str,b.data.str->str);
-    }
+    }return 0;
 }
