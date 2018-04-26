@@ -106,10 +106,7 @@ static error_t parse_opt(int key,char* arg, struct argp_state *state){
       arguments->print_bytecode=1;
       break;
     case 's':
-      if(!arguments->print_stack){
-        arguments->print_stack=10;
-      }
-      arguments->print_stack--;
+      arguments->print_stack++;
       break;
     case 't':
       arguments->run_tests=1;

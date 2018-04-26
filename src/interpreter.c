@@ -160,6 +160,7 @@ struct program *build(struct tokenlist *tl) {
           result->bytecode[tmp.position].data.address = result->bytecode_size;
         }
         break;
+        
       case LEXER_BEGIN:
         push_block(blocks, bs_begin, result->bytecode_size);
         break;
@@ -197,51 +198,53 @@ struct program *build(struct tokenlist *tl) {
         break;
       case LEXER_WORD:
 #define match(S, I) BUILTIN_WORD_MATCH(current_token, S, I);
+        match("!=",i_not_equal);
+        match("%",i_modulo);
+        match("*", i_multiply);
+        match("+", i_plus);
+        match("++",i_increment);
+        match("-", i_minus);
+        match("--",i_decrement);
+        match("/",i_divide);
+        match("<", i_lt);
+        match("<=",i_lte);
+        match("=",i_equal);
+        match(">", i_gt);
+        match(">=",i_gte);
+        match("^",i_power);
+        match("and",i_and);
+        match("and",i_and);
+        match("assert",i_assert);
+        match("atoi",i_atoi);
+        match("call", i_call);
+        match("depth",i_depth);
         match("dup", i_dup);
         match("dupn", i_dupn);
+        match("exit",i_exit);
+        match("explode",i_explode);
+        match("intostr",i_intostr);
+        match("nip",i_nip);
+        match("not",i_not);
+        match("notify", i_notify);
+        match("or",i_or);
+        match("over",i_over);
         match("pop", i_pop);
         match("popn", i_popn);
-        match("swap", i_swap);
-        match("+", i_plus);
-        match("-", i_minus);
-        match("*", i_multiply);
-        match("/",i_divide);
-        match("^",i_power);
-        match("++",i_increment);
-        match("--",i_decrement);
-        match("%",i_modulo);
         match("pow", i_power);
-        match("<", i_lt);
-        match(">", i_gt);
-        match("intostr",i_intostr);
-        match("call", i_call);
-        match("atoi",i_atoi);
-        match("strtod",i_strtod);
-        match("notify", i_notify);
         match("read",i_read);
         match("rot",i_rot);
-        match("rotate",i_rotn);
-        match("explode",i_explode);
-        match("exit",i_exit);
-        match("swap",i_swap);
-        match("over",i_over);
-        match("or",i_or);
-        match("and",i_and);
-        match("xor",i_xor);
-        match("not",i_not);
-        match("nip",i_nip);
-        match("<=",i_lte);
-        match(">=",i_gte);
-        match("=",i_equal);
-        match("!=",i_not_equal);
-        match("split",i_split);
-        match("and",i_and);
         match("rot",i_rot);
         match("rotate",i_rotn);
-        match("depth",i_depth);
+        match("rotate",i_rotn);
+        match("split",i_split);
+        match("strcat",i_strcat);
+        match("strcmp",i_strcmp);
+        match("strtod",i_strtod);
+        match("swap", i_swap);
+        match("while",i_while);
+        match("xor",i_xor);
         match("{",i_mark);
         match("}",i_mark_end);
-        match("strcat",i_strcat);
         break;
     }
     if (p_useful) {
@@ -396,61 +399,63 @@ void free_block_stack(struct block_stack* s){
 }
 const char* obtain_bytecode_name(unsigned char t){
   const char *inames[]={
-    "i_push_primitive",
-    "i_mark",
-    "i_mark_end",
-    "i_pop",
-    "i_popn",
-    "i_dup",
-    "i_dupn",
-    "i_depth",
-    "i_plus",
-    "i_minus",
-    "i_divide",
-    "i_power",
-    "i_multiply",
-    "i_increment",
-    "i_decrement",
-    "i_modulo",
-    "i_jmp",
-    "i_jmp_if",
-    "i_jmp_not_if",
-    "i_strcat",
-    "i_strlen",
-    "i_smatch",
-    "i_strcmp",
-    "i_equal",
-    "i_gt",
-    "i_lt",
-    "i_gte",
-    "i_lte",
-    "i_not_equal",
-    "i_not",
-    "i_and",
-    "i_or",
-    "i_xor",
-    "i_rot",
-    "i_rotn",
-    "i_over",
-    "i_nip",
-    "i_swap",
-    "i_exit",
-    "i_abort",
-    "i_explode",
-    "i_reverse",
-    "i_split",
-    "i_rsplit",
-    "i_call",
-    "i_foriter",
-    "i_forpush",
-    "i_forpop",
-    "i_break",
-    "i_continue",
-    "i_notify",
-    "i_read",
-    "i_atoi",
-    "i_strtod",
-    "i_intostr"
+  "i_abort",
+  "i_and",
+  "i_assert",
+  "i_atoi",
+  "i_break",
+  "i_call",
+  "i_continue",
+  "i_decrement",
+  "i_depth",
+  "i_divide",
+  "i_dup",
+  "i_dupn",
+  "i_equal",
+  "i_exit",
+  "i_explode",
+  "i_foriter",
+  "i_forpop",
+  "i_forpush",
+  "i_gt",
+  "i_gte",
+  "i_increment",
+  "i_intostr",
+  "i_jmp",
+  "i_jmp_if",
+  "i_jmp_not_if",
+  "i_lt",
+  "i_lte",
+  "i_mark",
+  "i_mark_end",
+  "i_minus",
+  "i_modulo",
+  "i_multiply",
+  "i_nip",
+  "i_not",
+  "i_not_equal",
+  "i_notify",
+  "i_or",
+  "i_over",
+  "i_plus",
+  "i_pop",
+  "i_popn",
+  "i_power",
+  "i_push_primitive",
+  "i_read",
+  "i_reverse",
+  "i_rot",
+  "i_rotn",
+  "i_rsplit",
+  "i_smatch",
+  "i_split",
+  "i_strcat",
+  "i_strcmp",
+  "i_strlen",
+  "i_strtod",
+  "i_swap",
+  "i_while",
+  "i_xor"
   };
   return inames[t];
 }
@@ -521,6 +526,8 @@ void close_loop(struct program* result,
                   }else if(result->bytecode[cur].type==i_continue){
                       result->bytecode[cur].data.address=tmp.position-1;
                   }else if(result->bytecode[cur].type==i_foriter){
+                    result->bytecode[cur].data.address=result->bytecode_size-1;
+                  }else if(result->bytecode[cur].type==i_while){
                     result->bytecode[cur].data.address=result->bytecode_size-1;
                   }
               }else

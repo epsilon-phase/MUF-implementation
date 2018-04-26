@@ -352,6 +352,20 @@ PRIM_SIG(p_jmp_not_if) {
   free_stack_cell(x);
   return frame;
 }
+PRIM_SIG(p_assert){
+  struct stack_cell fail_msg=pop_data_stack(frame->stack),
+                    succ_msg=pop_data_stack(frame->stack),
+                    value=pop_data_stack(frame->stack);
+  if(!is_stack_cell_true(value)){
+    fprintf(stderr,"ASSERT FAILED! %s\n",fail_msg.data.str->str);
+  }else{
+    fprintf(stderr,"ASSERT SUCCESS! %s\n",succ_msg.data.str->str);
+  }
+  free_stack_cell(fail_msg);
+  free_stack_cell(succ_msg);
+  free_stack_cell(value);
+  return frame;
+}
 PRIM_SIG(p_break){
     return p_jmp(frame);
 }
@@ -387,6 +401,13 @@ PRIM_SIG(p_strlen) {
   return frame;
 }
 PRIM_SIG(p_strcmp) {
+  struct stack_cell b=pop_data_stack(frame->stack),
+                    a=pop_data_stack(frame->stack);
+  assert(b.type==t_string&&a.type==t_string);
+  struct stack_cell result={.type=t_int,.data.number=strcmp(a.data.str->str,b.data.str->str)};
+  push_data_stack(frame->stack,result);
+  free_stack_cell(b);
+  free_stack_cell(a);
   return frame;
 }
 PRIM_SIG(p_forpush) {
@@ -941,13 +962,21 @@ PRIM_SIG(p_intostr) {
   free_stack_cell(f);
   return frame;
 }
+PRIM_SIG(p_while){
+  struct stack_cell t=pop_data_stack(frame->stack);
+  if(!is_stack_cell_true(t)){
+    p_break(frame);
+  }
+  free_stack_cell(t);
+  return frame;
+}
 PRIM** instructions=NULL;
 #define ASSOCIATE(NaMe) instructions[i_##NaMe]=p_##NaMe
 //Now this is an ugly hack <:(
 #define i_rotate i_rotn
 PRIM** get_instructions(){
     if(instructions==NULL){
-        instructions=calloc(i_intostr+1,sizeof(PRIM*));
+        instructions=calloc(LARGEST_INSTRUCTION_CODE+1,sizeof(PRIM*));
         ASSOCIATE(push_primitive);
         ASSOCIATE(mark);
         ASSOCIATE(mark_end);
@@ -988,6 +1017,7 @@ PRIM** get_instructions(){
         ASSOCIATE(or);
         ASSOCIATE(and);
         ASSOCIATE(xor);
+        ASSOCIATE(not);
         ASSOCIATE(notify);
         ASSOCIATE(read);
         ASSOCIATE(atoi);
@@ -996,6 +1026,8 @@ PRIM** get_instructions(){
         ASSOCIATE(call);
         ASSOCIATE(explode);
         ASSOCIATE(intostr);
+        ASSOCIATE(assert);
+        instructions[i_while]=p_while;
     }
     return instructions;
 }
