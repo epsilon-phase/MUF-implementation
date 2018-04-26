@@ -236,6 +236,7 @@ struct program *build(struct tokenlist *tl) {
         match("rot",i_rot);
         match("rotate",i_rotn);
         match("rotate",i_rotn);
+        match("rsplit",i_rsplit);
         match("split",i_split);
         match("strcat",i_strcat);
         match("strcmp",i_strcmp);

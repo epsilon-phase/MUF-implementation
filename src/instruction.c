@@ -852,9 +852,7 @@ PRIM_SIG(p_split){
     push_data_stack(frame->stack,x);
     b=create_prim_string("");
     push_data_stack(frame->stack,b);
-
     free_stack_cell(y);
-    free_stack_cell(a);
     free_stack_cell(b);
   }
   return frame;
@@ -865,21 +863,34 @@ PRIM_SIG(p_rsplit){
                     a,b;
   a.type=t_string;
   b.type=t_string;
-  int found,tmp=strstr(x.data.str->str,y.data.str->str)-x.data.str->str;
+  char* found,*tmp=strstr(x.data.str->str,y.data.str->str);
   if(tmp){
     while(tmp){
         found=tmp;
-        tmp=strstr(x.data.str->str+tmp,y.data.str->str)-x.data.str->str;
+        tmp=strstr(tmp+y.data.str->length,y.data.str->str);
     }
-    a.data.str=malloc(sizeof(struct shared_string)+found+1);
-    a.data.str->length=found;
-    memcpy(a.data.str->str,x.data.str->str,found);
-    a.data.str->str[found]=0;
+    a.data.str=malloc(sizeof(struct shared_string)+(found-x.data.str->str)+1);
+    a.data.str->length=found-x.data.str->str;
+    memcpy(a.data.str->str,x.data.str->str,found-x.data.str->str);
+    a.data.str->str[found-x.data.str->str]=0;
     a.data.str->links=1;
-    b.data.str=malloc(sizeof(struct shared_string)+strlen(x.data.str->str)-found);
-    strncpy(b.data.str->str,x.data.str->str+found+1,x.data.str->length-found);
+    b.data.str=malloc(sizeof(struct shared_string)+strlen(x.data.str->str)-(found-x.data.str->str));
+    strncpy(b.data.str->str,x.data.str->str+(found-x.data.str->str)+1,x.data.str->length-(found-x.data.str->str));
     b.data.str->length=strlen(b.data.str->str);
     b.data.str->links=1;
+    free_stack_cell(x);
+    free_stack_cell(y);
+    push_data_stack(frame->stack,a);
+    push_data_stack(frame->stack,b);
+    free_stack_cell(a);
+    free_stack_cell(b);
+  }else{
+    push_data_stack(frame->stack,x);
+    b=create_prim_string("");
+    push_data_stack(frame->stack,b);
+    free_stack_cell(y);
+    free_stack_cell(a);
+    free_stack_cell(b);
   }
   free_stack_cell(x);
   free_stack_cell(y);
@@ -1026,6 +1037,7 @@ PRIM** get_instructions(){
         ASSOCIATE(atoi);
         ASSOCIATE(strtod);
         ASSOCIATE(split);
+        ASSOCIATE(rsplit);
         ASSOCIATE(call);
         ASSOCIATE(explode);
         ASSOCIATE(intostr);
