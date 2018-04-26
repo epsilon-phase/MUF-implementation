@@ -850,6 +850,9 @@ PRIM_SIG(p_split){
     free_stack_cell(b);
   }else{
     push_data_stack(frame->stack,x);
+    b=create_prim_string("");
+    push_data_stack(frame->stack,b);
+
     free_stack_cell(y);
     free_stack_cell(a);
     free_stack_cell(b);
