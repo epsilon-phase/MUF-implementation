@@ -892,12 +892,6 @@ PRIM_SIG(p_rsplit){
     free_stack_cell(a);
     free_stack_cell(b);
   }
-  free_stack_cell(x);
-  free_stack_cell(y);
-  push_data_stack(frame->stack,a);
-  push_data_stack(frame->stack,b);
-  free_stack_cell(a);
-  free_stack_cell(b);
   return frame;
 
 }
