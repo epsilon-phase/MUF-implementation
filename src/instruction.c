@@ -384,6 +384,7 @@ PRIM_SIG(p_assign){
                     value=pop_data_stack(frame->stack);
   switch(var.type){
     case t_svar:
+      free_stack_cell(frame->svars[var.data.number]);
       frame->svars[var.data.number]=copy_stack_cell(value);
       break;
     default:
