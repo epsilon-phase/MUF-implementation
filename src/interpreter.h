@@ -9,7 +9,8 @@
 #define MAX_LVAR_COUNT 32
 #endif
 struct word{
-  size_t position;
+  size_t position,
+         local_vars;
   char* name;
 };
 struct stack_cell;
@@ -49,12 +50,14 @@ enum instruction_opcode{
   i_abort,
   i_and,
   i_assert,
+  i_assign,
   i_atoi,
   i_break,
   i_call,
   i_continue,
   i_decrement,
   i_depth,
+  i_dereference,
   i_divide,
   i_dup,
   i_dupn,

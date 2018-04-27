@@ -56,6 +56,19 @@ PRIM_SIG(p_depth) {
   push_data_stack(frame->stack, n);
   return frame;
 }
+PRIM_SIG(p_dereference){
+  struct stack_cell a=pop_data_stack(frame->stack),r;
+  assert(a.type==t_svar||a.type==t_var||a.type==t_lvar);
+  switch(a.type){
+    case t_svar:
+      r=frame->svars[a.data.number];
+      break;
+    default:
+      break;
+  }
+  push_data_stack(frame->stack,r);
+  return frame;
+}
 PRIM_SIG(p_plus) {
   // The order here is wrong, but since it's addition, that doesn't even matter
   // a little bit.
@@ -363,6 +376,20 @@ PRIM_SIG(p_assert){
   }
   free_stack_cell(fail_msg);
   free_stack_cell(succ_msg);
+  free_stack_cell(value);
+  return frame;
+}
+PRIM_SIG(p_assign){
+  struct stack_cell var=pop_data_stack(frame->stack),
+                    value=pop_data_stack(frame->stack);
+  switch(var.type){
+    case t_svar:
+      frame->svars[var.data.number]=copy_stack_cell(value);
+      break;
+    default:
+      break;
+  }
+  free_stack_cell(var);
   free_stack_cell(value);
   return frame;
 }
@@ -1036,6 +1063,8 @@ PRIM** get_instructions(){
         ASSOCIATE(explode);
         ASSOCIATE(intostr);
         ASSOCIATE(assert);
+        ASSOCIATE(assign);
+        ASSOCIATE(dereference);
         instructions[i_while]=p_while;
     }
     return instructions;

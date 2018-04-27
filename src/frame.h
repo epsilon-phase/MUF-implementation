@@ -29,6 +29,8 @@ struct frame{
   struct for_vars_stack* fstack;
   struct frame* parent;
   size_t instr_pointer;
+  size_t svar_count;
+  struct stack_cell *svars;
 };
 struct frame create_frame(struct program* prog,const char* arguments,struct frame* parent);
 void execute_program(struct frame* frame,struct arguments*);

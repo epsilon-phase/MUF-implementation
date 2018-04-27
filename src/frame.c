@@ -1,5 +1,6 @@
 #include "frame.h"
 #include "instruction.h"
+#include <stdlib.h>
 struct frame create_frame(struct program* prog,const char* arguments,struct frame* parent){
   struct frame result;
   result.fstack=create_for_vars_stack();
@@ -15,11 +16,16 @@ struct frame create_frame(struct program* prog,const char* arguments,struct fram
   }
   result.instr_pointer=0;
   result.program=prog;
+  result.svar_count=0;
+  result.svars=NULL;
   return result;
 }
 void execute_program(struct frame* frame,struct arguments* args){
   int counter=0;
   frame->instr_pointer=frame->program->entry_point;
+  if(frame->program->words[frame->program->word_count-1].local_vars)
+  frame->svars=malloc(sizeof(struct stack_cell)*
+      frame->program->words[frame->program->word_count-1].local_vars);
   PRIM** instructions=get_instructions();
   while(frame->instr_pointer<frame->program->bytecode_size){
 //    if(counter!=0&&counter%40==0){
@@ -181,4 +187,8 @@ void execute_program(struct frame* frame,struct arguments* args){
 void free_frame(struct frame* frame){
   free_for_vars_stack(frame->fstack);
   release_data_stack(frame->stack);
+  for(size_t i=0;i<frame->svar_count;i++){
+    free_stack_cell(frame->svars[i]);
+  }
+  free(frame->svars);
 }

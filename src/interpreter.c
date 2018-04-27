@@ -1,6 +1,7 @@
 #include "interpreter.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 struct position_stack {
   size_t *position;
   size_t capacity;
@@ -70,7 +71,13 @@ struct program *build(struct tokenlist *tl) {
   struct position_stack *unfilled_breaks=create_position_stack();
   result->entry_point=0;
   unsigned char p_useful = 0;
+  struct{
+    char **variables;
+    size_t count;
+  } local_var_names={.variables=NULL,.count=0};
+  bool in_function=false;
   while (current_token) {
+#define last_word result->words[result->word_count-1]
     struct instruction p;
     switch (current_token->type) {
       case LEXER_FUNC_START:
@@ -83,12 +90,20 @@ struct program *build(struct tokenlist *tl) {
                   result->words=malloc(sizeof(struct word)*(++result->word_count));
               result->words[result->word_count-1]=w;
               result->entry_point=w.position;
+              in_function=true;
           }
         break;
       case LEXER_FUNC_END:
         if(blocks->size!=0){
         }
         add_instruction(result,simple_instruction_from_type(i_exit));
+        in_function=false;
+        last_word.local_vars=local_var_names.count;
+        for(size_t i=0;i<local_var_names.count;i++){
+          free(local_var_names.variables[i]);
+        }
+        free(local_var_names.variables);
+        local_var_names.count=0;
         break;
       case LEXER_INT:
         p.type = i_push_primitive;
@@ -195,9 +210,38 @@ struct program *build(struct tokenlist *tl) {
       case LEXER_LVAR:
         break;
       case LEXER_VAR:
+        if(in_function){
+          if(local_var_names.variables){
+            local_var_names.variables=realloc(local_var_names.variables,sizeof(char*)*(local_var_names.count+1));
+          }else{
+            local_var_names.variables=malloc(sizeof(char*));
+          }
+          local_var_names.variables[local_var_names.count]=strdup(tl->next->token->name);
+          local_var_names.count++;
+          tl=tl->next;
+        }
         break;
       case LEXER_WORD:
 #define match(S, I) BUILTIN_WORD_MATCH(current_token, S, I);
+        if(current_token->name[0]!='\\'){
+            for(size_t i=0;i<local_var_names.count;i++){
+              if(!strcmp(local_var_names.variables[i],current_token->name)){
+                p.type=i_push_primitive;
+                p.data.information.type=t_svar;
+                p.data.information.data.number=i;
+                p_useful=1;
+                break;
+              }
+            }
+            if(!p_useful){
+              //call words etc
+            }
+        }else{
+          current_token->name=current_token->name+1;
+        }
+        if(p_useful){break;}
+        match("@",i_dereference);
+        match("!",i_assign);
         match("!=",i_not_equal);
         match("%",i_modulo);
         match("*", i_multiply);
@@ -343,6 +387,9 @@ void print_stack_cell(struct stack_cell* sc){
     case t_string:
       printf("STRING:%s",sc->data.str->str);
       break;
+    case t_svar:
+      printf("SV%d",sc->data.number);
+      break;
     case t_invalid:
       printf("INVALID:");
       if(sc->data.str){
@@ -403,12 +450,14 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_abort",
   "i_and",
   "i_assert",
+  "i_assign",
   "i_atoi",
   "i_break",
   "i_call",
   "i_continue",
   "i_decrement",
   "i_depth",
+  "i_dereference",
   "i_divide",
   "i_dup",
   "i_dupn",
@@ -462,7 +511,7 @@ const char* obtain_bytecode_name(unsigned char t){
 }
 void print_bytecode(struct program* p){
   unsigned int max_opcode_name=0;
-  for(int i=0;i<=i_intostr;i++){
+  for(int i=0;i<=LARGEST_INSTRUCTION_CODE;i++){
     max_opcode_name=strlen(obtain_bytecode_name(i))>max_opcode_name?strlen(obtain_bytecode_name(i)):max_opcode_name;
   }
   printf("Address |%*s| argument\n",max_opcode_name,"Opcode");
@@ -476,6 +525,15 @@ void print_bytecode(struct program* p){
       break;
         case t_int:
         printf("%8i",current->data.information.data.number);
+        break;
+        case t_svar:
+        printf("SV%i",current->data.information.data.number);
+        break;
+        case t_var:
+        printf("V%i",current->data.information.data.number);
+        break;
+        case t_lvar:
+        printf("LV%i",current->data.information.data.number);
         break;
         case t_float:
         printf("%e",current->data.information.data.fnumber);
@@ -547,6 +605,9 @@ struct stack_cell copy_stack_cell(struct stack_cell n){
       copy.data.str->links++;
       break;
     case t_int:
+    case t_svar:
+    case t_var:
+    case t_lvar:
       copy.data.number=n.data.number;
       break;
     case t_float:
