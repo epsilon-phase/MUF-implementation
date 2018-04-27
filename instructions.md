@@ -9,9 +9,9 @@
 * [x] swap
 * [ ] tuck
 * [ ] nip
-* [ ] rot
-* [ ] rotate
-* [ ] depth
+* [x] rot
+* [x] rotate
+* [x] depth
 
 ## Math/logic prims
 
@@ -23,7 +23,7 @@
         * [x] `/`
         * [x] `^` or `pow`
         * [x] `++`
-        * [ ] `--`
+        * [x] `--`
         * [ ] `%`
     * [ ] Trigonometry
         * [ ] `sin`
@@ -50,4 +50,42 @@
         * [ ] `bitshift`
         * [ ] `bitor`
         * [ ] `bitand`
+    * [ ] Random functions
+      * [ ] `random`
+      * [ ] `frand`
 
+# String manipulation
+
+* [x] `atoi`
+* [x] `intostr`
+* [x] `split`
+* [x] `rsplit`
+* [ ] `explode`
+* [ ] `subst`
+* [x] `strlen`
+* [x] `strcmp`
+* [ ] `instring`
+* [ ] `instr`
+* [ ] `tolower`
+* [ ] `toupper`
+* [x] `strcat`
+* [ ] `stringpfx`
+* [ ] `striptail`
+* [ ] `striplead`
+* [ ] `strip`
+* [ ] `rinstr`
+* [ ] `rinstring`
+* [ ] `midstr`
+* [ ] `textattr`
+* [ ] `parse_ansi`
+* [ ] `unparse_ansi`
+* [ ] `ansi_strlen`
+* [ ] `parse_neon`
+* [ ] `regexp`
+* [ ] `regsub`
+* [ ] `regmatch`
+* [ ] `fmtstring`
+* [ ] `fmtstringex`
+* [ ] hashing function
+    * [ ] `md5hash`
+    * [ ] `sha1hash`
