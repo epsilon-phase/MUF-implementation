@@ -66,7 +66,7 @@ PRIM_SIG(p_dereference){
     default:
       break;
   }
-  push_data_stack(frame->stack,r);
+  push_data_stack(frame->stack,copy_stack_cell(r));
   return frame;
 }
 PRIM_SIG(p_plus) {
