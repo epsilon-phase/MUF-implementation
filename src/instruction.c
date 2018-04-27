@@ -929,6 +929,8 @@ PRIM_SIG(p_call){
     for(size_t i=0;i<result->program->word_count;i++){
         if(!strcmp(result->program->words[i].name,r.data.str->str)){
             result->instr_pointer=result->program->words[i].position-1;
+            result->svars=malloc(result->program->words[i].local_vars*sizeof(struct stack_cell));
+            result->svar_count=result->program->words[i].local_vars;
             break;
         }
     }
