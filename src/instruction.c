@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 PRIM_SIG(p_mark){
   struct stack_cell r;
   r.type=t_mark;
@@ -266,6 +267,16 @@ PRIM_SIG(p_power) {
 }
 PRIM_SIG(p_increment){
     struct stack_cell *x=&frame->stack->stack[frame->stack->size-1];
+    if(x->type==t_svar||x->type==t_lvar||x->type==t_var){
+      switch(x->type){
+        case t_svar:
+          x=&frame->svars[x->data.number];
+          break;
+        default:
+          break;
+      }
+      pop_data_stack(frame->stack);
+    }
     if(x->type==t_int)
         x->data.number++;
     else if(x->type==t_float)
@@ -274,6 +285,16 @@ PRIM_SIG(p_increment){
 }
 PRIM_SIG(p_decrement){
   struct stack_cell *x=&frame->stack->stack[frame->stack->size-1];
+  if(x->type==t_svar||x->type==t_lvar||x->type==t_var){
+    switch(x->type){
+      case t_svar:
+        x=&frame->svars[x->data.number];
+        break;
+      default:
+        break;
+    }
+    free_stack_cell(pop_data_stack(frame->stack));
+  }
   assert(x->type==t_int||x->type==t_float);
   if(x->type==t_int)
       x->data.number--;
