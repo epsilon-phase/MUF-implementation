@@ -118,7 +118,6 @@ struct instruction{
 struct program{
   struct word *words;
   size_t word_count;
-  struct variable vars[MAX_VAR_COUNT];
   struct variable lvars[MAX_LVAR_COUNT];
   struct instruction *bytecode;
   size_t bytecode_size;
