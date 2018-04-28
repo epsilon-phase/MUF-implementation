@@ -49,6 +49,7 @@ struct stack_cell{
 enum instruction_opcode{
   i_abort,
   i_and,
+  i_andn,
   i_assert,
   i_assign,
   i_atoi,
@@ -86,6 +87,7 @@ enum instruction_opcode{
   i_not_equal,
   i_notify,
   i_or,
+  i_orn,
   i_over,
   i_plus,
   i_pop,

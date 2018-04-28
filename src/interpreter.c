@@ -449,6 +449,7 @@ const char* obtain_bytecode_name(unsigned char t){
   const char *inames[]={
   "i_abort",
   "i_and",
+  "i_andn",
   "i_assert",
   "i_assign",
   "i_atoi",
@@ -486,6 +487,7 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_not_equal",
   "i_notify",
   "i_or",
+  "i_orn",
   "i_over",
   "i_plus",
   "i_pop",

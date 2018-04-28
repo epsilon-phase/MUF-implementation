@@ -1,6 +1,7 @@
 #include "frame.h"
 #include "instruction.h"
 #include <stdlib.h>
+#include <string.h>
 struct frame create_frame(struct program* prog,const char* arguments,struct frame* parent){
   struct frame result;
   result.fstack=create_for_vars_stack();
@@ -27,12 +28,17 @@ void execute_program(struct frame* frame,struct arguments* args){
   frame->svars=malloc(sizeof(struct stack_cell)*
       frame->program->words[frame->program->word_count-1].local_vars);
   PRIM** instructions=get_instructions();
+  unsigned int max_opcode_name=0;
+  for(int i=0;i<=LARGEST_INSTRUCTION_CODE;i++){
+    max_opcode_name=strlen(obtain_bytecode_name(i))>max_opcode_name?strlen(obtain_bytecode_name(i)):max_opcode_name;
+  }
   while(frame->instr_pointer<frame->program->bytecode_size){
 //    if(counter!=0&&counter%40==0){
 //      printf("\x1b[J");
 //    }
     if(args->print_stack&&counter%args->print_stack==0){
-      printf("Instruction [%s]  at address %zi ",
+      printf("Instruction [%*s]  at address %zi ",
+             max_opcode_name,
              obtain_bytecode_name(frame->program->bytecode[frame->instr_pointer].type),
              frame->instr_pointer);
       for(unsigned int i=0;i<frame->stack->size;i++){

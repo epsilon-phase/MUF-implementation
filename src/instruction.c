@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#define peek_data_stack(X) X->stack[X->size-1]
 PRIM_SIG(p_mark){
   struct stack_cell r;
   r.type=t_mark;
@@ -784,6 +785,12 @@ PRIM_SIG(p_or){
   free_stack_cell(x);
   return frame;
 }
+PRIM_SIG(p_orn){
+    struct stack_cell x=pop_data_stack(frame->stack);
+    for(int i=0;i<x.data.number;i++)
+        p_or(frame);
+    return frame;
+}
 PRIM_SIG(p_and){
   struct stack_cell y=pop_data_stack(frame->stack),
                     x=pop_data_stack(frame->stack),
@@ -797,6 +804,14 @@ PRIM_SIG(p_and){
   free_stack_cell(y);
   free_stack_cell(x);
   return frame;
+}
+//Extension, (x1 ... xi i - i)
+PRIM_SIG(p_andn){
+    struct stack_cell x=pop_data_stack(frame->stack);
+    for(int i=0;i<x.data.number;i++){
+        p_and(frame);
+    }
+    return frame;
 }
 PRIM_SIG(p_xor){
   struct stack_cell y=pop_data_stack(frame->stack),
@@ -967,25 +982,37 @@ PRIM_SIG(p_explode){
   char *thing=x.data.str->str,
        *thing2;
   int count=0;
-  while((thing2=strstr(thing,y.data.str->str))){
-    a.data.str=malloc(sizeof(struct shared_string)+thing2-thing+1);
-    a.data.str->links=1;
-    a.data.str->length=thing2-thing;
-    memcpy(a.data.str->str,thing,thing2-thing);
-    a.data.str->str[thing2-thing]=0;
-    push_data_stack(frame->stack,a);
-    free_stack_cell(a);
-    thing=thing2+strlen(y.data.str->str);count++;
-  }
-  if(thing){
-    a.data.str=malloc(sizeof(struct shared_string)+strlen(thing)+1);
-    a.data.str->links=1;
-    a.data.str->length=strlen(thing);
-    memcpy(a.data.str->str,thing,strlen(thing));
-    a.data.str->str[strlen(thing)]=0;
-    push_data_stack(frame->stack,a);
-    free_stack_cell(a);
-    count++;
+  if(y.data.str->length!=0){
+    while((thing2=strstr(thing,y.data.str->str))){
+      a.data.str=malloc(sizeof(struct shared_string)+thing2-thing+1);
+      a.data.str->links=1;
+      a.data.str->length=thing2-thing;
+      memcpy(a.data.str->str,thing,thing2-thing);
+      a.data.str->str[thing2-thing]=0;
+      push_data_stack(frame->stack,a);
+      free_stack_cell(a);
+      thing=thing2+strlen(y.data.str->str);
+      count++;
+    }
+    if(thing){
+      a.data.str=malloc(sizeof(struct shared_string)+strlen(thing)+1);
+      a.data.str->links=1;
+      a.data.str->length=strlen(thing);
+      memcpy(a.data.str->str,thing,strlen(thing));
+      a.data.str->str[strlen(thing)]=0;
+      push_data_stack(frame->stack,a);
+      free_stack_cell(a);
+      count++;
+    }
+  }else{
+      char single_char[2]={'\0','\0'};
+      for(unsigned int i=0;i<x.data.str->length;i++){
+          single_char[0]=x.data.str->str[i];
+          a=create_prim_string(single_char);
+          push_data_stack(frame->stack,a);
+          free_stack_cell(a);
+      }
+      count=x.data.str->length;
   }
   push_data_stack(frame->stack,create_prim_int(count));
   free_stack_cell(x);
@@ -1090,6 +1117,8 @@ PRIM** get_instructions(){
         ASSOCIATE(assign);
         ASSOCIATE(dereference);
         instructions[i_while]=p_while;
+        ASSOCIATE(andn);
+        ASSOCIATE(orn);
     }
     return instructions;
 }
