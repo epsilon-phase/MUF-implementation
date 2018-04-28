@@ -179,6 +179,7 @@ struct program *build(struct tokenlist *tl) {
       case LEXER_BEGIN:
         push_block(blocks, bs_begin, result->bytecode_size);
         break;
+      case LEXER_UNTIL:
       case LEXER_REPEAT:
         if (peek_block(blocks).type == bs_begin ||
             peek_block(blocks).type == bs_foreach ||
@@ -197,8 +198,6 @@ struct program *build(struct tokenlist *tl) {
       case LEXER_CONTINUE:
         push_position_stack(unfilled_breaks,result->bytecode_size);
         add_instruction(result,simple_instruction_from_type(i_continue));
-      case LEXER_UNTIL:
-        break;
       case LEXER_FOREACH:
         break;
       case LEXER_FOR:
@@ -219,6 +218,14 @@ struct program *build(struct tokenlist *tl) {
           local_var_names.variables[local_var_names.count]=strdup(tl->next->token->name);
           local_var_names.count++;
           tl=tl->next;
+        }
+        if(current_token->name[3]=='!'){
+            struct stack_cell z={.type=t_svar,.data.number=local_var_names.count-1};
+            struct instruction aa={.type=i_push_primitive,.data.information=z};
+            add_instruction(result,aa);
+            aa.type=i_assign;
+            aa.data.address=(size_t)NULL;
+            add_instruction(result,aa);
         }
         break;
       case LEXER_WORD:
@@ -277,9 +284,8 @@ struct program *build(struct tokenlist *tl) {
         match("pow", i_power);
         match("read",i_read);
         match("rot",i_rot);
-        match("rot",i_rot);
         match("rotate",i_rotn);
-        match("rotate",i_rotn);
+        match("rotn",i_rotn);
         match("rsplit",i_rsplit);
         match("split",i_split);
         match("strcat",i_strcat);
