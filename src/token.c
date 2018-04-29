@@ -74,13 +74,15 @@ struct tokenlist *lexer(const char *input) {
   int current_guess = -1;
   int instring = 0;
   int escaping = false;
+  int comment_depth=0;
   char curchar = 1;
   while ((curchar = input[current_position]) != 0) {
       if(bufferpos==buffer_size){
           buffer=realloc(buffer,buffer_size*2);
           buffer_size*=2;
       }
-    if (isspace(curchar) && !instring && current_guess != LEXER_NOTHING) {
+    if (isspace(curchar) && !instring
+           && !comment_depth && current_guess != LEXER_NOTHING) {
       if (current_guess != -1) {
         struct token *thistoken = malloc(sizeof(struct token));
         thistoken->name = calloc(2 + bufferpos, sizeof(char));
@@ -127,11 +129,15 @@ struct tokenlist *lexer(const char *input) {
         }
       }
     } else {
-      if (curchar == '"') {
+      if (curchar == '"' &&!comment_depth) {
         current_guess = LEXER_STRING;
         curstart = current_position;
         instring = true;
-      } else {
+      }else if(curchar=='('){
+          comment_depth++;
+      }else if(curchar==')'){
+         comment_depth--;
+      }else if(comment_depth==0) {
         int globbed;
         curstart = current_position;
         cur_offset = offset;

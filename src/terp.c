@@ -52,6 +52,7 @@ static struct argp_option options[]=
   {
     {"print-bytecode",'p',0,0,"Print a representation of the bytecode to the terminal",2},
     {"print-stack",   's',0,0,"Print the stack after each instruction.",2},
+    {"print-lexer",   'L',0,0,"Print the lexer tokenization",2},
     {"tests",         't',0,0,"Run the tests.",2},
     {"log-output",    'l',"OUTPUT",0,"Write program output/stack information to a file.", 0},
     {0}
@@ -66,6 +67,9 @@ int main(int argc, char** argv) {
     char *read_stuff=read_file(arguments.file);
     if(read_stuff){
       struct tokenlist *tl=lexer(read_stuff);
+      if(arguments.print_lexer){
+        tokenlist_print(tl);
+      }
       struct program *prog=build(tl);
       if(arguments.print_bytecode){
         print_bytecode(prog);
@@ -110,6 +114,9 @@ static error_t parse_opt(int key,char* arg, struct argp_state *state){
       break;
     case 't':
       arguments->run_tests=1;
+      break;
+    case 'L':
+      arguments->print_lexer=1;
       break;
     case ARGP_KEY_NO_ARGS:
       break;

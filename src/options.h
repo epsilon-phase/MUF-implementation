@@ -5,6 +5,7 @@ struct arguments{
   char **other_files;
   int print_bytecode,
       print_stack,
-      run_tests;
+      run_tests,
+      print_lexer;
 };
 #endif
