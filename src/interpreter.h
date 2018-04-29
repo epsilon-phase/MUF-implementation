@@ -117,6 +117,11 @@ struct instruction{
   } data;
   unsigned char type;
 } __attribute__((packed));
+struct instruction_range{
+    size_t start,
+           end,
+           line;
+};
 struct program{
   struct word *words;
   size_t word_count;
@@ -125,6 +130,8 @@ struct program{
   size_t bytecode_size;
   size_t bytecode_capacity;
   size_t entry_point;
+  struct instruction_range *lines;
+  size_t range_count;
 };
 struct for_vars{
   int start,end,step;

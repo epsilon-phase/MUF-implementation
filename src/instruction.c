@@ -974,6 +974,9 @@ PRIM_SIG(p_call){
     free_stack_cell(r);
     return result;
 }
+//Need to write this later
+PRIM_SIG(p_debugline){
+}
 PRIM_SIG(p_explode){
   struct stack_cell y=pop_data_stack(frame->stack),
                     x=pop_data_stack(frame->stack),

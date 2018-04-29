@@ -29,6 +29,27 @@ struct instruction instruction_from_i(int type);
 void close_loop(struct program*,
         struct block,
         struct position_stack*);
+static void add_line_range(struct program* prog, struct token* token){
+    size_t l=token->line;
+    struct instruction_range* r=NULL;
+    if(!prog->range_count){
+        prog->lines=malloc(sizeof(struct instruction_range));
+        prog->lines[0].start=prog->bytecode_size;
+        prog->lines[0].end=prog->bytecode_size;
+        prog->lines[0].line=token->line;
+        prog->range_count++;
+    }
+    r=&prog->lines[prog->range_count-1];
+    if(r->line!=token->line){
+        prog->lines=realloc(prog->lines,(sizeof(struct instruction_range)*(++prog->range_count)));
+        r=&prog->lines[prog->range_count-1];
+        r->start=prog->bytecode_size;
+        r->end=prog->bytecode_size;
+        r->line=token->line;
+    }else{
+        r->end=prog->bytecode_size;
+    }
+}
 void add_instruction(struct program *prog, struct instruction i) {
   if (!prog) return;
   if (!prog->bytecode) {
@@ -302,6 +323,7 @@ struct program *build(struct tokenlist *tl) {
       add_instruction(result, p);
       p_useful = 0;
     }
+    add_line_range(result,current_token);
     if (tl->next) {
       tl = tl->next;
       current_token = tl->token;
@@ -522,9 +544,14 @@ void print_bytecode(struct program* p){
   for(int i=0;i<=LARGEST_INSTRUCTION_CODE;i++){
     max_opcode_name=strlen(obtain_bytecode_name(i))>max_opcode_name?strlen(obtain_bytecode_name(i)):max_opcode_name;
   }
+  struct instruction_range *r=p->lines;
   printf("Address |%*s| argument\n",max_opcode_name,"Opcode");
   for(size_t i=0;i<p->bytecode_size;i++){
     struct instruction *current=&p->bytecode[i];
+    if(i>=r->end){
+        r++;
+        printf("entering line %zi\n",r->line);
+    }
     printf("%-8zi|%-*s|",i,max_opcode_name,obtain_bytecode_name(current->type));
     if(current->type==i_push_primitive){
       switch(current->data.information.type){
@@ -578,6 +605,7 @@ void free_program(struct program** pr){
   }
   free((*pr)->words);
   free(p->bytecode);
+  free(p->lines);
   free(*pr);
 }
 void close_loop(struct program* result,
