@@ -308,6 +308,7 @@ struct program *build(struct tokenlist *tl) {
         match("pow", i_power);
         match("read",i_read);
         match("reverse",i_reverse);
+        match("lreverse",i_lreverse);
         match("rot",i_rot);
         match("rotate",i_rotn);
         match("rotn",i_rotn);
@@ -518,6 +519,7 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_jmp",
   "i_jmp_if",
   "i_jmp_not_if",
+  "i_lreverse",
   "i_lt",
   "i_lte",
   "i_mark",

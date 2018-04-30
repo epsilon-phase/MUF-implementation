@@ -77,6 +77,7 @@ enum instruction_opcode{
   i_jmp,
   i_jmp_if,
   i_jmp_not_if,
+  i_lreverse,
   i_lt,
   i_lte,
   i_mark,

@@ -2,18 +2,18 @@
 
 ## Stack Manipulation
 
-* [x] dup
-* [x] dupn
-* [x] pop
-* [x] popn
-* [x] swap
-* [ ] tuck
-* [x] nip
-* [x] rot
-* [x] rotate
-* [x] depth
-* [x] reverse
-* [ ] lreverse
+* [x] dup `x -- x x` duplicate the topmost item in the stack.
+* [x] dupn `x1 x2 … xi i -- x1 … xi x1 … xi`
+* [x] pop `x -- `
+* [x] popn `x1 … xi i -- `
+* [x] swap `x y -- y x`
+* [x] tuck `x y -- y x y`
+* [x] nip `x y -- y`
+* [x] rot `x y z -- y z x`
+* [x] rotate `x1 … xi i -- x2 … xi x1`
+* [x] depth `-- i`
+* [x] reverse `x1 x2 … xi i -- xi … x1`
+* [x] lreverse `x1 x2 … xi i -- xi … x2 x1 i`
 * [ ] put
 
 
