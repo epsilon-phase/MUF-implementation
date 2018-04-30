@@ -1018,6 +1018,8 @@ PRIM_SIG(p_stringpfx){
       break;
     }
   }
+  free_stack_cell(x);
+  free_stack_cell(y);
   push_data_stack(frame->stack,create_prim_int(q));
   return frame;
 }

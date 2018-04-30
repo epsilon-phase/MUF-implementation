@@ -77,6 +77,7 @@
 * [x] `striptail`
 * [x] `striplead`
 * [x] `strip`
+* [ ] `smatch`
 * [ ] `rinstr`
 * [ ] `rinstring`
 * [x] `midstr`
