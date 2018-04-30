@@ -297,6 +297,7 @@ struct program *build(struct tokenlist *tl) {
         match("intostr",i_intostr);
         match("instr",i_instr);
         match("instring",i_instring);
+        match("midstr",i_midstr);
         match("nip",i_nip);
         match("not",i_not);
         match("notify", i_notify);
@@ -521,6 +522,7 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_lte",
   "i_mark",
   "i_mark_end",
+  "i_midstr",
   "i_minus",
   "i_modulo",
   "i_multiply",

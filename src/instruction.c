@@ -1002,6 +1002,33 @@ PRIM_SIG(p_rsplit){
   return frame;
 
 }
+PRIM_SIG(p_midstr){
+  struct stack_cell i2=pop_data_stack(frame->stack),
+                    i1=pop_data_stack(frame->stack),
+                    s=pop_data_stack(frame->stack),result;
+  unsigned int i=i1.data.number,
+               j=i2.data.number;
+  if(i<s.data.str->length){
+    if(s.data.str->length<i+j){
+      result=create_prim_string(s.data.str->str+i);
+    }else{
+      result.data.str=malloc(sizeof(struct shared_string)+j+1);
+      result.data.str->length=j;
+      result.data.str->links=1;
+      memcpy(result.data.str->str,s.data.str->str+i,j);
+      result.data.str->str[result.data.str->length]=0;
+      result.type=t_string;
+    }
+  }else{
+    result=create_prim_string("");
+  }
+  free_stack_cell(i2);
+  free_stack_cell(i1);
+  free_stack_cell(s);
+  push_data_stack(frame->stack,result);
+  free_stack_cell(result);
+  return frame;
+}
 PRIM_SIG(p_striplead){
   struct stack_cell x=pop_data_stack(frame->stack),result;
   char *r=x.data.str->str;
@@ -1269,6 +1296,7 @@ PRIM** get_instructions(){
         ASSOCIATE(tolower);
         ASSOCIATE(toupper);
         ASSOCIATE(instring);
+        ASSOCIATE(midstr);
     }
     return instructions;
 }

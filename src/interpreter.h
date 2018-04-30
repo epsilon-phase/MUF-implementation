@@ -81,6 +81,7 @@ enum instruction_opcode{
   i_lte,
   i_mark,
   i_mark_end,
+  i_midstr,
   i_minus,
   i_modulo,
   i_multiply,
