@@ -60,7 +60,7 @@
 * [x] `intostr`
 * [x] `split`
 * [x] `rsplit`
-* [ ] `explode`
+* [x] `explode`
 * [ ] `subst`
 * [x] `strlen`
 * [x] `strcmp`
