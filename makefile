@@ -2,6 +2,10 @@ ifndef CC
 CC = gcc
 endif
 CFLAGS = -g -MP -MD -Wall -Wextra
+ifdef RELEASE
+	CFLAGS+=-Oz
+	LDFLAGS+=-flto
+endif
 ifdef DEBUG
 CFLAGS+=-fsanitize=leak -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -O0
 LDFLAGS+=-lasan
