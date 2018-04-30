@@ -8,7 +8,7 @@
 * [x] popn
 * [x] swap
 * [ ] tuck
-* [ ] nip
+* [x] nip
 * [x] rot
 * [x] rotate
 * [x] depth
@@ -16,7 +16,7 @@
 ## Math/logic prims
 
 * [ ] Math commands
-    * [ ] Basic mathematic operators
+    * [x] Basic math operators
         * [x] `+`
         * [x] `-` 
         * [x] `*`
@@ -24,7 +24,7 @@
         * [x] `^` or `pow`
         * [x] `++`
         * [x] `--`
-        * [ ] `%`
+        * [x] `%`
     * [ ] Trigonometry
         * [ ] `sin`
         * [ ] `cos`

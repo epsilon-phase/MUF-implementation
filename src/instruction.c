@@ -985,6 +985,26 @@ PRIM_SIG(p_call){
 //Need to write this later
 PRIM_SIG(p_debugline){
 }
+PRIM_SIG(p_subst){
+    struct stack_cell y=pop_data_stack(frame->stack),
+                      x=pop_data_stack(frame->stack),
+                      f=pop_data_stack(frame->stack);
+    assert(x.type==t_string&&y.type==t_string);
+    char *r=malloc(64),*z,*i;
+    unsigned int l=64;
+    i=r;
+    //There's something off here, I've got to fix this tomorrow.
+    while((z=strstr(f.data.str->str,x.data.str->str))){
+        if(z-x.data.str->str>l){
+            r=realloc(r,l*2);
+            memset(r+l,0,l);
+            l*=2;
+        }
+        memcpy(i,f.data.str->str,f.data.str->str-z);
+        z+=y.data.str->length;
+    }
+    return frame;
+}
 PRIM_SIG(p_explode){
   struct stack_cell y=pop_data_stack(frame->stack),
                     x=pop_data_stack(frame->stack),
