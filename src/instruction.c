@@ -1088,6 +1088,23 @@ PRIM_SIG(p_strip){
   p_striptail(frame);
   return frame;
 }
+PRIM_SIG(p_sqrt){
+  struct stack_cell x=pop_data_stack(frame->stack),result;
+  result.type=t_float;
+  switch(x.type){
+    case t_int:
+      result.data.fnumber=sqrt(x.data.number);
+      break;
+    case t_float:
+      result.data.fnumber=sqrt(x.data.fnumber);
+      break;
+    default:
+      result.type=t_invalid;
+      //error
+  }
+  push_data_stack(frame->stack,result);
+  return frame;
+}
 PRIM_SIG(p_call){
     struct frame* result=malloc(sizeof(struct frame));
     struct stack_cell r=pop_data_stack(frame->stack);
@@ -1313,6 +1330,7 @@ PRIM** get_instructions(){
         ASSOCIATE(strlen);
         ASSOCIATE(strtod);
         ASSOCIATE(subst);
+        ASSOCIATE(sqrt);
         ASSOCIATE(swap);
         ASSOCIATE(tolower);
         ASSOCIATE(toupper);

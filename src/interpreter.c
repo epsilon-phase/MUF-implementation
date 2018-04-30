@@ -314,6 +314,7 @@ struct program *build(struct tokenlist *tl) {
         match("rotn",i_rotn);
         match("rsplit",i_rsplit);
         match("split",i_split);
+        match("sqrt",i_sqrt);
         match("strcat",i_strcat);
         match("strcmp",i_strcmp);
         match("stringpfx",i_stringpfx);
@@ -548,12 +549,13 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_rsplit",
   "i_smatch",
   "i_split",
+  "i_sqrt",
   "i_strcat",
   "i_strcmp",
   "i_stringpfx",
+  "i_strip",
   "i_striplead",
   "i_striptail",
-  "i_strip",
   "i_strlen",
   "i_strtod",
   "i_subst",
