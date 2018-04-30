@@ -69,7 +69,7 @@
 * [x] `strlen`
 * [x] `strcmp`
 * [ ] `instring`
-* [ ] `instr`
+* [x] `instr`
 * [ ] `tolower`
 * [ ] `toupper`
 * [x] `strcat`

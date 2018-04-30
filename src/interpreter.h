@@ -71,6 +71,7 @@ enum instruction_opcode{
   i_gt,
   i_gte,
   i_increment,
+  i_instr,
   i_intostr,
   i_jmp,
   i_jmp_if,

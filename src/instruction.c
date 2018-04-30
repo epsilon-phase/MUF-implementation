@@ -494,6 +494,15 @@ PRIM_SIG(p_strcmp) {
   free_stack_cell(a);
   return frame;
 }
+PRIM_SIG(p_instr){
+  struct stack_cell y=pop_data_stack(frame->stack),
+                    x=pop_data_stack(frame->stack);
+  int n=strstr(x.data.str->str,y.data.str->str)-x.data.str->str;
+  push_data_stack(frame->stack,create_prim_int(n));
+  free_stack_cell(x);
+  free_stack_cell(y);
+  return frame;
+}
 PRIM_SIG(p_forpush) {
   struct stack_cell step = pop_data_stack(frame->stack),
                     end = pop_data_stack(frame->stack),
@@ -1224,6 +1233,7 @@ PRIM** get_instructions(){
         ASSOCIATE(striplead);
         ASSOCIATE(striptail);
         ASSOCIATE(strip);
+        ASSOCIATE(instr);
     }
     return instructions;
 }
