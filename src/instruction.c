@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
+
 #define peek_data_stack(X) X->stack[X->size-1]
 PRIM_SIG(p_mark){
   struct stack_cell r;
@@ -377,6 +379,16 @@ PRIM_SIG(p_nip){
     push_data_stack(frame->stack,y);
     return frame;
 }
+PRIM_SIG(p_tuck){
+  struct stack_cell y=pop_data_stack(frame->stack),
+                    x=pop_data_stack(frame->stack);
+  push_data_stack(frame->stack,y);
+  push_data_stack(frame->stack,x);
+  push_data_stack(frame->stack,y);
+  free_stack_cell(x);
+  free_stack_cell(y);
+  return frame;
+}
 PRIM_SIG(p_exit){
     struct frame *tmp=frame->parent;
     if(frame->parent){
@@ -396,8 +408,7 @@ PRIM_SIG(p_jmp_if) {
   struct stack_cell x = pop_data_stack(frame->stack);
   if (is_stack_cell_true(x))
     // Minus one because the next instruction will be stepped to after this.
-    frame->instr_pointer =
-        frame->program->bytecode[frame->instr_pointer].data.address - 1;
+    p_jmp(frame);
   free_stack_cell(x);
   return frame;
 }
@@ -405,8 +416,7 @@ PRIM_SIG(p_jmp_not_if) {
   struct stack_cell x = pop_data_stack(frame->stack);
   if (!is_stack_cell_true(x)) {
     // Minus one because the next instruction will be stepped to after this.
-    frame->instr_pointer =
-        frame->program->bytecode[frame->instr_pointer].data.address - 1;
+    p_jmp(frame);
   }
   free_stack_cell(x);
   return frame;
@@ -983,6 +993,39 @@ PRIM_SIG(p_rsplit){
   return frame;
 
 }
+PRIM_SIG(p_striplead){
+  struct stack_cell x=pop_data_stack(frame->stack),result;
+  char *r=x.data.str->str;
+  while(isspace(*r)){
+    r++;
+  }
+  result=create_prim_string(r);
+  push_data_stack(frame->stack,result);
+  free_stack_cell(x);
+  free_stack_cell(result);
+  return frame;
+}
+PRIM_SIG(p_striptail){
+  struct stack_cell x=pop_data_stack(frame->stack),result;
+  char *r=x.data.str->str,*last;
+  while(*r){
+    if(!isspace(*r)){
+      last=r;
+    }
+    r++;
+  }
+  int length=1+last-x.data.str->str;
+  result.type=t_string;
+  result.data.str=malloc(sizeof(struct shared_string)+length+1);
+  result.data.str->length=length;
+  result.data.str->links=1;
+  memcpy(result.data.str->str,x.data.str->str,length);
+  result.data.str->str[length]=0;
+  push_data_stack(frame->stack,result);
+  free_stack_cell(result);
+  free_stack_cell(x);
+  return frame;
+}
 PRIM_SIG(p_call){
     struct frame* result=malloc(sizeof(struct frame));
     struct stack_cell r=pop_data_stack(frame->stack);
@@ -1173,6 +1216,8 @@ PRIM** get_instructions(){
         ASSOCIATE(andn);
         ASSOCIATE(orn);
         ASSOCIATE(nip);
+        ASSOCIATE(striplead);
+        ASSOCIATE(striptail);
     }
     return instructions;
 }

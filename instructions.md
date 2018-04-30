@@ -14,6 +14,7 @@
 * [x] depth
 * [x] reverse
 * [ ] lreverse
+* [ ] put
 
 
 ## Math/logic prims
@@ -73,8 +74,8 @@
 * [ ] `toupper`
 * [x] `strcat`
 * [ ] `stringpfx`
-* [ ] `striptail`
-* [ ] `striplead`
+* [x] `striptail`
+* [x] `striplead`
 * [ ] `strip`
 * [ ] `rinstr`
 * [ ] `rinstring`

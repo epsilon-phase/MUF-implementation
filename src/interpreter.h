@@ -103,6 +103,8 @@ enum instruction_opcode{
   i_split,
   i_strcat,
   i_strcmp,
+  i_striplead,
+  i_striptail,
   i_strlen,
   i_strtod,
   i_subst,

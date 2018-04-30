@@ -77,7 +77,8 @@ void add_instruction(struct program *prog, struct instruction i) {
 #define BUILTIN_WORD_MATCH(T, V, S)                   \
   {                                                   \
     if (!strcmp(T->name, V)) {                        \
-      add_instruction(result, instruction_from_i(S)); \
+      p=instruction_from_i(S);                        \
+      p_useful=1;                                     \
       break;                                          \
     }                                                 \
   }
@@ -311,6 +312,8 @@ struct program *build(struct tokenlist *tl) {
         match("split",i_split);
         match("strcat",i_strcat);
         match("strcmp",i_strcmp);
+        match("striplead",i_striplead);
+        match("striptail",i_striptail);
         match("strlen",i_strlen);
         match("strtod",i_strtod);
         match("subst",i_subst);
@@ -322,6 +325,9 @@ struct program *build(struct tokenlist *tl) {
         break;
     }
     if (p_useful) {
+      if(p.type==i_while){
+        push_position_stack(unfilled_breaks,result->bytecode_size);
+      }
       add_instruction(result, p);
       p_useful = 0;
     }
@@ -533,6 +539,8 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_split",
   "i_strcat",
   "i_strcmp",
+  "i_striplead",
+  "i_striptail",
   "i_strlen",
   "i_strtod",
   "i_subst",
@@ -624,6 +632,7 @@ void close_loop(struct program* result,
                   }else if(result->bytecode[cur].type==i_continue){
                       result->bytecode[cur].data.address=tmp.position-1;
                   }else if(result->bytecode[cur].type==i_foriter){
+                    //This is... appropriate, but it's not uniform, which is silly.
                     result->bytecode[cur].data.address=result->bytecode_size-1;
                   }else if(result->bytecode[cur].type==i_while){
                     result->bytecode[cur].data.address=result->bytecode_size-1;
