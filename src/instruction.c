@@ -353,6 +353,14 @@ PRIM_SIG(p_swap){
   frame->stack->stack[frame->stack->size-2]=tmp;
   return frame;
 }
+PRIM_SIG(p_nip){
+    struct stack_cell y=pop_data_stack(frame->stack),
+                      x=pop_data_stack(frame->stack);
+    free_stack_cell(x);
+    free_stack_cell(y);
+    push_data_stack(frame->stack,y);
+    return frame;
+}
 PRIM_SIG(p_exit){
     struct frame *tmp=frame->parent;
     if(frame->parent){
@@ -1122,6 +1130,7 @@ PRIM** get_instructions(){
         instructions[i_while]=p_while;
         ASSOCIATE(andn);
         ASSOCIATE(orn);
+        ASSOCIATE(nip);
     }
     return instructions;
 }
