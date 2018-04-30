@@ -1,6 +1,6 @@
 #include "frame.h"
 #include <stdlib.h>
-
+#include <string.h>
 struct data_stack* create_data_stack(size_t capacity){
   struct data_stack* result=malloc(sizeof(struct data_stack));
   result->links=1;
@@ -41,6 +41,7 @@ void push_data_stack(struct data_stack *st,struct stack_cell sc){
     //Oh no!!!!
     st->stack=realloc(st->stack,st->capacity*2*sizeof(struct stack_cell));
     st->capacity*=2;
+    memset(st->stack+st->size,0,sizeof(struct stack_cell)*st->size);
   }
   st->stack[st->size++]=copy_stack_cell(sc);
   //Does it make sense to free the caller's stack_cell?

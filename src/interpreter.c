@@ -311,6 +311,7 @@ struct program *build(struct tokenlist *tl) {
         match("split",i_split);
         match("strcat",i_strcat);
         match("strcmp",i_strcmp);
+        match("strlen",i_strlen);
         match("strtod",i_strtod);
         match("swap", i_swap);
         match("while",i_while);
