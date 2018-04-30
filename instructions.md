@@ -13,6 +13,8 @@
 * [x] rotate
 * [x] depth
 * [x] reverse
+* [ ] lreverse
+
 
 ## Math/logic prims
 
