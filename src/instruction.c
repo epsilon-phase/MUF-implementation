@@ -341,6 +341,22 @@ PRIM_SIG(p_rotate) {
   }
   return frame;
 }
+PRIM_SIG(p_reverse){
+  struct stack_cell n=pop_data_stack(frame->stack);
+  struct stack_cell tmp;
+  int start,end;
+  start=frame->stack->size-n.data.number;
+  end=frame->stack->size-1;
+  while(start<end){
+    tmp=frame->stack->stack[end];
+    frame->stack->stack[end]=frame->stack->stack[start];
+    frame->stack->stack[start]=tmp;
+    start++;
+    end--;
+  }
+  free_stack_cell(n);
+  return frame;
+}
 PRIM_SIG(p_swap){
     //struct stack_cell y=pop_data_stack(frame->stack),
     //                  x=pop_data_stack(frame->stack);
@@ -984,25 +1000,29 @@ PRIM_SIG(p_call){
 }
 //Need to write this later
 PRIM_SIG(p_debugline){
+  return frame;
 }
 PRIM_SIG(p_subst){
     struct stack_cell y=pop_data_stack(frame->stack),
                       x=pop_data_stack(frame->stack),
                       f=pop_data_stack(frame->stack);
     assert(x.type==t_string&&y.type==t_string);
-    char *r=malloc(64),*z,*i;
-    unsigned int l=64;
-    i=r;
-    //There's something off here, I've got to fix this tomorrow.
-    while((z=strstr(f.data.str->str,x.data.str->str))){
-        if(z-x.data.str->str>l){
-            r=realloc(r,l*2);
-            memset(r+l,0,l);
-            l*=2;
-        }
-        memcpy(i,f.data.str->str,f.data.str->str-z);
-        z+=y.data.str->length;
+    push_data_stack(frame->stack,f);
+    push_data_stack(frame->stack,y);
+    p_explode(frame);
+    struct stack_cell i=pop_data_stack(frame->stack);
+    push_data_stack(frame->stack,i);
+    p_reverse(frame);
+    for(int z=0;z<i.data.number-1;z++){
+      push_data_stack(frame->stack,x);
+      p_strcat(frame);
+      p_swap(frame);
+      p_strcat(frame);
     }
+    free_stack_cell(x);
+    free_stack_cell(f);
+    free_stack_cell(y);
+    free_stack_cell(i);
     return frame;
 }
 PRIM_SIG(p_explode){
@@ -1143,10 +1163,12 @@ PRIM** get_instructions(){
         ASSOCIATE(rsplit);
         ASSOCIATE(call);
         ASSOCIATE(explode);
+        ASSOCIATE(subst);
         ASSOCIATE(intostr);
         ASSOCIATE(assert);
         ASSOCIATE(assign);
         ASSOCIATE(dereference);
+        ASSOCIATE(reverse);
         instructions[i_while]=p_while;
         ASSOCIATE(andn);
         ASSOCIATE(orn);

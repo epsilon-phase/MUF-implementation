@@ -12,6 +12,7 @@
 * [x] rot
 * [x] rotate
 * [x] depth
+* [x] reverse
 
 ## Math/logic prims
 
@@ -61,7 +62,7 @@
 * [x] `split`
 * [x] `rsplit`
 * [x] `explode`
-* [ ] `subst`
+* [x] `subst`
 * [x] `strlen`
 * [x] `strcmp`
 * [ ] `instring`

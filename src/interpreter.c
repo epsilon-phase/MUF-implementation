@@ -30,7 +30,6 @@ void close_loop(struct program*,
         struct block,
         struct position_stack*);
 static void add_line_range(struct program* prog, struct token* token){
-    size_t l=token->line;
     struct instruction_range* r=NULL;
     if(!prog->range_count){
         prog->lines=malloc(sizeof(struct instruction_range));
@@ -304,6 +303,7 @@ struct program *build(struct tokenlist *tl) {
         match("popn", i_popn);
         match("pow", i_power);
         match("read",i_read);
+        match("reverse",i_reverse);
         match("rot",i_rot);
         match("rotate",i_rotn);
         match("rotn",i_rotn);
@@ -313,6 +313,7 @@ struct program *build(struct tokenlist *tl) {
         match("strcmp",i_strcmp);
         match("strlen",i_strlen);
         match("strtod",i_strtod);
+        match("subst",i_subst);
         match("swap", i_swap);
         match("while",i_while);
         match("xor",i_xor);
@@ -534,6 +535,7 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_strcmp",
   "i_strlen",
   "i_strtod",
+  "i_subst",
   "i_swap",
   "i_while",
   "i_xor"
