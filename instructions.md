@@ -73,13 +73,13 @@
 * [x] `tolower`
 * [x] `toupper`
 * [x] `strcat`
-* [ ] `stringpfx`
+* [x] `stringpfx`
 * [x] `striptail`
 * [x] `striplead`
 * [x] `strip`
 * [ ] `rinstr`
 * [ ] `rinstring`
-* [ ] `midstr`
+* [x] `midstr`
 * [ ] `textattr`
 * [ ] `parse_ansi`
 * [ ] `unparse_ansi`

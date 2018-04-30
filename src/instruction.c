@@ -1007,7 +1007,19 @@ PRIM_SIG(p_rsplit){
     free_stack_cell(b);
   }
   return frame;
-
+}
+PRIM_SIG(p_stringpfx){
+  struct stack_cell y=pop_data_stack(frame->stack),
+                    x=pop_data_stack(frame->stack);
+  unsigned int q=1;
+  for(unsigned int z=0;z<x.data.str->length&&z<y.data.str->length;z++){
+    if(tolower(x.data.str->str[z])!=tolower(y.data.str->str[z])){
+      q=0;
+      break;
+    }
+  }
+  push_data_stack(frame->stack,create_prim_int(q));
+  return frame;
 }
 PRIM_SIG(p_midstr){
   struct stack_cell i2=pop_data_stack(frame->stack),
@@ -1293,6 +1305,7 @@ PRIM** get_instructions(){
         ASSOCIATE(strcat);
         ASSOCIATE(strcmp);
         ASSOCIATE(strip);
+        ASSOCIATE(stringpfx);
         ASSOCIATE(striplead);
         ASSOCIATE(striptail);
         ASSOCIATE(strlen);
