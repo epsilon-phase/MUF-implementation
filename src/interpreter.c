@@ -541,6 +541,7 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_strcmp",
   "i_striplead",
   "i_striptail",
+  "i_strip",
   "i_strlen",
   "i_strtod",
   "i_subst",

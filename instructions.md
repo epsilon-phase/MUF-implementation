@@ -76,7 +76,7 @@
 * [ ] `stringpfx`
 * [x] `striptail`
 * [x] `striplead`
-* [ ] `strip`
+* [x] `strip`
 * [ ] `rinstr`
 * [ ] `rinstring`
 * [ ] `midstr`

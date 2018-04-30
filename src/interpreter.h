@@ -105,6 +105,7 @@ enum instruction_opcode{
   i_strcmp,
   i_striplead,
   i_striptail,
+  i_strip,
   i_strlen,
   i_strtod,
   i_subst,

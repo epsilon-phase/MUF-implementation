@@ -1026,6 +1026,11 @@ PRIM_SIG(p_striptail){
   free_stack_cell(x);
   return frame;
 }
+PRIM_SIG(p_strip){
+  p_striplead(frame);
+  p_striptail(frame);
+  return frame;
+}
 PRIM_SIG(p_call){
     struct frame* result=malloc(sizeof(struct frame));
     struct stack_cell r=pop_data_stack(frame->stack);
@@ -1218,6 +1223,7 @@ PRIM** get_instructions(){
         ASSOCIATE(nip);
         ASSOCIATE(striplead);
         ASSOCIATE(striptail);
+        ASSOCIATE(strip);
     }
     return instructions;
 }
