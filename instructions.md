@@ -68,10 +68,10 @@
 * [x] `subst`
 * [x] `strlen`
 * [x] `strcmp`
-* [ ] `instring`
+* [x] `instring`
 * [x] `instr`
 * [x] `tolower`
-* [ ] `toupper`
+* [x] `toupper`
 * [x] `strcat`
 * [ ] `stringpfx`
 * [x] `striptail`

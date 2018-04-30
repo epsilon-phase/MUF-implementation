@@ -72,6 +72,7 @@ enum instruction_opcode{
   i_gte,
   i_increment,
   i_instr,
+  i_instring,
   i_intostr,
   i_jmp,
   i_jmp_if,
@@ -112,6 +113,7 @@ enum instruction_opcode{
   i_subst,
   i_swap,
   i_tolower,
+  i_toupper,
   i_while,
   i_xor,
 };

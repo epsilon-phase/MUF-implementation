@@ -296,6 +296,7 @@ struct program *build(struct tokenlist *tl) {
         match("explode",i_explode);
         match("intostr",i_intostr);
         match("instr",i_instr);
+        match("instring",i_instring);
         match("nip",i_nip);
         match("not",i_not);
         match("notify", i_notify);
@@ -320,6 +321,7 @@ struct program *build(struct tokenlist *tl) {
         match("subst",i_subst);
         match("swap", i_swap);
         match("tolower",i_tolower);
+        match("toupper",i_toupper);
         match("while",i_while);
         match("xor",i_xor);
         match("{",i_mark);
@@ -510,6 +512,7 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_gte",
   "i_increment",
   "i_instr",
+  "i_instring",
   "i_intostr",
   "i_jmp",
   "i_jmp_if",
@@ -550,6 +553,7 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_subst",
   "i_swap",
   "i_tolower",
+  "i_toupper",
   "i_while",
   "i_xor"
   };
