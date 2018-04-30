@@ -70,7 +70,7 @@
 * [x] `strcmp`
 * [ ] `instring`
 * [x] `instr`
-* [ ] `tolower`
+* [x] `tolower`
 * [ ] `toupper`
 * [x] `strcat`
 * [ ] `stringpfx`

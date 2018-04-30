@@ -319,6 +319,7 @@ struct program *build(struct tokenlist *tl) {
         match("strtod",i_strtod);
         match("subst",i_subst);
         match("swap", i_swap);
+        match("tolower",i_tolower);
         match("while",i_while);
         match("xor",i_xor);
         match("{",i_mark);
@@ -548,6 +549,7 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_strtod",
   "i_subst",
   "i_swap",
+  "i_tolower",
   "i_while",
   "i_xor"
   };

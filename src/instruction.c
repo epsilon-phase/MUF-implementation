@@ -1156,6 +1156,18 @@ PRIM_SIG(p_intostr) {
   free_stack_cell(f);
   return frame;
 }
+PRIM_SIG(p_tolower){
+  struct stack_cell x=pop_data_stack(frame->stack);
+  char *r=malloc(x.data.str->length+1);
+  for(unsigned int i=0;i<x.data.str->length+1;i++)
+    r[i]=tolower(x.data.str->str[i]);
+  free_stack_cell(x);
+  x=create_prim_string(r);
+  free(r);
+  push_data_stack(frame->stack,x);
+  free_stack_cell(x);
+  return frame;
+}
 PRIM_SIG(p_while){
   struct stack_cell t=pop_data_stack(frame->stack);
   if(!is_stack_cell_true(t)){
@@ -1234,6 +1246,7 @@ PRIM** get_instructions(){
         ASSOCIATE(striptail);
         ASSOCIATE(strip);
         ASSOCIATE(instr);
+        ASSOCIATE(tolower);
     }
     return instructions;
 }

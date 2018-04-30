@@ -111,6 +111,7 @@ enum instruction_opcode{
   i_strtod,
   i_subst,
   i_swap,
+  i_tolower,
   i_while,
   i_xor,
 };
