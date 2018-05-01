@@ -9,6 +9,15 @@
 #include <ctype.h>
 
 #define peek_data_stack(X) X->stack[X->size-1]
+double get_double(struct stack_cell sc){
+  switch(sc.type){
+    case t_int:
+      return (double)sc.data.number;
+    case t_float:
+      return sc.data.fnumber;
+  }
+  return 0.0;
+}
 PRIM_SIG(p_mark){
   struct stack_cell r;
   r.type=t_mark;
@@ -1102,6 +1111,114 @@ PRIM_SIG(p_sqrt){
       result.type=t_invalid;
       //error
   }
+  push_data_stack(frame->stack,result);
+  return frame;
+}
+//Trigonometry stuff
+PRIM_SIG(p_sin){
+  struct stack_cell x=pop_data_stack(frame->stack),result;
+  result.type=t_float;
+  switch(x.type){
+    case t_int:
+      result.data.fnumber=sin(x.data.number);
+      break;
+    case t_float:
+      result.data.fnumber=sin(x.data.fnumber);
+      break;
+    default:
+      break;
+  }
+  push_data_stack(frame->stack,result);
+  free_stack_cell(x);
+  return frame;
+}
+PRIM_SIG(p_asin){
+  struct stack_cell x=pop_data_stack(frame->stack),result;
+  result.type=t_float;
+  switch(x.type){
+    case t_int:
+      result.data.fnumber=asin(x.data.number);
+      break;
+    case t_float:
+      result.data.fnumber=asin(x.data.fnumber);
+      break;
+    default:
+      break;
+  }
+  push_data_stack(frame->stack,result);
+  free_stack_cell(x);
+  return frame;
+}
+PRIM_SIG(p_cos){
+  struct stack_cell x=pop_data_stack(frame->stack),result;
+  result.type=t_float;
+  switch(x.type){
+    case t_int:
+      result.data.fnumber=cos(x.data.number);
+      break;
+    case t_float:
+      result.data.fnumber=cos(x.data.fnumber);
+      break;
+    default:
+      break;
+  }
+  push_data_stack(frame->stack,result);
+  free_stack_cell(x);
+  return frame;
+}
+PRIM_SIG(p_acos){
+  struct stack_cell x=pop_data_stack(frame->stack),result;
+  result.type=t_float;
+  switch(x.type){
+    case t_int:
+      result.data.fnumber=acos(x.data.number);
+      break;
+    case t_float:
+      result.data.fnumber=acos(x.data.fnumber);
+      break;
+    default:
+      break;
+  }
+  push_data_stack(frame->stack,result);
+  free_stack_cell(x);
+  return frame;
+}
+PRIM_SIG(p_tan){
+  struct stack_cell x=pop_data_stack(frame->stack),
+                    result;
+  result.type=t_float;
+  switch(x.type){
+    case t_int:
+      result.data.fnumber=tan(x.data.number);
+      break;
+    case t_float:
+      result.data.fnumber=tan(x.data.fnumber);
+      break;
+  }
+  push_data_stack(frame->stack,result);
+  return frame;
+}
+PRIM_SIG(p_atan){
+  struct stack_cell x=pop_data_stack(frame->stack),
+                    result;
+  result.type=t_float;
+  switch(x.type){
+    case t_int:
+      result.data.fnumber=atan(x.data.number);
+      break;
+    case t_float:
+      result.data.fnumber=atan(x.data.fnumber);
+      break;
+  }
+  push_data_stack(frame->stack,result);
+  return frame;
+}
+PRIM_SIG(p_atan2){
+  struct stack_cell y=pop_data_stack(frame->stack),
+                    x=pop_data_stack(frame->stack),
+                    result;
+  result.type=t_float;
+  result.data.fnumber=atan2(get_double(x),get_double(y));
   push_data_stack(frame->stack,result);
   return frame;
 }
