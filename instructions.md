@@ -29,14 +29,15 @@
         * [x] `++`
         * [x] `--`
         * [x] `%`
-    * [ ] Trigonometry
-        * [ ] `sin`
-        * [ ] `cos`
-        * [ ] `tan`
-        * [ ] `asin`
-        * [ ] `acos`
-        * [ ] `atan` 
-    * [ ] `sqrt`
+    * [x] Trigonometry
+        * [x] `sin`
+        * [x] `cos`
+        * [x] `tan`
+        * [x] `asin`
+        * [x] `acos`
+        * [x] `atan`
+        * [x] `atan2`
+    * [x] `sqrt`
     * [ ] `log`
     * [ ] `log10`
     * [ ] `ln`
