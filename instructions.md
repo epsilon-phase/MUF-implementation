@@ -15,7 +15,7 @@
 * [x] reverse `x1 x2 … xi i -- xi … x1`
 * [x] lreverse `x1 x2 … xi i -- xi … x2 x1 i`
 * [ ] put `x1 x2 x3 x4 x5 … xn xi i -- x1 … xi .. xn`
-* [ ] over `x1 x2 x3 … xi … xn i -- x1 x2 … xi … xn xi`
+* [x] over `x1 x2 x3 … xi … xn i -- x1 x2 … xi … xn xi`
 
 
 ## Math/logic prims
@@ -39,18 +39,18 @@
         * [x] `atan`
         * [x] `atan2`
     * [x] `sqrt`
-    * [ ] `log`
-    * [ ] `log10`
+    * [x] `log`
+    * [x] `log10`
     * [ ] `ln`
     * [ ] `polar_to_xyz`
     * [ ] `xyz_to_polar`
     * [ ] `dist3d`
-    * [ ] `ceil`
-    * [ ] `floor`
+    * [x] `ceil`
+    * [x] `floor`
     * [ ] `round`
     * [ ] `modf`
     * [ ] `exp`
-    * [ ] `abs` `fabs`
+    * [x] `abs` `fabs`
     * [ ] Bit manipulation
         * [ ] `bitxor`
         * [ ] `bitshift`

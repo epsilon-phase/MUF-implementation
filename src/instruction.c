@@ -1242,6 +1242,26 @@ PRIM_SIG(p_floor){
   return frame;
 }
 
+PRIM_SIG(p_log){
+  struct stack_cell x=pop_data_stack(frame->stack);
+  push_data_stack(frame->stack,create_prim_double(log(get_double(x))));
+  return frame;
+}
+PRIM_SIG(p_log10){
+  struct stack_cell x=pop_data_stack(frame->stack);
+  push_data_stack(frame->stack,create_prim_double(log10(get_double(x))));
+  return frame;
+}
+PRIM_SIG(p_fabs){
+  struct stack_cell x=pop_data_stack(frame->stack);
+  push_data_stack(frame->stack,create_prim_double(log(get_double(x))));
+  return frame;
+}
+PRIM_SIG(p_abs){
+  struct stack_cell x=pop_data_stack(frame->stack);
+  push_data_stack(frame->stack,create_prim_int(x.data.number));
+  return frame;
+}
 PRIM_SIG(p_call){
     struct frame* result=malloc(sizeof(struct frame));
     struct stack_cell r=pop_data_stack(frame->stack);
@@ -1481,6 +1501,10 @@ PRIM** get_instructions(){
         ASSOCIATE(ceil);
         ASSOCIATE(floor);
         ASSOCIATE(over);
+        ASSOCIATE(abs);
+        ASSOCIATE(fabs);
+        ASSOCIATE(log);
+        ASSOCIATE(log10);
         instructions[i_break]=p_break;
         instructions[i_continue]=p_continue;
         instructions[i_while]=p_while;

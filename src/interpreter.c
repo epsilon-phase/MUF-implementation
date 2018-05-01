@@ -286,6 +286,7 @@ struct program *build(struct tokenlist *tl) {
         match(">", i_gt);
         match(">=",i_gte);
         match("^",i_power);
+        match("abs",i_abs);
         match("and",i_and);
         match("andn",i_andn);
         match("cos",i_cos);
@@ -299,6 +300,7 @@ struct program *build(struct tokenlist *tl) {
         match("atoi",i_atoi);
         match("call", i_call);
         match("ceil",i_ceil);
+        match("fabs",i_fabs);
         match("floor",i_floor);
         match("depth",i_depth);
         match("dup", i_dup);
@@ -319,6 +321,8 @@ struct program *build(struct tokenlist *tl) {
         match("pow", i_power);
         match("read",i_read);
         match("reverse",i_reverse);
+        match("log",i_log);
+        match("log10",i_log10);
         match("lreverse",i_lreverse);
         match("rot",i_rot);
         match("rotate",i_rotn);
@@ -503,6 +507,7 @@ void free_block_stack(struct block_stack* s){
 const char* obtain_bytecode_name(unsigned char t){
   const char *inames[]={
   "i_abort",
+  "i_abs",
   "i_acos",
   "i_and",
   "i_andn",
@@ -526,6 +531,7 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_equal",
   "i_exit",
   "i_explode",
+  "i_fabs",
   "i_floor",
   "i_foriter",
   "i_forpop",
@@ -539,6 +545,8 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_jmp",
   "i_jmp_if",
   "i_jmp_not_if",
+  "i_log",
+  "i_log10",
   "i_lreverse",
   "i_lt",
   "i_lte",

@@ -48,6 +48,7 @@ struct stack_cell{
 };
 enum instruction_opcode{
   i_abort,
+  i_abs,
   i_acos,
   i_and,
   i_andn,
@@ -71,6 +72,7 @@ enum instruction_opcode{
   i_equal,
   i_exit,
   i_explode,
+  i_fabs,
   i_floor,
   i_foriter,
   i_forpop,
@@ -84,6 +86,8 @@ enum instruction_opcode{
   i_jmp,
   i_jmp_if,
   i_jmp_not_if,
+  i_log,
+  i_log10,
   i_lreverse,
   i_lt,
   i_lte,
