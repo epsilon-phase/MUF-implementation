@@ -1452,6 +1452,12 @@ PRIM** get_instructions(){
         ASSOCIATE(tolower);
         ASSOCIATE(toupper);
         ASSOCIATE(xor);
+        ASSOCIATE(cos);
+        ASSOCIATE(acos);
+        ASSOCIATE(asin);
+        ASSOCIATE(sin);
+        ASSOCIATE(atan2);
+        ASSOCIATE(tan);
         instructions[i_break]=p_break;
         instructions[i_continue]=p_continue;
         instructions[i_while]=p_while;

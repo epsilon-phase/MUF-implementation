@@ -285,7 +285,14 @@ struct program *build(struct tokenlist *tl) {
         match(">=",i_gte);
         match("^",i_power);
         match("and",i_and);
-        match("and",i_and);
+        match("andn",i_andn);
+        match("cos",i_cos);
+        match("sin",i_sin);
+        match("tan",i_tan);
+        match("acos",i_acos);
+        match("asin",i_asin);
+        match("atan",i_tan);
+        match("atan2",i_atan2);
         match("assert",i_assert);
         match("atoi",i_atoi);
         match("call", i_call);
@@ -492,14 +499,19 @@ void free_block_stack(struct block_stack* s){
 const char* obtain_bytecode_name(unsigned char t){
   const char *inames[]={
   "i_abort",
+  "i_acos",
   "i_and",
   "i_andn",
+  "i_asin",
   "i_assert",
   "i_assign",
+  "i_atan",
+  "i_atan2",
   "i_atoi",
   "i_break",
   "i_call",
   "i_continue",
+  "i_cos",
   "i_decrement",
   "i_depth",
   "i_dereference",
@@ -547,6 +559,7 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_rot",
   "i_rotn",
   "i_rsplit",
+  "i_sin",
   "i_smatch",
   "i_split",
   "i_sqrt",
