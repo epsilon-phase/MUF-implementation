@@ -296,6 +296,8 @@ struct program *build(struct tokenlist *tl) {
         match("assert",i_assert);
         match("atoi",i_atoi);
         match("call", i_call);
+        match("ceil",i_ceil);
+        match("floor",i_floor);
         match("depth",i_depth);
         match("dup", i_dup);
         match("dupn", i_dupn);
@@ -511,6 +513,7 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_break",
   "i_call",
   "i_continue",
+  "i_ceil",
   "i_cos",
   "i_decrement",
   "i_depth",
@@ -521,6 +524,7 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_equal",
   "i_exit",
   "i_explode",
+  "i_floor",
   "i_foriter",
   "i_forpop",
   "i_forpush",
@@ -573,6 +577,7 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_strtod",
   "i_subst",
   "i_swap",
+  "i_tan",
   "i_tolower",
   "i_toupper",
   "i_while",

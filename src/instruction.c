@@ -1470,6 +1470,8 @@ PRIM** get_instructions(){
         ASSOCIATE(sin);
         ASSOCIATE(atan2);
         ASSOCIATE(tan);
+        ASSOCIATE(ceil);
+        ASSOCIATE(floor);
         instructions[i_break]=p_break;
         instructions[i_continue]=p_continue;
         instructions[i_while]=p_while;

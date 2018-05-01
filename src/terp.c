@@ -12,6 +12,7 @@
 #include "interpreter.h"
 #include "frame.h"
 #include "version.h"
+#include <unistd.h>
 /**
  *  Inst type Prototype(since the JIT doesn't make it easy to get a normal C
  *struct in there)
@@ -87,19 +88,43 @@ int main(int argc, char** argv) {
 char *read_file(const char* fn){
     char *output=NULL;;
     FILE *f;
-    f=fopen(fn,"rb");
+    if(!strcmp(fn,"-")||!strcmp(fn,"stdin")){
+      f=stdin;
+    }else{
+      f=fopen(fn,"rb");
+    }
     if(!f){
         fprintf(stderr,"Failed to open file %s",fn);
     }else{
-    fseek(f,0,SEEK_END);
-    long long fsize=ftell(f);
-    fseek(f,0,SEEK_SET);
-    output=malloc(sizeof(char)*(fsize+1));
-    memset(output,0,fsize+1);
-    fread(output,sizeof(char),fsize,f);
-    fclose(f);
-    output[fsize]=0;
-    printf("File of %lld bytes read.\n",fsize);
+      if(!isatty(fileno(f))){
+        fseek(f,0,SEEK_END);
+        long long fsize=ftell(f);
+        fseek(f,0,SEEK_SET);
+        output=malloc(sizeof(char)*(fsize+1));
+        memset(output,0,fsize+1);
+        fread(output,sizeof(char),fsize,f);
+        fclose(f);
+        output[fsize]=0;
+        printf("File of %lld bytes read.\n",fsize);
+      }else{
+        size_t fsize=0;
+        size_t capacity=10;
+        output=malloc(sizeof(char)*10+1);
+        memset(output,0,10);
+        int c;
+        while((c=fread(output+fsize,sizeof(char),10,f))){
+          if(feof(f)){
+            break;
+          }
+          fsize+=c;
+          if(fsize>=capacity){
+            output=realloc(output,capacity*2);
+            memset(output+capacity,0,capacity);
+            capacity*=2;
+          }
+
+        }
+      }
     }
     return output;
 }
