@@ -641,14 +641,6 @@ void print_bytecode(struct program* p){
     printf("\n");
   }
 }
-void free_stack_cell(struct stack_cell sc){
-  if((sc.type==t_invalid||sc.type==t_string)&&sc.data.str){
-    if(!(--sc.data.str->links))
-      free(sc.data.str);
-  }
-  sc.data.str=NULL;
-  
-}
 void free_program(struct program** pr){
   struct program* p=*pr;
   for(size_t i=0;i<p->bytecode_size;i++){
@@ -688,29 +680,4 @@ void close_loop(struct program* result,
           if(tmp.type==bs_for){
             add_instruction(result,simple_instruction_from_type(i_forpop));
           }
-}
-struct stack_cell copy_stack_cell(struct stack_cell n){
-  struct stack_cell copy;
-  copy.type=n.type;
-  switch(n.type){
-    case t_string:
-      copy.data.str=n.data.str;
-      copy.data.str->links++;
-      break;
-    case t_int:
-    case t_svar:
-    case t_var:
-    case t_lvar:
-      copy.data.number=n.data.number;
-      break;
-    case t_float:
-      copy.data.fnumber=n.data.fnumber;
-      break;
-    case t_address:
-      copy.data.address=n.data.address;
-      break;
-     default:
-      break;
-  }
-  return copy;
 }

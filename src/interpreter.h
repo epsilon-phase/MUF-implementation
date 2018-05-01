@@ -2,6 +2,7 @@
 #define INTERPRETER_H
 #include "token.h"
 #include "ast.h"
+#include "stack_cell.h"
 #ifndef MAX_VAR_COUNT
 #define MAX_VAR_COUNT 32
 #endif
@@ -12,39 +13,6 @@ struct word{
   size_t position,
          local_vars;
   char* name;
-};
-struct stack_cell;
-struct variable{
-  struct stack_cell *contents;
-};
-struct shared_string{
-  unsigned int links;
-  unsigned int length;
-  char str[];
-};
-enum{
-    t_int,
-    t_float,
-    t_string,
-    t_address,
-    t_var,
-    t_svar,
-    t_lvar,
-    t_lock,
-    t_dbref,
-    t_array,
-    t_mark,
-    t_invalid
-} stack_type;
-struct stack_cell{
-  union{
-    int number;
-    double fnumber;
-    struct shared_string *str;
-    size_t address;
-    struct variable* var;
-  } data;
-  unsigned char type;
 };
 enum instruction_opcode{
   i_abort,
@@ -150,7 +118,6 @@ struct instruction_range{
 struct program{
   struct word *words;
   size_t word_count;
-  struct variable lvars[MAX_LVAR_COUNT];
   struct instruction *bytecode;
   size_t bytecode_size;
   size_t bytecode_capacity;
@@ -165,15 +132,10 @@ struct program* build(struct tokenlist* tl);
 void print_bytecode(struct program* p);
 struct instruction simple_instruction_from_type(int t);
 struct stack_cell *stack_ptr_from_rval(struct stack_cell n);
-struct stack_cell copy_stack_cell(struct stack_cell n);
-void free_stack_cell(struct stack_cell);
-int is_stack_cell_true(struct stack_cell);
-int are_stack_cell_equal(struct stack_cell,struct stack_cell);
 struct stack_cell create_prim_int(int);
 struct stack_cell create_prim_double(double);
 struct stack_cell create_prim_string(const char*);
 struct stack_cell create_prim_invalid(const char*);
-void print_stack_cell(struct stack_cell*);
 const char* obtain_bytecode_name(unsigned char);
 struct variable* create_variable(const char* name);
 void free_program(struct program** p);
