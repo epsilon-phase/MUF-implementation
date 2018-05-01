@@ -267,7 +267,9 @@ struct program *build(struct tokenlist *tl) {
         }else{
           current_token->name=current_token->name+1;
         }
-        if(p_useful){break;}
+        if(p_useful){
+          break;
+        }
         match("@",i_dereference);
         match("!",i_assign);
         match("!=",i_not_equal);

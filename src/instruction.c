@@ -395,6 +395,14 @@ PRIM_SIG(p_nip){
     push_data_stack(frame->stack,y);
     return frame;
 }
+PRIM_SIG(p_over){
+  struct stack_cell i=pop_data_stack(frame->stack),
+                    xi;
+  xi=frame->stack->stack[frame->stack->size-i.data.number];
+  push_data_stack(frame->stack,xi);
+  return frame;
+}
+
 PRIM_SIG(p_tuck){
   struct stack_cell y=pop_data_stack(frame->stack),
                     x=pop_data_stack(frame->stack);
@@ -1472,6 +1480,7 @@ PRIM** get_instructions(){
         ASSOCIATE(tan);
         ASSOCIATE(ceil);
         ASSOCIATE(floor);
+        ASSOCIATE(over);
         instructions[i_break]=p_break;
         instructions[i_continue]=p_continue;
         instructions[i_while]=p_while;
