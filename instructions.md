@@ -14,7 +14,7 @@
 * [x] depth `-- i`
 * [x] reverse `x1 x2 … xi i -- xi … x1`
 * [x] lreverse `x1 x2 … xi i -- xi … x2 x1 i`
-* [ ] put
+* [ ] put `x1 x2 x3 x4 x5 … xn xi i -- x1 … xi .. xn`
 
 
 ## Math/logic prims
