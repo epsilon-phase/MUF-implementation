@@ -58,5 +58,13 @@ struct stack_cell copy_stack_cell(struct stack_cell n){
   return copy;
 }
 int stack_cell_cmp(struct stack_cell a,struct stack_cell b){
+  if(a.type!=b.type){
+    if((a.type==t_int&&b.type!=t_float)||(b.type==t_int&&a.type!=t_float))
+      return -1;
+    else
+      return 1;
+  }else if(a.type==b.type&&a.type==t_string){
+    return strcmp(a.data.str->str,b.data.str->str);
+  }
   return 0;
 }

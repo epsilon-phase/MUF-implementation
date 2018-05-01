@@ -13,6 +13,7 @@
 #include "frame.h"
 #include "version.h"
 #include <unistd.h>
+#include <sys/stat.h>
 /**
  *  Inst type Prototype(since the JIT doesn't make it easy to get a normal C
  *struct in there)
@@ -96,7 +97,9 @@ char *read_file(const char* fn){
   if(!f){
     fprintf(stderr,"Failed to open file %s",fn);
   }else{
-    if(!isatty(fileno(f))){
+    struct stat statbuf;
+    fstat(fileno(f),&statbuf);
+    if(!isatty(fileno(f))||!S_ISFIFO(statbuf.st_mode)){
       fseek(f,0,SEEK_END);
       long long fsize=ftell(f);
       fseek(f,0,SEEK_SET);
