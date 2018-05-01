@@ -1222,6 +1222,18 @@ PRIM_SIG(p_atan2){
   push_data_stack(frame->stack,result);
   return frame;
 }
+//Ceiling floor, etc functions
+PRIM_SIG(p_ceil){
+  struct stack_cell x=pop_data_stack(frame->stack);
+  push_data_stack(frame->stack,create_prim_double(ceil(get_double(x))));
+  return frame;
+}
+PRIM_SIG(p_floor){
+  struct stack_cell x=pop_data_stack(frame->stack);
+  push_data_stack(frame->stack,create_prim_double(floor(get_double(x))));
+  return frame;
+}
+
 PRIM_SIG(p_call){
     struct frame* result=malloc(sizeof(struct frame));
     struct stack_cell r=pop_data_stack(frame->stack);
