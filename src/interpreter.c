@@ -116,6 +116,7 @@ struct program *build(struct tokenlist *tl) {
       "striptail", i_striptail, "strlen", i_strlen, "strtod", i_strtod, "subst",
       i_subst, "swap", i_swap, "tolower", i_tolower, "toupper", i_toupper,
       "while", i_while, "xor", i_xor, "{", i_mark, "}", i_mark_end, NULL);
+  dump(matching,"garbage.dot");
   struct {
     char **variables;
     size_t count;

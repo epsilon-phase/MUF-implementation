@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
 void free_array(struct array* arr){
     //TODO write array deallocation function
     if(arr->packed){
@@ -171,5 +173,37 @@ void print_array(struct array* arr){
 void dump_array(struct array* arr,const char* fn){
   if(!arr->packed){
     dump_avl_tree(arr->data.dictionary,fn);
+    pid_t proc=fork();
+    if(!proc){
+      char *buffer=malloc(strlen("dot -Tpng -O ")+strlen(fn)+1);
+      memset(buffer,0,strlen(fn)+1);
+      sprintf(buffer,"dot -Tpng -O %s",fn);
+      system(buffer);
+      exit(0);
+    }
   }
+}
+struct stack_cell sum_array(struct array* arr){
+  struct stack_cell result={.type=t_int,.data.number=0};
+  if(arr->packed){
+    for(int i=0;i<arr->size;i++){
+      switch(arr->data.packed[i].type){
+        case t_int:
+          if(result.type==t_int)
+            result.data.number+=arr->data.packed[i].data.number;
+          else
+            result.data.fnumber+=arr->data.packed[i].data.fnumber;
+          break;
+        case t_float:
+          if(result.type=t_int){
+            result.type=t_float;
+            result.data.fnumber+=result.data.number+arr->data.packed[i].data.fnumber;
+          }else{
+            result.data.fnumber+=arr->data.packed[i].data.fnumber;
+          }
+          break;
+      }
+    }
+  }
+  return result;
 }

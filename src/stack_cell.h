@@ -55,5 +55,5 @@ int are_stack_cell_equal(struct stack_cell,struct stack_cell);
 void print_stack_cell(struct stack_cell*);
 struct stack_cell copy_stack_cell(struct stack_cell n);
 double get_double(struct stack_cell sc);
-
+struct stack_cell sum_array(struct array*);
 #endif

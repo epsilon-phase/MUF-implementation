@@ -2,6 +2,7 @@
 #include <string.h>
 #include "trie.h"
 #include <stdarg.h>
+#include <stdio.h>
 void free_trie(struct trie* t){
   for(int i=0;i<93;i++){
     if(t->children[i]){
@@ -17,7 +18,7 @@ struct trie* create_trie(){
   return result;
 }
 void add_to_trie(struct trie* t,const char* key,int value){
-  if(key[1]){
+  if(key[0]){
     if(!t->children[key[0]-33]){
       t->children[key[0]-33]=create_trie();
     }
@@ -28,7 +29,7 @@ void add_to_trie(struct trie* t,const char* key,int value){
 }
 
 int get_value(struct trie* t,const char* c){
-  while(c[1]){
+  while(c[0]){
     if(!t)return -1;
     t=t->children[*(c++)-33];
   }
@@ -46,4 +47,43 @@ void add_many(struct trie* t,...){
     }
   }
   va_end(args);
+}
+int childcount(struct trie* t){
+  if(!t)return 0;
+  int r=0;
+  for(int i=0;i<93;i++)if(t->children[i])r++;
+  return r;
+}
+int dump_t(struct trie* t,FILE* f,int n,int g){
+  int nn=g,first=1,order[93],ids[93],filled=0;
+  memset(order,0,sizeof(int)*93);
+  fprintf(f,"struct%d [label=\"",n);
+  fprintf(f,"{{<top> struct%d\n}|{",n);
+  for(int i=0;i<93;i++){
+    if(t->children[i]){
+      if(!first){
+        fprintf(f,"|");
+      }else{first=0;}
+      order[filled]=i;
+      ids[filled]=++nn;
+      fprintf(f,"<f%i> &#%i;",i,33+i);
+      filled++;
+    }
+  }
+  fprintf(f,"}}\"]\n");
+  for(int i=0;i<filled;i++){
+    if(childcount(t->children[order[i]])){
+      nn=dump_t(t->children[order[i]],f,ids[i],nn);
+      fprintf(f,"struct%i:f%i -> struct%i:top\n",n,order[i],ids[i]);
+    }
+  }
+  return nn;
+}
+void dump(struct trie* t,const char* file){
+  FILE* f=fopen(file,"w");
+  fprintf(f,"digraph T{\n");
+  fprintf(f,"node [shape=record];\n");
+  dump_t(t,f,0,1);
+  fprintf(f,"}");
+  fclose(f);
 }
