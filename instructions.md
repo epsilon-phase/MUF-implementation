@@ -99,32 +99,32 @@
 
 ## Array primitives
 
-* array_make
-* array_make_dict
-* array_setitem
-* array_getitem
-* array_nested_set
-* array_nested_get
-* array_sum
-* array_count
-* foreach
-* array_delitem
-* array_getrange
-* array_setrange
-* array_delrange
-* array_nintersect
-* array_nunion
-* array_ndiff
-* array_insertrange
-* array_cut
-* array_sort
-* array_join
-* array_explode
-* explode_array
-* array_keys
-* array_vals
-* array_next
-* array_prev
-* array_compare
-* array_fmtstring
-* array_string_fragment
+* [x] array_make
+* [x] array_make_dict
+* [x] array_setitem
+* [x] array_getitem
+* [ ] array_nested_set
+* [ ] array_nested_get
+* [ ] array_sum
+* [ ] array_count
+* [ ] foreach
+* [ ] array_delitem
+* [ ] array_getrange
+* [ ] array_setrange
+* [ ] array_delrange
+* [ ] array_nintersect
+* [ ] array_nunion
+* [ ] array_ndiff
+* [ ] array_insertrange
+* [ ] array_cut
+* [ ] array_sort
+* [ ] array_join
+* [ ] array_explode
+* [ ] explode_array
+* [ ] array_keys
+* [ ] array_vals
+* [ ] array_next
+* [ ] array_prev
+* [ ] array_compare
+* [ ] array_fmtstring
+* [ ] array_string_fragment

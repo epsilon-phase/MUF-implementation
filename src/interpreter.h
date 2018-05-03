@@ -20,6 +20,7 @@ enum instruction_opcode{
   i_acos,
   i_and,
   i_andn,
+  i_array_count,
   i_array_dump,
   i_array_make,
   i_array_make_dict,

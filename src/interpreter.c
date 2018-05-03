@@ -289,6 +289,7 @@ struct program *build(struct tokenlist *tl) {
         match("abs",i_abs);
         match("and",i_and);
         match("andn",i_andn);
+        match("array_count",i_array_count);
         match("array_dump",i_array_dump);
         match("array_make",i_array_make);
         match("array_make_dict",i_array_make_dict);
@@ -519,6 +520,7 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_acos",
   "i_and",
   "i_andn",
+  "i_array_count",
   "i_array_dump",
   "i_array_make",
   "i_array_make_dict",

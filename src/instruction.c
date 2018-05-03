@@ -29,10 +29,7 @@ PRIM_SIG(p_mark_end){
   return frame;
 }
 PRIM_SIG(p_dup) {
-  struct stack_cell x = pop_data_stack(frame->stack);
-  push_data_stack(frame->stack, x);
-  push_data_stack(frame->stack, x);
-  free_stack_cell(x);
+  push_data_stack(frame->stack,peek_data_stack(frame->stack));
   return frame;
 }
 PRIM_SIG(p_dupn) {
@@ -1414,7 +1411,7 @@ PRIM_SIG(p_array_make){
                     result;
   result.data.array=create_array(frame->stack->stack-n.data.number,n.data.number,0);
   result.type=t_array;
-  for(unsigned int i=0;i<n.data.number;i++)
+  for(int i=0;i<n.data.number;i++)
     free_stack_cell(pop_data_stack(frame->stack));
   push_data_stack(frame->stack,result);
   result.data.array->links=1;
@@ -1426,15 +1423,10 @@ PRIM_SIG(p_array_make_dict){
   assert(frame->stack->size>=n.data.number);
   result.data.array=create_array(NULL,0,1);
   result.type=t_array;
-  for(unsigned int i=0;i<n.data.number;i++){
+  for(int i=0;i<n.data.number;i++){
     struct stack_cell value=pop_data_stack(frame->stack),
                       key=pop_data_stack(frame->stack);
     set_array_item(value,result.data.array,key);
-    printf("Setting key:");
-    print_stack_cell(&key);
-    printf(" to value:");
-    print_stack_cell(&value);
-    printf("\n");
     free_stack_cell(key);
     free_stack_cell(value);
   }
@@ -1472,6 +1464,12 @@ PRIM_SIG(p_array_dump){
                     array=pop_data_stack(frame->stack);
   dump_array(array.data.array,fn.data.str->str);
   free_stack_cell(fn);
+  free_stack_cell(array);
+  return frame;
+}
+PRIM_SIG(p_array_count){
+  struct stack_cell array=pop_data_stack(frame->stack);
+  push_data_stack(frame->stack,create_prim_int(array.data.array->size));
   free_stack_cell(array);
   return frame;
 }
@@ -1562,6 +1560,7 @@ PRIM** get_instructions(){
         ASSOCIATE(fabs);
         ASSOCIATE(log);
         ASSOCIATE(log10);
+        ASSOCIATE(array_count);
         ASSOCIATE(array_dump);
         ASSOCIATE(array_make);
         ASSOCIATE(array_make_dict);

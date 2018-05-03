@@ -26,19 +26,17 @@ int are_stack_cell_equal(struct stack_cell a,struct stack_cell b){
     }return 0;
 }
 void free_stack_cell(struct stack_cell sc){
-  if((sc.type==t_invalid||sc.type==t_string)&&sc.data.str){
-    if(!(--sc.data.str->links))
-      free(sc.data.str);
-  }else if(sc.type==t_array&&sc.data.array){
-    if(!(--sc.data.array->links)){
-      printf("Freeing %s array\n", sc.data.array->packed?"packed":"dictionary");
-      free_array(sc.data.array);
-    }else{
-      printf("Not freeing %s array with %d links\n", sc.data.array->packed?"packed":"dictionary",sc.data.array->links);
-    }
+  switch(sc.type){
+    case t_invalid:
+    case t_string:
+      if(sc.data.str&&!(--sc.data.str->links))
+        free(sc.data.str);
+      break;
+    case t_array:
+      if(!(--sc.data.array->links))
+        free_array(sc.data.array);
+      break;
   }
-  sc.data.array=NULL;
-  sc.data.str=NULL;
   
 }
 double get_double(struct stack_cell sc){
@@ -51,33 +49,17 @@ double get_double(struct stack_cell sc){
   return 0.0;
 }
 struct stack_cell copy_stack_cell(struct stack_cell n){
-  struct stack_cell copy;
-  copy.type=n.type;
   switch(n.type){
     case t_string:
-      copy.data.str=n.data.str;
-      copy.data.str->links++;
-      break;
-    case t_int:
-    case t_svar:
-    case t_var:
-    case t_lvar:
-      copy.data.number=n.data.number;
-      break;
-    case t_float:
-      copy.data.fnumber=n.data.fnumber;
-      break;
-    case t_address:
-      copy.data.address=n.data.address;
+      n.data.str->links++;
       break;
     case t_array:
-      copy.data.array=n.data.array;
-      copy.data.array->links++;
+      n.data.array->links++;
       break;
      default:
       break;
   }
-  return copy;
+  return n;
 }
 int stack_cell_cmp(struct stack_cell a,struct stack_cell b){
   if((a.type==t_int||a.type==t_float)&&(b.type==t_int||b.type==t_float)){

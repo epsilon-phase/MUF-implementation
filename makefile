@@ -3,7 +3,7 @@ CC = gcc
 endif
 CFLAGS = -g -MP -MD -Wall -Wextra
 ifdef RELEASE
-	CFLAGS+=-Oz
+	CFLAGS+=-O3
 	LDFLAGS+=-flto
 endif
 ifdef DEBUG

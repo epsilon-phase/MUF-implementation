@@ -144,7 +144,7 @@ struct array* delete_array_item(struct array* array, struct stack_cell key){
   return result;
 }
 void print_array(struct array* arr){
-  printf("{");
+  printf("%d{",arr->size);
   if(arr->packed){
     for(int i=0;i<arr->size;i++){
       if(i>0)
