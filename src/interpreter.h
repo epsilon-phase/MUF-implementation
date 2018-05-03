@@ -3,6 +3,7 @@
 #include "token.h"
 #include "ast.h"
 #include "stack_cell.h"
+#include "options.h"
 #ifndef MAX_VAR_COUNT
 #define MAX_VAR_COUNT 32
 #endif
@@ -134,7 +135,7 @@ struct program{
 struct for_vars{
   int start,end,step;
 };
-struct program* build(struct tokenlist* tl);
+struct program* build(struct tokenlist* tl,struct arguments*);
 void print_bytecode(struct program* p);
 struct instruction simple_instruction_from_type(int t);
 struct stack_cell *stack_ptr_from_rval(struct stack_cell n);

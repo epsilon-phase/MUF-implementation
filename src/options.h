@@ -6,6 +6,7 @@ struct arguments{
   int print_bytecode,
       print_stack,
       run_tests,
-      print_lexer;
+      print_lexer,
+      dump_trie;
 };
 #endif
