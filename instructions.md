@@ -16,7 +16,7 @@
 * [x] lreverse `x1 x2 … xi i -- xi … x2 x1 i`
 * [ ] put `x1 x2 x3 x4 x5 … xn xi i -- x1 … xi .. xn`
 * [x] over `x1 x2 x3 … xi … xn i -- x1 x2 … xi … xn xi`
-
+* [ ] sort 
 
 ## Math/logic prims
 
@@ -96,3 +96,35 @@
 * [ ] hashing function
     * [ ] `md5hash`
     * [ ] `sha1hash`
+
+## Array primitives
+
+* array_make
+* array_make_dict
+* array_setitem
+* array_getitem
+* array_nested_set
+* array_nested_get
+* array_sum
+* array_count
+* foreach
+* array_delitem
+* array_getrange
+* array_setrange
+* array_delrange
+* array_nintersect
+* array_nunion
+* array_ndiff
+* array_insertrange
+* array_cut
+* array_sort
+* array_join
+* array_explode
+* explode_array
+* array_keys
+* array_vals
+* array_next
+* array_prev
+* array_compare
+* array_fmtstring
+* array_string_fragment

@@ -1,10 +1,12 @@
 #include <stdlib.h>
 #include "avl_tree.h"
 #define clear_height(X) X->height=-1
-static struct avl_node* create_node(struct stack_cell a,struct stack_cell b){
+#include <stdio.h>
+#include <assert.h>
+static struct avl_node* create_node( struct stack_cell a,struct stack_cell b){
   struct avl_node* result=malloc(sizeof(struct avl_node));
-  result->key=a;
-  result->value=b;
+  result->key=copy_stack_cell(a);
+  result->value=copy_stack_cell(b);
   result->height=-1;
   result->right=NULL;
   result->left=NULL;
@@ -12,13 +14,19 @@ static struct avl_node* create_node(struct stack_cell a,struct stack_cell b){
   return result;
 }
 void free_avl_node(struct avl_node* n){
+  if(!n)return;
   free_stack_cell(n->key);
   free_stack_cell(n->value);
+  free_avl_node(n->right);
+  free_avl_node(n->left);
   free(n);
+}
+void avl_free(struct avl_tree* tree){
+  free_avl_node(tree->root);
 }
 int avl_node_height(struct avl_node* node)
 {
-  int height_left,height_right;
+  int height_left=0,height_right=0;
   if(node->left){
     if(node->left->height==-1){
       height_left=avl_node_height(node->left);
@@ -36,7 +44,7 @@ int avl_node_height(struct avl_node* node)
     }
   }
   node->height=1+(height_left>height_right?height_left:height_right);
-  return node->height;
+  return 1+(height_left>height_right?height_left:height_right);
 }
 int avl_balance_factor(struct avl_node* node){
   int bf=0;
@@ -97,7 +105,9 @@ struct avl_node* avl_rotate_rightleft(struct avl_node* node){
 }
 struct avl_node* avl_rotate_rightright(struct avl_node* node){
   struct avl_node *a=node,*b=a->right;
+  assert(a&&b);
   a->right=b->left;
+  if(a->right)
   a->right->parent=a;
   b->left=a;
   b->parent=a->parent;
@@ -119,7 +129,7 @@ struct avl_node* avl_balance_node(struct avl_node* node){
     else
       newroot=avl_rotate_leftleft(node);
   }else if(bf <=-2){
-    if(avl_balance_factor(node->left)<=1)
+    if(avl_balance_factor(node->right)>=1)
       newroot=avl_rotate_rightleft(node);
     else
       newroot=avl_rotate_rightright(node);
@@ -131,9 +141,11 @@ struct avl_node* avl_balance_node(struct avl_node* node){
 void avl_balance(struct avl_tree* tree){
   tree->root=avl_balance_node(tree->root);
 }
-void avl_insert(struct avl_tree* tree,struct stack_cell key, struct stack_cell value){
+int avl_insert(struct avl_tree* tree,struct stack_cell key, struct stack_cell value){
+  int inserted=0;
   if(tree->root==NULL){
     tree->root=create_node(key,value);
+    inserted=1;
   }else{
     struct avl_node *next=tree->root,*last;
     int lastdir;
@@ -152,15 +164,21 @@ void avl_insert(struct avl_tree* tree,struct stack_cell key, struct stack_cell v
         case 0:
           free_stack_cell(next->value);
           next->value=value;
-          return;
+          return 0;
       }
     }
-    if(lastdir==1)
+    if(lastdir==1){
       last->right=create_node(key,value);
-    else 
+      last->right->parent=last;
+      inserted=1;
+    }else{
       last->left=create_node(key,value);
+      last->left->parent=last;
+      inserted=1;
+    }
   }
   avl_balance(tree);
+  return inserted;
 }
 void avl_replace_node_in_parent(struct avl_node* node, struct avl_node* replacement){
   if(node->parent){
@@ -215,8 +233,8 @@ int delete_avl_node(struct avl_node *n, struct stack_cell key){
   }
   return 1;
 }
-void avl_delete(struct avl_tree* tree,struct stack_cell key){
-  delete_avl_node(tree->root,key);
+int avl_delete(struct avl_tree* tree,struct stack_cell key){
+  return delete_avl_node(tree->root,key);
 }
 struct stack_cell* find_avl_value(struct avl_tree *tree, struct stack_cell key){
   struct avl_node *n=tree->root;
@@ -233,4 +251,115 @@ struct stack_cell* find_avl_value(struct avl_tree *tree, struct stack_cell key){
     }
   }
   return NULL;
+}
+void free_avl_nodes(struct avl_node* tree){
+  if(tree->right){
+    free_avl_nodes(tree->right);
+  }
+  if(tree->left)
+    free_avl_nodes(tree->left);
+  free_avl_node(tree);
+}
+void free_avl_tree(struct avl_tree* tree){
+  if(tree->root)
+    free_avl_nodes(tree->root);
+  free(tree);
+}
+struct avl_node* copy_node(struct avl_node* original){
+  if(!original)return NULL;
+  struct avl_node* result=malloc(sizeof(struct avl_node));
+  result->key=copy_stack_cell(original->key);
+  result->value=copy_stack_cell(original->value);
+  result->right=copy_node(result->right);
+  result->left=copy_node(result->left);
+  return result;
+}
+struct avl_tree* copy_tree(struct avl_tree* original){
+  struct avl_tree* result=malloc(sizeof(struct avl_tree));
+  result->root=copy_node(original->root);
+  return result;
+}
+static void iterator_push(struct avl_iterator* iterator, struct avl_node* node){
+  while(iterator->size==iterator->capacity){
+    iterator->capacity*=2;
+    iterator->current=realloc(iterator->current,iterator->capacity);
+  }
+  iterator->current[iterator->size++]=node;
+}
+static struct avl_node* iterator_pop(struct avl_iterator* iterator){
+  return iterator->current[--iterator->size];
+}
+struct avl_iterator create_iterator(struct avl_tree* tree){
+  struct avl_iterator result;
+  struct avl_node* current=tree->root;
+  result.size=0;
+  result.capacity=10;
+  result.current=malloc(sizeof(struct avl_node**)*10);
+  while(result.size||current){
+    if(current!=NULL){
+      iterator_push(&result,current);
+      current=current->left;
+    }else{
+      //Not here...
+      break;
+    }
+  }
+  result.n=NULL;
+  return result;
+}
+struct avl_node* next(struct avl_iterator* iter){
+  struct avl_node* n=iter->n;
+  while(iter->size||n){
+    if(n){
+      iterator_push(iter,n);
+      iter->n=n->left;
+      n=n->left;
+    }else{
+      n=iterator_pop(iter);
+      iter->n=n->right;
+      return n;
+    }
+  }
+  free(iter->current);
+  return NULL;
+}
+void dump_node_label(struct avl_node* node,FILE *f){
+  switch(node->key.type){
+    case t_int:
+      fprintf(f,"%d",node->key.data.number);
+      break;
+    case t_string:
+      fprintf(f,"\"\\\"%s\\\"\"",node->key.data.str->str);
+      break;
+  }
+}
+int dump_avl_node(struct avl_node* node, FILE* f,int n){
+  n++;
+  int nn;
+  if(node->left){
+    nn=dump_avl_node(node->left,f,n);
+    dump_node_label(node,f);
+    fprintf(f," -> ");
+    dump_node_label(node->left,f);
+    fprintf(f,"[label = l]\n");
+//    fprintf(f,"%d->%d;\n",n,nn);
+  }else nn=n;
+  if(node->right){
+    nn=dump_avl_node(node->right,f,nn);
+    dump_node_label(node,f);
+    fprintf(f," -> ");
+    dump_node_label(node->right,f);
+    fprintf(f,"[label = r] \n");
+//    fprintf(f,"%d->%d;\n",n,nn);
+  }
+  return n;
+}
+void dump_avl_tree(struct avl_tree* tree,const char* fn){
+  if(tree){
+    FILE* f=fopen(fn,"w");
+    fprintf(f,"digraph T{\n");
+    dump_avl_node(tree->root,f,0);
+    fprintf(f,"}");
+    fclose(f);
+  }
 }

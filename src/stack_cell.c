@@ -1,6 +1,7 @@
 #include "interpreter.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 int is_stack_cell_true(struct stack_cell s){
   switch(s.type){
     case t_int:
@@ -28,9 +29,26 @@ void free_stack_cell(struct stack_cell sc){
   if((sc.type==t_invalid||sc.type==t_string)&&sc.data.str){
     if(!(--sc.data.str->links))
       free(sc.data.str);
+  }else if(sc.type==t_array&&sc.data.array){
+    if(!(--sc.data.array->links)){
+      printf("Freeing %s array\n", sc.data.array->packed?"packed":"dictionary");
+      free_array(sc.data.array);
+    }else{
+      printf("Not freeing %s array with %d links\n", sc.data.array->packed?"packed":"dictionary",sc.data.array->links);
+    }
   }
+  sc.data.array=NULL;
   sc.data.str=NULL;
   
+}
+double get_double(struct stack_cell sc){
+  switch(sc.type){
+    case t_int:
+      return (double)sc.data.number;
+    case t_float:
+      return sc.data.fnumber;
+  }
+  return 0.0;
 }
 struct stack_cell copy_stack_cell(struct stack_cell n){
   struct stack_cell copy;
@@ -52,19 +70,30 @@ struct stack_cell copy_stack_cell(struct stack_cell n){
     case t_address:
       copy.data.address=n.data.address;
       break;
+    case t_array:
+      copy.data.array=n.data.array;
+      copy.data.array->links++;
+      break;
      default:
       break;
   }
   return copy;
 }
 int stack_cell_cmp(struct stack_cell a,struct stack_cell b){
-  if(a.type!=b.type){
-    if((a.type==t_int&&b.type!=t_float)||(b.type==t_int&&a.type!=t_float))
-      return -1;
-    else
-      return 1;
+  if((a.type==t_int||a.type==t_float)&&(b.type==t_int||b.type==t_float)){
+      double x=get_double(a),y=get_double(b);
+      if(x>y){
+        return 1;
+      }else if(x<y){
+        return -1;
+      }else{
+        return 0;
+      }
   }else if(a.type==b.type&&a.type==t_string){
     return strcmp(a.data.str->str,b.data.str->str);
-  }
+  }else if((a.type==t_int||a.type==t_float)&&b.type==t_string)
+    return -1;
+  else if(a.type==t_string&&(b.type==t_int||b.type==t_float))
+    return 1;
   return 0;
 }

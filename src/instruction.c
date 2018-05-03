@@ -9,15 +9,6 @@
 #include <ctype.h>
 
 #define peek_data_stack(X) X->stack[X->size-1]
-double get_double(struct stack_cell sc){
-  switch(sc.type){
-    case t_int:
-      return (double)sc.data.number;
-    case t_float:
-      return sc.data.fnumber;
-  }
-  return 0.0;
-}
 PRIM_SIG(p_mark){
   struct stack_cell r;
   r.type=t_mark;
@@ -54,12 +45,12 @@ PRIM_SIG(p_dupn) {
   free_stack_cell(n);
   return frame;
 }
-PRIM_SIG(p_pop) { pop_data_stack(frame->stack); return frame;}
+PRIM_SIG(p_pop) { free_stack_cell(pop_data_stack(frame->stack)); return frame;}
 PRIM_SIG(p_popn) {
   struct stack_cell n = pop_data_stack(frame->stack);
   assert(n.type == t_int && n.data.number >= 0);
   for (int i = 0; i < n.data.number; i++)
-    pop_data_stack(frame->stack);
+    p_pop(frame);
   return frame;
 }
 PRIM_SIG(p_depth) {
@@ -1418,6 +1409,72 @@ PRIM_SIG(p_while){
   free_stack_cell(t);
   return frame;
 }
+PRIM_SIG(p_array_make){
+  struct stack_cell n=pop_data_stack(frame->stack),
+                    result;
+  result.data.array=create_array(frame->stack->stack-n.data.number,n.data.number,0);
+  result.type=t_array;
+  for(unsigned int i=0;i<n.data.number;i++)
+    free_stack_cell(pop_data_stack(frame->stack));
+  push_data_stack(frame->stack,result);
+  result.data.array->links=1;
+  return frame;
+}
+PRIM_SIG(p_array_make_dict){
+  struct stack_cell n=pop_data_stack(frame->stack),
+                    result;
+  assert(frame->stack->size>=n.data.number);
+  result.data.array=create_array(NULL,0,1);
+  result.type=t_array;
+  for(unsigned int i=0;i<n.data.number;i++){
+    struct stack_cell value=pop_data_stack(frame->stack),
+                      key=pop_data_stack(frame->stack);
+    set_array_item(value,result.data.array,key);
+    printf("Setting key:");
+    print_stack_cell(&key);
+    printf(" to value:");
+    print_stack_cell(&value);
+    printf("\n");
+    free_stack_cell(key);
+    free_stack_cell(value);
+  }
+  dump_array(result.data.array,"tree.dot");
+  push_data_stack(frame->stack,result);
+  free_stack_cell(result);
+  return frame;
+}
+PRIM_SIG(p_array_setitem){
+  struct stack_cell index=pop_data_stack(frame->stack),
+                    array=pop_data_stack(frame->stack),
+                    value=pop_data_stack(frame->stack),
+                    result;
+  result.type=t_array;
+  result.data.array=set_array_item(value,array.data.array,index);
+  push_data_stack(frame->stack,result);
+  free_stack_cell(index);
+  free_stack_cell(value);
+  free_stack_cell(array);
+  //free_stack_cell(result);
+  return frame;
+}
+PRIM_SIG(p_array_getitem){
+  struct stack_cell index=pop_data_stack(frame->stack),
+                    array=pop_data_stack(frame->stack),
+                    result;
+  result=array_get_element(array.data.array,index);
+  free_stack_cell(array);
+  free_stack_cell(index);
+  push_data_stack(frame->stack,result);
+  return frame;
+}
+PRIM_SIG(p_array_dump){
+  struct stack_cell fn=pop_data_stack(frame->stack),
+                    array=pop_data_stack(frame->stack);
+  dump_array(array.data.array,fn.data.str->str);
+  free_stack_cell(fn);
+  free_stack_cell(array);
+  return frame;
+}
 PRIM** instructions=NULL;
 #define ASSOCIATE(NaMe) instructions[i_##NaMe]=p_##NaMe
 //Now this is an ugly hack <:(
@@ -1505,6 +1562,11 @@ PRIM** get_instructions(){
         ASSOCIATE(fabs);
         ASSOCIATE(log);
         ASSOCIATE(log10);
+        ASSOCIATE(array_dump);
+        ASSOCIATE(array_make);
+        ASSOCIATE(array_make_dict);
+        ASSOCIATE(array_setitem);
+        ASSOCIATE(array_getitem);
         instructions[i_break]=p_break;
         instructions[i_continue]=p_continue;
         instructions[i_while]=p_while;

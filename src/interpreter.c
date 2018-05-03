@@ -289,6 +289,11 @@ struct program *build(struct tokenlist *tl) {
         match("abs",i_abs);
         match("and",i_and);
         match("andn",i_andn);
+        match("array_dump",i_array_dump);
+        match("array_make",i_array_make);
+        match("array_make_dict",i_array_make_dict);
+        match("array_getitem",i_array_getitem);
+        match("array_setitem",i_array_setitem);
         match("cos",i_cos);
         match("sin",i_sin);
         match("tan",i_tan);
@@ -455,6 +460,9 @@ void print_stack_cell(struct stack_cell* sc){
           printf("%s",sc->data.str->str);
       }
       break;
+    case t_array:
+      print_array(sc->data.array);
+      break;
     default:
       printf("OTHER");
       break;
@@ -511,6 +519,11 @@ const char* obtain_bytecode_name(unsigned char t){
   "i_acos",
   "i_and",
   "i_andn",
+  "i_array_dump",
+  "i_array_make",
+  "i_array_make_dict",
+  "i_array_getitem",
+  "i_array_setitem",
   "i_asin",
   "i_assert",
   "i_assign",
