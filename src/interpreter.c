@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "trie.h"
 struct position_stack {
   size_t *position;
   size_t capacity;
@@ -84,283 +85,232 @@ void add_instruction(struct program *prog, struct instruction i) {
   }
 struct program *build(struct tokenlist *tl) {
   struct program *result = malloc(sizeof(struct program));
-  result->words=NULL;
-  result->word_count=0;
+  result->words = NULL;
+  result->word_count = 0;
   memset(result, 0, sizeof(struct program));
   struct token *current_token = tl->token;
   struct block_stack *blocks = create_block_stack();
-  struct position_stack *unfilled_breaks=create_position_stack();
-  result->entry_point=0;
+  struct position_stack *unfilled_breaks = create_position_stack();
+  result->entry_point = 0;
   unsigned char p_useful = 0;
-  struct{
+  struct trie *matching = create_trie();
+  add_many(
+      matching, "@", i_dereference, "!", i_assign, "!=", i_not_equal, "%",
+      i_modulo, "*", i_multiply, "+", i_plus, "++", i_increment, "-", i_minus,
+      "--", i_decrement, "/", i_divide, "<", i_lt, "<=", i_lte, "=", i_equal,
+      ">", i_gt, ">=", i_gte, "^", i_power, "abs", i_abs, "and", i_and, "andn",
+      i_andn, "array_count", i_array_count, "array_dump", i_array_dump,
+      "array_make", i_array_make, "array_make_dict", i_array_make_dict,
+      "array_getitem", i_array_getitem, "array_setitem", i_array_setitem, "cos",
+      i_cos, "sin", i_sin, "tan", i_tan, "acos", i_acos, "asin", i_asin, "atan",
+      i_tan, "atan2", i_atan2, "assert", i_assert, "atoi", i_atoi, "call",
+      i_call, "ceil", i_ceil, "fabs", i_fabs, "floor", i_floor, "depth",
+      i_depth, "dup", i_dup, "dupn", i_dupn, "exit", i_exit, "explode",
+      i_explode, "intostr", i_intostr, "instr", i_instr, "instring", i_instring,
+      "midstr", i_midstr, "nip", i_nip, "not", i_not, "notify", i_notify, "or",
+      i_or, "over", i_over, "pop", i_pop, "popn", i_popn, "pow", i_power,
+      "read", i_read, "reverse", i_reverse, "log", i_log, "log10", i_log10,
+      "lreverse", i_lreverse, "rot", i_rot, "rotate", i_rotn, "rotn", i_rotn,
+      "rsplit", i_rsplit, "split", i_split, "sqrt", i_sqrt, "strcat", i_strcat,
+      "strcmp", i_strcmp, "stringpfx", i_stringpfx, "striplead", i_striplead,
+      "striptail", i_striptail, "strlen", i_strlen, "strtod", i_strtod, "subst",
+      i_subst, "swap", i_swap, "tolower", i_tolower, "toupper", i_toupper,
+      "while", i_while, "xor", i_xor, "{", i_mark, "}", i_mark_end, NULL);
+  struct {
     char **variables;
     size_t count;
-  } local_var_names={.variables=NULL,.count=0};
-  bool in_function=false;
+  } local_var_names = {.variables = NULL, .count = 0};
+  bool in_function = false;
   while (current_token) {
-#define last_word result->words[result->word_count-1]
+#define last_word result->words[result->word_count - 1]
     struct instruction p;
     switch (current_token->type) {
-      case LEXER_FUNC_START:
-          {
-              struct word w={.position=result->bytecode_size,.name=strdup(tl->next->token->name)};
-              tl=tl->next;
-              if(result->words)
-                  result->words=realloc(result->words,sizeof(struct word)*(++result->word_count));
-              else
-                  result->words=malloc(sizeof(struct word)*(++result->word_count));
-              result->words[result->word_count-1]=w;
-              result->entry_point=w.position;
-              in_function=true;
-          }
-        break;
-      case LEXER_FUNC_END:
-        if(blocks->size!=0){
-        }
-        add_instruction(result,simple_instruction_from_type(i_exit));
-        in_function=false;
-        last_word.local_vars=local_var_names.count;
-        for(size_t i=0;i<local_var_names.count;i++){
-          free(local_var_names.variables[i]);
-        }
-        free(local_var_names.variables);
-        local_var_names.count=0;
-        break;
-      case LEXER_INT:
-        p.type = i_push_primitive;
-        p.data.information =create_prim_int(atoi(current_token->name));
-        p_useful = 1;
-        break;
-      case LEXER_DOUBLE:
-        p.type = i_push_primitive;
-        p.data.information =create_prim_double(atof(current_token->name));
-        p_useful = 1;
-        break;
-      case LEXER_STRING:
-        p.type = i_push_primitive;
-        p.data.information = create_prim_string(current_token->name);
-        p_useful = 1;
-        break;
-      /**
-       * 1 2 > if 3 else 4 then
-       * |push 1|
-       * |push 2|
-       * |gt    |
-       * |if    |
-       * |push 3|
-       * |else  |
-       * |push 4|
-       * |then  |
-       *
-       * 1  |push 1      |
-       * 2  |push 2      |
-       * 3  |gt          |
-       * 4  |jmp_not_if 7|
-       * 5  |push 3      |
-       * 6  |else        |
-       * 7  |push 4      |
-       * 8  |then        |
-       *
-       * 1 2 > if 3 then
-       * |push 1|
-       * |push 2|
-       * |gt    |
-       * |if    |
-       * |push 3|
-       * |then  |
-       *
-       * 1  |push 1      |
-       * 2  |push 2      |
-       * 3  |gt          |
-       * 4  |jmp_not_if 6|
-       * 5  |push 3      |
-       * 6  |then        |
-       * */
-      case LEXER_IF:
-        push_block(blocks, bs_if, result->bytecode_size);
-        add_instruction(result, simple_instruction_from_type(i_jmp_not_if));
-        break;
-      case LEXER_ELSE: {
-        if (peek_block(blocks).type != bs_if) {
-          // handle the error
-        }
+    case LEXER_FUNC_START: {
+      struct word w = {.position = result->bytecode_size,
+                       .name = strdup(tl->next->token->name)};
+      tl = tl->next;
+      if (result->words)
+        result->words = realloc(result->words,
+                                sizeof(struct word) * (++result->word_count));
+      else
+        result->words = malloc(sizeof(struct word) * (++result->word_count));
+      result->words[result->word_count - 1] = w;
+      result->entry_point = w.position;
+      in_function = true;
+    } break;
+    case LEXER_FUNC_END:
+      if (blocks->size != 0) {
+      }
+      add_instruction(result, simple_instruction_from_type(i_exit));
+      in_function = false;
+      last_word.local_vars = local_var_names.count;
+      for (size_t i = 0; i < local_var_names.count; i++) {
+        free(local_var_names.variables[i]);
+      }
+      free(local_var_names.variables);
+      local_var_names.count = 0;
+      break;
+    case LEXER_INT:
+      p.type = i_push_primitive;
+      p.data.information = create_prim_int(atoi(current_token->name));
+      p_useful = 1;
+      break;
+    case LEXER_DOUBLE:
+      p.type = i_push_primitive;
+      p.data.information = create_prim_double(atof(current_token->name));
+      p_useful = 1;
+      break;
+    case LEXER_STRING:
+      p.type = i_push_primitive;
+      p.data.information = create_prim_string(current_token->name);
+      p_useful = 1;
+      break;
+    /**
+     * 1 2 > if 3 else 4 then
+     * |push 1|
+     * |push 2|
+     * |gt    |
+     * |if    |
+     * |push 3|
+     * |else  |
+     * |push 4|
+     * |then  |
+     *
+     * 1  |push 1      |
+     * 2  |push 2      |
+     * 3  |gt          |
+     * 4  |jmp_not_if 7|
+     * 5  |push 3      |
+     * 6  |else        |
+     * 7  |push 4      |
+     * 8  |then        |
+     *
+     * 1 2 > if 3 then
+     * |push 1|
+     * |push 2|
+     * |gt    |
+     * |if    |
+     * |push 3|
+     * |then  |
+     *
+     * 1  |push 1      |
+     * 2  |push 2      |
+     * 3  |gt          |
+     * 4  |jmp_not_if 6|
+     * 5  |push 3      |
+     * 6  |then        |
+     * */
+    case LEXER_IF:
+      push_block(blocks, bs_if, result->bytecode_size);
+      add_instruction(result, simple_instruction_from_type(i_jmp_not_if));
+      break;
+    case LEXER_ELSE: {
+      if (peek_block(blocks).type != bs_if) {
+        // handle the error
+      }
+      struct block tmp = pop_block(blocks);
+      push_block(blocks, bs_else, result->bytecode_size);
+      add_instruction(result, simple_instruction_from_type(i_jmp));
+      result->bytecode[tmp.position].data.address = result->bytecode_size;
+    } break;
+    case LEXER_THEN:
+      if (peek_block(blocks).type == bs_if ||
+          peek_block(blocks).type == bs_else) {
         struct block tmp = pop_block(blocks);
-        push_block(blocks, bs_else, result->bytecode_size);
-        add_instruction(result, simple_instruction_from_type(i_jmp));
         result->bytecode[tmp.position].data.address = result->bytecode_size;
-      } break;
-      case LEXER_THEN:
-        if (peek_block(blocks).type == bs_if ||
-            peek_block(blocks).type == bs_else) {
-          struct block tmp = pop_block(blocks);
-          result->bytecode[tmp.position].data.address = result->bytecode_size;
+      }
+      break;
+
+    case LEXER_BEGIN:
+      push_block(blocks, bs_begin, result->bytecode_size);
+      break;
+    case LEXER_UNTIL:
+    case LEXER_REPEAT:
+      if (peek_block(blocks).type == bs_begin ||
+          peek_block(blocks).type == bs_foreach ||
+          peek_block(blocks).type == bs_for) {
+        struct block tmp = pop_block(blocks);
+        add_instruction(result, simple_instruction_from_type(i_jmp));
+        result->bytecode[result->bytecode_size - 1].data.address = tmp.position;
+        close_loop(result, tmp, unfilled_breaks);
+      }
+      break;
+    case LEXER_BREAK:
+      push_position_stack(unfilled_breaks, result->bytecode_size);
+      add_instruction(result, simple_instruction_from_type(i_break));
+      break;
+    case LEXER_CONTINUE:
+      push_position_stack(unfilled_breaks, result->bytecode_size);
+      add_instruction(result, simple_instruction_from_type(i_continue));
+    case LEXER_FOREACH:
+      break;
+    case LEXER_FOR:
+      add_instruction(result, simple_instruction_from_type(i_forpush));
+      push_block(blocks, bs_for, result->bytecode_size);
+      push_position_stack(unfilled_breaks, result->bytecode_size);
+      add_instruction(result, simple_instruction_from_type(i_foriter));
+      break;
+    case LEXER_LVAR:
+      break;
+    case LEXER_VAR:
+      if (in_function) {
+        if (local_var_names.variables) {
+          local_var_names.variables =
+              realloc(local_var_names.variables,
+                      sizeof(char *) * (local_var_names.count + 1));
+        } else {
+          local_var_names.variables = malloc(sizeof(char *));
         }
-        break;
-        
-      case LEXER_BEGIN:
-        push_block(blocks, bs_begin, result->bytecode_size);
-        break;
-      case LEXER_UNTIL:
-      case LEXER_REPEAT:
-        if (peek_block(blocks).type == bs_begin ||
-            peek_block(blocks).type == bs_foreach ||
-            peek_block(blocks).type == bs_for) {
-          struct block tmp = pop_block(blocks);
-          add_instruction(result, simple_instruction_from_type(i_jmp));
-          result->bytecode[result->bytecode_size - 1].data.address =
-              tmp.position;
-          close_loop(result,tmp,unfilled_breaks);
-        }
-        break;
-      case LEXER_BREAK:
-        push_position_stack(unfilled_breaks,result->bytecode_size);
-        add_instruction(result,simple_instruction_from_type(i_break));
-        break;
-      case LEXER_CONTINUE:
-        push_position_stack(unfilled_breaks,result->bytecode_size);
-        add_instruction(result,simple_instruction_from_type(i_continue));
-      case LEXER_FOREACH:
-        break;
-      case LEXER_FOR:
-        add_instruction(result,simple_instruction_from_type(i_forpush));
-        push_block(blocks,bs_for,result->bytecode_size);
-        push_position_stack(unfilled_breaks,result->bytecode_size);
-        add_instruction(result,simple_instruction_from_type(i_foriter));
-        break;
-      case LEXER_LVAR:
-        break;
-      case LEXER_VAR:
-        if(in_function){
-          if(local_var_names.variables){
-            local_var_names.variables=realloc(local_var_names.variables,sizeof(char*)*(local_var_names.count+1));
-          }else{
-            local_var_names.variables=malloc(sizeof(char*));
-          }
-          local_var_names.variables[local_var_names.count]=strdup(tl->next->token->name);
-          local_var_names.count++;
-          tl=tl->next;
-        }
-        if(current_token->name[3]=='!'){
-            struct stack_cell z={.type=t_svar,.data.number=local_var_names.count-1};
-            struct instruction aa={.type=i_push_primitive,.data.information=z};
-            add_instruction(result,aa);
-            aa.type=i_assign;
-            aa.data.address=(size_t)NULL;
-            add_instruction(result,aa);
-        }
-        break;
-      case LEXER_WORD:
+        local_var_names.variables[local_var_names.count] =
+            strdup(tl->next->token->name);
+        local_var_names.count++;
+        tl = tl->next;
+      }
+      if (current_token->name[3] == '!') {
+        struct stack_cell z = {.type = t_svar,
+                               .data.number = local_var_names.count - 1};
+        struct instruction aa = {.type = i_push_primitive,
+                                 .data.information = z};
+        add_instruction(result, aa);
+        aa.type = i_assign;
+        aa.data.address = (size_t)NULL;
+        add_instruction(result, aa);
+      }
+      break;
+    case LEXER_WORD:
 #define match(S, I) BUILTIN_WORD_MATCH(current_token, S, I);
-        if(current_token->name[0]!='\\'){
-            for(size_t i=0;i<local_var_names.count;i++){
-              if(!strcmp(local_var_names.variables[i],current_token->name)){
-                p.type=i_push_primitive;
-                p.data.information.type=t_svar;
-                p.data.information.data.number=i;
-                p_useful=1;
-                break;
-              }
-            }
-            if(!p_useful){
-              //call words etc
-            }
-        }else{
-          current_token->name=current_token->name+1;
+      if (current_token->name[0] != '\\') {
+        for (size_t i = 0; i < local_var_names.count; i++) {
+          if (!strcmp(local_var_names.variables[i], current_token->name)) {
+            p.type = i_push_primitive;
+            p.data.information.type = t_svar;
+            p.data.information.data.number = i;
+            p_useful = 1;
+            break;
+          }
         }
-        if(p_useful){
-          break;
+        if (!p_useful) {
+          // call words etc
+          int trie_match = get_value(matching, current_token->name);
+          p.type = trie_match;
+          p_useful = trie_match != -1;
         }
-        match("@",i_dereference);
-        match("!",i_assign);
-        match("!=",i_not_equal);
-        match("%",i_modulo);
-        match("*", i_multiply);
-        match("+", i_plus);
-        match("++",i_increment);
-        match("-", i_minus);
-        match("--",i_decrement);
-        match("/",i_divide);
-        match("<", i_lt);
-        match("<=",i_lte);
-        match("=",i_equal);
-        match(">", i_gt);
-        match(">=",i_gte);
-        match("^",i_power);
-        match("abs",i_abs);
-        match("and",i_and);
-        match("andn",i_andn);
-        match("array_count",i_array_count);
-        match("array_dump",i_array_dump);
-        match("array_make",i_array_make);
-        match("array_make_dict",i_array_make_dict);
-        match("array_getitem",i_array_getitem);
-        match("array_setitem",i_array_setitem);
-        match("cos",i_cos);
-        match("sin",i_sin);
-        match("tan",i_tan);
-        match("acos",i_acos);
-        match("asin",i_asin);
-        match("atan",i_tan);
-        match("atan2",i_atan2);
-        match("assert",i_assert);
-        match("atoi",i_atoi);
-        match("call", i_call);
-        match("ceil",i_ceil);
-        match("fabs",i_fabs);
-        match("floor",i_floor);
-        match("depth",i_depth);
-        match("dup", i_dup);
-        match("dupn", i_dupn);
-        match("exit",i_exit);
-        match("explode",i_explode);
-        match("intostr",i_intostr);
-        match("instr",i_instr);
-        match("instring",i_instring);
-        match("midstr",i_midstr);
-        match("nip",i_nip);
-        match("not",i_not);
-        match("notify", i_notify);
-        match("or",i_or);
-        match("over",i_over);
-        match("pop", i_pop);
-        match("popn", i_popn);
-        match("pow", i_power);
-        match("read",i_read);
-        match("reverse",i_reverse);
-        match("log",i_log);
-        match("log10",i_log10);
-        match("lreverse",i_lreverse);
-        match("rot",i_rot);
-        match("rotate",i_rotn);
-        match("rotn",i_rotn);
-        match("rsplit",i_rsplit);
-        match("split",i_split);
-        match("sqrt",i_sqrt);
-        match("strcat",i_strcat);
-        match("strcmp",i_strcmp);
-        match("stringpfx",i_stringpfx);
-        match("striplead",i_striplead);
-        match("striptail",i_striptail);
-        match("strlen",i_strlen);
-        match("strtod",i_strtod);
-        match("subst",i_subst);
-        match("swap", i_swap);
-        match("tolower",i_tolower);
-        match("toupper",i_toupper);
-        match("while",i_while);
-        match("xor",i_xor);
-        match("{",i_mark);
-        match("}",i_mark_end);
+      } else {
+        current_token->name = current_token->name + 1;
+      }
+      if (p_useful) {
         break;
+      }
+      break;
     }
     if (p_useful) {
-      if(p.type==i_while){
-        push_position_stack(unfilled_breaks,result->bytecode_size);
+      if (p.type == i_while) {
+        push_position_stack(unfilled_breaks, result->bytecode_size);
       }
       add_instruction(result, p);
       p_useful = 0;
     }
-    add_line_range(result,current_token);
+    add_line_range(result, current_token);
     if (tl->next) {
       tl = tl->next;
       current_token = tl->token;
@@ -370,6 +320,7 @@ struct program *build(struct tokenlist *tl) {
   }
   free_position_stack(unfilled_breaks);
   free_block_stack(blocks);
+  free_trie(matching);
   return result;
 }
 #undef match
