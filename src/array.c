@@ -195,7 +195,7 @@ struct stack_cell sum_array(struct array* arr){
             result.data.fnumber+=arr->data.packed[i].data.fnumber;
           break;
         case t_float:
-          if(result.type=t_int){
+          if(result.type==t_int){
             result.type=t_float;
             result.data.fnumber+=result.data.number+arr->data.packed[i].data.fnumber;
           }else{
