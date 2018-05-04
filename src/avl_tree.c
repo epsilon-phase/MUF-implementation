@@ -126,7 +126,6 @@ struct avl_node* avl_rotate_rightright(struct avl_node* node){
 struct avl_node* avl_balance_node(struct avl_node* node){
   struct avl_node* newroot=NULL;
   balanced_count++;
-  struct avl_node* tmp_parent=node->parent;
   if(node->left)
     node->left=avl_balance_node(node->left);
   if(node->right)
@@ -402,12 +401,12 @@ void dump_node_label_extra_escaped(struct avl_node* node, FILE* f){
 }
 int dump_avl_node(struct avl_node* node, FILE* f,int n){
   n++;
-  int nn,print_which_graphs=0;
+  int print_which_graphs=0;
   fprintf(f,"node [label=\"<f0> | <f1> ");dump_node_label_extra_escaped(node,f);
   fprintf(f,"|<f2> \", fillcolor=\"/spectral11/%d\"]",n+1);
   dump_node_label(node,f);fprintf(f,";\n");
   if(node->left){
-    nn=dump_avl_node(node->left,f,n);
+    dump_avl_node(node->left,f,n);
     dump_node_label(node,f);
     fprintf(f,":f0 -> ");
     dump_node_label(node->left,f);
@@ -415,9 +414,9 @@ int dump_avl_node(struct avl_node* node, FILE* f,int n){
     fprintf(f,"[label = l]\n");
     print_which_graphs=1;
 //    fprintf(f,"%d->%d;\n",n,nn);
-  }else nn=n;
+  }else
   if(node->right){
-    nn=dump_avl_node(node->right,f,n);
+    dump_avl_node(node->right,f,n);
     dump_node_label(node,f);
     fprintf(f,":f2");
     fprintf(f," -> ");

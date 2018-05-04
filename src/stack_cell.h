@@ -33,7 +33,7 @@ struct stack_cell{
 };
 struct avl_tree;
 struct array{
-  size_t size;
+  long size;
   int packed:1;
   union{
     struct stack_cell* packed;
