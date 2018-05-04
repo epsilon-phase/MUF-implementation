@@ -112,6 +112,7 @@
 * [ ] array_getrange
 * [ ] array_setrange
 * [ ] array_delrange
+* [ ] array_appenditem
 * [ ] array_nintersect
 * [ ] array_nunion
 * [ ] array_ndiff

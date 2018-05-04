@@ -1430,7 +1430,6 @@ PRIM_SIG(p_array_make_dict){
     free_stack_cell(key);
     free_stack_cell(value);
   }
-  dump_array(result.data.array,"tree.dot");
   push_data_stack(frame->stack,result);
   free_stack_cell(result);
   return frame;
@@ -1471,6 +1470,46 @@ PRIM_SIG(p_array_count){
   struct stack_cell array=pop_data_stack(frame->stack);
   push_data_stack(frame->stack,create_prim_int(array.data.array->size));
   free_stack_cell(array);
+  return frame;
+}
+PRIM_SIG(p_array_sum){
+  struct stack_cell array=pop_data_stack(frame->stack),
+                    result;
+  result=sum_array(array.data.array);
+  push_data_stack(frame->stack,result);
+  free_stack_cell(array);
+  return frame;
+}
+PRIM_SIG(p_array_string_fragment){
+  struct stack_cell n=pop_data_stack(frame->stack),
+                    string=pop_data_stack(frame->stack),
+                    result;
+  result.data.array=create_array(NULL,0,0);
+  result.type=t_array;
+  char *buffer=malloc(n.data.number+1);
+  char* position=string.data.str->str;
+  while(*position){
+    for(int i=0;i<n.data.number;i++){
+      buffer[i]=*position;
+      position++;
+    }
+    buffer[n.data.number]=0;
+    set_array_item(create_prim_string(buffer),result.data.array,create_prim_int(result.data.array->size));
+  }
+  push_data_stack(frame->stack,result);
+  free_stack_cell(result);
+  free_stack_cell(string);
+  return frame;
+}
+//This might be dangerous on a dictionary, but it's more fun that way.
+//By dangerous, I mean, it isn't likely to act in the way you might intuit.
+PRIM_SIG(p_array_appenditem){
+  struct stack_cell x=pop_data_stack(frame->stack),
+                    arr=pop_data_stack(frame->stack);
+  arr.data.array=set_array_item(x, arr.data.array,create_prim_int(arr.data.array->size));
+  free_stack_cell(x);
+  push_data_stack(frame->stack,arr);
+  free_stack_cell(arr);
   return frame;
 }
 PRIM** instructions=NULL;

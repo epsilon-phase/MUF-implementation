@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 void free_array(struct array* arr){
-    //TODO write array deallocation function
     if(arr->packed){
       for(unsigned int i=0;i<arr->size;i++){
         free_stack_cell(arr->data.packed[i]);
@@ -173,14 +172,14 @@ void print_array(struct array* arr){
 void dump_array(struct array* arr,const char* fn){
   if(!arr->packed){
     dump_avl_tree(arr->data.dictionary,fn);
-    pid_t proc=fork();
-    if(!proc){
-      char *buffer=malloc(strlen("dot -Tpng -O ")+strlen(fn)+1);
-      memset(buffer,0,strlen(fn)+1);
-      sprintf(buffer,"dot -Tpng -O %s",fn);
-      system(buffer);
-      exit(0);
-    }
+    //pid_t proc=fork();
+    //if(!proc){
+    //  char *buffer=malloc(strlen("dot -Tpng -O ")+strlen(fn)+1);
+    //  memset(buffer,0,strlen(fn)+1);
+    //  sprintf(buffer,"dot -Tpng -O %s",fn);
+    //  system(buffer);
+    //  exit(0);
+    //}
   }
 }
 struct stack_cell sum_array(struct array* arr){

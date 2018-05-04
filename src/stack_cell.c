@@ -33,7 +33,7 @@ void free_stack_cell(struct stack_cell sc){
         free(sc.data.str);
       break;
     case t_array:
-      if(!(--sc.data.array->links))
+      if(sc.data.array&&!(--sc.data.array->links))
         free_array(sc.data.array);
       break;
   }
