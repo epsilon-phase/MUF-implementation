@@ -127,6 +127,7 @@ struct array* delete_array_item(struct array* array, struct stack_cell key){
   struct array* result;
   if(array->links>1){
     result=copy_array(array);
+    result->links=1;
   }else{
     result=array;
   }
@@ -137,7 +138,7 @@ struct array* delete_array_item(struct array* array, struct stack_cell key){
     for(unsigned int i=key.data.number;i<result->size-1;i++){
       result->data.packed[i]=result->data.packed[i+1];
     }
-    result->data.packed=realloc(result->data.packed,result->size-1);
+    result->data.packed=realloc(result->data.packed,sizeof(struct stack_cell)*(result->size-1));
     result->size--;
   }else{
     result->size-=avl_delete(array->data.dictionary,key);

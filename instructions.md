@@ -14,9 +14,10 @@
 * [x] depth `-- i`
 * [x] reverse `x1 x2 … xi i -- xi … x1`
 * [x] lreverse `x1 x2 … xi i -- xi … x2 x1 i`
-* [ ] put `x1 x2 x3 x4 x5 … xn xi i -- x1 … xi .. xn`
-* [x] over `x1 x2 x3 … xi … xn i -- x1 x2 … xi … xn xi`
+* [ ] put `xi … x1 xi i -- x1 … xi .. x1`
+* [x] pick ` xi … x2 x1 i -- xi … x1 xi`
 * [ ] sort 
+* [x] over `x y -- x y x`
 
 ## Math/logic prims
 
@@ -108,7 +109,7 @@
 * [x] array_sum
 * [x] array_count
 * [ ] foreach
-* [ ] array_delitem
+* [x] array_delitem
 * [ ] array_getrange
 * [ ] array_setrange
 * [ ] array_delrange
@@ -129,3 +130,12 @@
 * [ ] array_compare
 * [ ] array_fmtstring
 * [x] array_string_fragment
+
+## Type querying
+
+* [ ] `int?`
+* [ ] `float?`
+* [ ] `number?`
+* [ ] `string?`
+* [ ] `array?`
+* [ ] `dictionary?`

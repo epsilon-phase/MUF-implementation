@@ -9,6 +9,7 @@
 #include <ctype.h>
 
 #define peek_data_stack(X) X->stack[X->size-1]
+#define get_nth_data_stack(X,N) X->stack[X->size-N]
 PRIM_SIG(p_mark){
   struct stack_cell r;
   r.type=t_mark;
@@ -384,6 +385,11 @@ PRIM_SIG(p_nip){
     return frame;
 }
 PRIM_SIG(p_over){
+  struct stack_cell x=frame->stack->stack[frame->stack->size-2];
+  push_data_stack(frame->stack,x);
+  return frame;
+}
+PRIM_SIG(p_pick){
   struct stack_cell i=pop_data_stack(frame->stack),
                     xi;
   xi=frame->stack->stack[frame->stack->size-i.data.number];
@@ -1409,10 +1415,11 @@ PRIM_SIG(p_while){
 PRIM_SIG(p_array_make){
   struct stack_cell n=pop_data_stack(frame->stack),
                     result;
+
   result.data.array=create_array(frame->stack->stack+frame->stack->size-n.data.number,
                                  n.data.number,0);
   result.type=t_array;
-  for(int i=0;i<n.data.number-1;i++)
+  for(int i=0;i<n.data.number;i++)
     free_stack_cell(pop_data_stack(frame->stack));
   push_data_stack(frame->stack,result);
   result.data.array->links=1;
@@ -1517,7 +1524,17 @@ PRIM_SIG(p_array_appenditem){
 }
 PRIM_SIG(p_array_delitem){
   struct stack_cell index=pop_data_stack(frame->stack),
-                    arr=pop_data_stack(frame->stack);
+                    arr=pop_data_stack(frame->stack),
+                    result;
+  result.type=t_array;
+  result.data.array=delete_array_item(arr.data.array,index);
+// If the array was in-place modified, then set the reference to it to null
+  if(arr.data.array==result.data.array)
+    arr.data.array=NULL;
+  push_data_stack(frame->stack,result);
+  free_stack_cell(index);
+  free_stack_cell(arr);
+  free_stack_cell(result);
   return frame;
 }
 PRIM** instructions=NULL;
@@ -1615,6 +1632,8 @@ PRIM** get_instructions(){
         ASSOCIATE(array_getitem);
         ASSOCIATE(array_appenditem);
         ASSOCIATE(array_sum);
+        ASSOCIATE(pick);
+        ASSOCIATE(array_delitem);
         instructions[i_break]=p_break;
         instructions[i_continue]=p_continue;
         instructions[i_while]=p_while;
