@@ -93,7 +93,7 @@ struct array* copy_array(struct array* original){
 }
 struct array* set_array_item(struct stack_cell value, struct array* array,struct stack_cell key){
   struct array *result;
-  if(array->links>1){
+  if(array->links>1||(value.type==t_array&&value.data.array==array)){
     result=copy_array(array);
   }else{
     result=array;
@@ -111,7 +111,7 @@ struct array* set_array_item(struct stack_cell value, struct array* array,struct
         }else{
           result->data.packed=malloc(sizeof(struct stack_cell));
         }
-        result->data.packed[key.data.number]=copy_stack_cell(value);
+        result->data.packed[key.data.number]=value;//copy_stack_cell(value);
         result->size++;
       }else if(result->size>key.data.number){
         free_stack_cell(result->data.packed[key.data.number]);
@@ -145,7 +145,7 @@ struct array* delete_array_item(struct array* array, struct stack_cell key){
   return result;
 }
 void print_array(struct array* arr){
-  printf("%d{",arr->size);
+  printf("%ld{",arr->size);
   if(arr->packed){
     for(int i=0;i<arr->size;i++){
       if(i>0)

@@ -7,9 +7,9 @@ void free_trie(struct trie* t){
   for(int i=0;i<93;i++){
     if(t->children[i]){
       free_trie(t->children[i]);
-      free(t->children[i]);
     }
   }
+  free(t);
 }
 
 struct trie* create_trie(){

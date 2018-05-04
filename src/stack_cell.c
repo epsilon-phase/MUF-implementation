@@ -33,8 +33,14 @@ void free_stack_cell(struct stack_cell sc){
         free(sc.data.str);
       break;
     case t_array:
-      if(sc.data.array&&!(--sc.data.array->links))
+      if(!sc.data.array)
+        break;
+      if(!(--sc.data.array->links)){
+        printf("Freeing array at address %p\n",sc.data.array);
         free_array(sc.data.array);
+      }else{
+        printf("Not freeing array at address %p\n",sc.data.array);
+      }
       break;
   }
   

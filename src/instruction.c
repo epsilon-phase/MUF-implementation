@@ -1409,9 +1409,10 @@ PRIM_SIG(p_while){
 PRIM_SIG(p_array_make){
   struct stack_cell n=pop_data_stack(frame->stack),
                     result;
-  result.data.array=create_array(frame->stack->stack-n.data.number,n.data.number,0);
+  result.data.array=create_array(frame->stack->stack+frame->stack->size-n.data.number,
+                                 n.data.number,0);
   result.type=t_array;
-  for(int i=0;i<n.data.number;i++)
+  for(int i=0;i<n.data.number-1;i++)
     free_stack_cell(pop_data_stack(frame->stack));
   push_data_stack(frame->stack,result);
   result.data.array->links=1;
@@ -1505,11 +1506,18 @@ PRIM_SIG(p_array_string_fragment){
 //By dangerous, I mean, it isn't likely to act in the way you might intuit.
 PRIM_SIG(p_array_appenditem){
   struct stack_cell x=pop_data_stack(frame->stack),
-                    arr=pop_data_stack(frame->stack);
-  arr.data.array=set_array_item(x, arr.data.array,create_prim_int(arr.data.array->size));
+                    arr=pop_data_stack(frame->stack),
+                    result;
+  result.type=t_array;
+  result.data.array=set_array_item(x, arr.data.array,create_prim_int(arr.data.array->size));
+  push_data_stack(frame->stack,result);
   free_stack_cell(x);
-  push_data_stack(frame->stack,arr);
   free_stack_cell(arr);
+  return frame;
+}
+PRIM_SIG(p_array_delitem){
+  struct stack_cell index=pop_data_stack(frame->stack),
+                    arr=pop_data_stack(frame->stack);
   return frame;
 }
 PRIM** instructions=NULL;
