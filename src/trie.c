@@ -35,7 +35,7 @@ int get_value(struct trie* t,const char* c){
   }
   return t->value;
 }
-void add_many(struct trie* t,...){
+void add_many_to_trie(struct trie* t,...){
   va_list args;
   va_start(args,t);
   const char* n=va_arg(args,const char*);

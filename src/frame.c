@@ -188,6 +188,7 @@ void execute_program(struct frame* frame,struct arguments* args){
       printf(",");
     }
     printf("\n");
+    free(instructions);
 //    printf("\x1b[20B\x1b[50G");
 }
 void free_frame(struct frame* frame){
