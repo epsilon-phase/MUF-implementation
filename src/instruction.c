@@ -1605,6 +1605,8 @@ PRIM** get_instructions(){
         ASSOCIATE(array_make_dict);
         ASSOCIATE(array_setitem);
         ASSOCIATE(array_getitem);
+        ASSOCIATE(array_appenditem);
+        ASSOCIATE(array_sum);
         instructions[i_break]=p_break;
         instructions[i_continue]=p_continue;
         instructions[i_while]=p_while;

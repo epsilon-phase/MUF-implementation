@@ -105,14 +105,14 @@
 * [x] array_getitem
 * [ ] array_nested_set
 * [ ] array_nested_get
-* [ ] array_sum
-* [ ] array_count
+* [x] array_sum
+* [x] array_count
 * [ ] foreach
 * [ ] array_delitem
 * [ ] array_getrange
 * [ ] array_setrange
 * [ ] array_delrange
-* [ ] array_appenditem
+* [x] array_appenditem
 * [ ] array_nintersect
 * [ ] array_nunion
 * [ ] array_ndiff
@@ -128,4 +128,4 @@
 * [ ] array_prev
 * [ ] array_compare
 * [ ] array_fmtstring
-* [ ] array_string_fragment
+* [x] array_string_fragment
