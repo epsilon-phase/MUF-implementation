@@ -172,15 +172,16 @@ void print_array(struct array* arr){
 }
 void dump_array(struct array* arr,const char* fn){
   if(!arr->packed){
-    pid_t proc=fork();
-    if(!proc){
-      dump_avl_tree(arr->data.dictionary,fn);
-      char *buffer=malloc(strlen("dot -Tpng -O ")+strlen(fn)+1);
-      memset(buffer,0,strlen(fn)+1);
-      sprintf(buffer,"dot -Tpng -O %s",fn);
-      system(buffer);
-      exit(0);
-    }
+    dump_avl_tree(arr->data.dictionary,fn);
+//    pid_t proc=fork();
+//    if(!proc){
+//      dump_avl_tree(arr->data.dictionary,fn);
+//      char *buffer=malloc(strlen("dot -Tpng -O ")+strlen(fn)+1);
+//      memset(buffer,0,strlen(fn)+1);
+//      sprintf(buffer,"dot -Tpng -O %s",fn);
+//      system(buffer);
+//      exit(0);
+//    }
   }
 }
 struct stack_cell sum_array(struct array* arr){

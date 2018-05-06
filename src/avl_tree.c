@@ -414,7 +414,7 @@ int dump_avl_node(struct avl_node* node, FILE* f,int n){
     fprintf(f,"[label = l]\n");
     print_which_graphs=1;
 //    fprintf(f,"%d->%d;\n",n,nn);
-  }else
+  }
   if(node->right){
     dump_avl_node(node->right,f,n);
     dump_node_label(node,f);
