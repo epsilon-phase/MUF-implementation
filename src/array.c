@@ -154,7 +154,7 @@ void print_array(struct array* arr){
       print_stack_cell(&arr->data.packed[i]);
     }
   }else{
-    struct avl_iterator iterator=create_iterator(arr->data.dictionary);
+    struct avl_iterator iterator=create_iterator_begin(arr->data.dictionary);
     struct avl_node* node=NULL;
     int n=0;
     while((node=next(&iterator))){

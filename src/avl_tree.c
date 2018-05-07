@@ -347,12 +347,12 @@ static void iterator_push(struct avl_iterator* iterator, struct avl_node* node){
 static struct avl_node* iterator_pop(struct avl_iterator* iterator){
   return iterator->current[--iterator->size];
 }
-struct avl_iterator create_iterator(struct avl_tree* tree){
+struct avl_iterator create_iterator_begin(struct avl_tree* tree){
   struct avl_iterator result;
   struct avl_node* current=tree->root;
   result.size=0;
-  result.capacity=10;
-  result.current=malloc(sizeof(struct avl_node**)*10);
+  result.capacity=32;
+  result.current=malloc(sizeof(struct avl_node*)*32);
   while(result.size||current){
     if(current!=NULL){
       iterator_push(&result,current);
@@ -362,6 +362,36 @@ struct avl_iterator create_iterator(struct avl_tree* tree){
       break;
     }
   }
+  result.n=NULL;
+  return result;
+}
+struct avl_iterator create_iterator_at(struct avl_tree *tree,struct stack_cell key){
+  struct avl_iterator result;
+  struct avl_node* current=tree->root;
+  result.size=0;
+  result.capacity=32;
+  result.current=malloc(sizeof(struct avl_node*)*32);
+  while(result.size||current){
+    if(current!=NULL){
+      switch(stack_cell_cmp(current->key,key)){
+        case 1:
+          iterator_push(&result,current);
+          current=current->right;
+          break;
+        case -1:
+          iterator_push(&result,current);
+          current=current->left;
+          break;
+        case 0:
+          return result;
+          break;
+      }
+    }
+  }
+  free(result.current);
+  result.size=0;
+  result.capacity=0;
+  result.current=NULL;
   result.n=NULL;
   return result;
 }
