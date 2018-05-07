@@ -31,6 +31,7 @@ enum instruction_opcode{
   i_array_prev,
   i_array_getitem,
   i_array_setitem,
+  i_array_string_fragment,
   i_array_sum,
   i_asin,
   i_assert,

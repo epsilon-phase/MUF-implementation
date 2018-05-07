@@ -1429,7 +1429,7 @@ PRIM_SIG(p_array_make){
 PRIM_SIG(p_array_make_dict){
   struct stack_cell n=pop_data_stack(frame->stack),
                     result;
-  assert(frame->stack->size>=n.data.number);
+  assert(frame->stack->size>=(unsigned)n.data.number);
   result.data.array=create_array(NULL,0,1);
   result.type=t_array;
   for(int i=0;i<n.data.number;i++){
@@ -1498,7 +1498,7 @@ PRIM_SIG(p_array_string_fragment){
   char *buffer=malloc(n.data.number+1);
   char* position=string.data.str->str;
   while(*position){
-    for(int i=0;i<n.data.number;i++){
+    for(int i=0;i<n.data.number&&*position;i++){
       buffer[i]=*position;
       position++;
     }
@@ -1506,6 +1506,7 @@ PRIM_SIG(p_array_string_fragment){
     set_array_item(create_prim_string(buffer),result.data.array,create_prim_int(result.data.array->size));
   }
   push_data_stack(frame->stack,result);
+  free(buffer);
   free_stack_cell(result);
   free_stack_cell(string);
   return frame;
@@ -1658,6 +1659,7 @@ PRIM** get_instructions(){
         ASSOCIATE(array_appenditem);
         ASSOCIATE(array_next);
         ASSOCIATE(array_prev);
+        ASSOCIATE(array_string_fragment);
         ASSOCIATE(array_sum);
         ASSOCIATE(pick);
         ASSOCIATE(array_delitem);
