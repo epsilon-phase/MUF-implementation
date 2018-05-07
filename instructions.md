@@ -125,7 +125,7 @@
 * [ ] explode_array
 * [ ] array_keys
 * [ ] array_vals
-* [ ] array_next
+* [x] array_next
 * [ ] array_prev
 * [ ] array_compare
 * [ ] array_fmtstring
