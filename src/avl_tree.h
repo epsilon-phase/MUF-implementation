@@ -23,5 +23,6 @@ struct avl_tree* copy_tree(struct avl_tree*);
 struct avl_iterator create_iterator_begin(struct avl_tree* tree);
 struct avl_iterator create_iterator_at(struct avl_tree* tree,struct stack_cell t);
 struct avl_node* next(struct avl_iterator*);
+struct avl_node* prev(struct avl_iterator*);
 void dump_avl_tree(struct avl_tree*,const char*);
 #endif

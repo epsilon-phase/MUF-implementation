@@ -46,6 +46,7 @@ struct array *create_array(struct stack_cell *stack_segment,size_t element_count
 struct stack_cell array_get_element(struct array*,struct stack_cell key);
 struct array* set_array_item(struct stack_cell value, struct array* array,struct stack_cell key);
 struct array* delete_array_item(struct array*,struct stack_cell);
+struct stack_cell* get_next_array_index(struct array* array, struct stack_cell key);
 void dump_array(struct array*,const char* fn);
 void print_array(struct array*);
 void free_stack_cell(struct stack_cell);
@@ -56,4 +57,8 @@ void print_stack_cell(struct stack_cell*);
 struct stack_cell copy_stack_cell(struct stack_cell n);
 double get_double(struct stack_cell sc);
 struct stack_cell sum_array(struct array*);
+struct stack_cell create_prim_int(int);
+struct stack_cell create_prim_double(double);
+struct stack_cell create_prim_string(const char*);
+struct stack_cell create_prim_invalid(const char*);
 #endif

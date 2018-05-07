@@ -371,9 +371,9 @@ struct avl_iterator create_iterator_at(struct avl_tree *tree,struct stack_cell k
   result.size=0;
   result.capacity=32;
   result.current=malloc(sizeof(struct avl_node*)*32);
-  while(result.size||current){
-    if(current!=NULL){
-      switch(stack_cell_cmp(current->key,key)){
+  while(current){
+      result.n=current;
+      switch(stack_cell_cmp(key,current->key)){
         case 1:
           iterator_push(&result,current);
           current=current->right;
@@ -383,10 +383,10 @@ struct avl_iterator create_iterator_at(struct avl_tree *tree,struct stack_cell k
           current=current->left;
           break;
         case 0:
+          result.n=current;
           return result;
           break;
       }
-    }
   }
   free(result.current);
   result.size=0;
@@ -409,6 +409,21 @@ struct avl_node* next(struct avl_iterator* iter){
     }
   }
   free(iter->current);
+  return NULL;
+}
+struct avl_node* prev(struct avl_iterator* iter){
+  struct avl_node *n=iter->n;
+  while(iter->size||n){
+    if(n){
+      iterator_push(iter,n);
+      iter->n=n->right;
+      n=n->right;
+    }else{
+      n=iterator_pop(iter);
+      iter->n=n->left;
+      return n;
+    }
+  }
   return NULL;
 }
 void dump_node_label(struct avl_node* node,FILE *f){

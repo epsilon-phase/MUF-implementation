@@ -27,6 +27,7 @@ enum instruction_opcode{
   i_array_dump,
   i_array_make,
   i_array_make_dict,
+  i_array_next,
   i_array_getitem,
   i_array_setitem,
   i_array_sum,
@@ -143,10 +144,6 @@ struct program* build(struct tokenlist* tl,struct arguments*);
 void print_bytecode(struct program* p);
 struct instruction simple_instruction_from_type(int t);
 struct stack_cell *stack_ptr_from_rval(struct stack_cell n);
-struct stack_cell create_prim_int(int);
-struct stack_cell create_prim_double(double);
-struct stack_cell create_prim_string(const char*);
-struct stack_cell create_prim_invalid(const char*);
 const char* obtain_bytecode_name(unsigned char);
 struct variable* create_variable(const char* name);
 void free_program(struct program** p);

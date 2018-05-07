@@ -145,6 +145,33 @@ struct array* delete_array_item(struct array* array, struct stack_cell key){
   }
   return result;
 }
+struct stack_cell* get_next_array_index(struct array* array, struct stack_cell key){
+  struct stack_cell *result=malloc(sizeof(struct stack_cell)*2);
+  result[0].type=t_invalid;
+  result[0].data.str=NULL;
+  result[1].type=t_invalid;
+  result[1].data.str=NULL;
+  if(array->packed){
+
+  }else{
+    struct avl_iterator i=create_iterator_at(array->data.dictionary,key);
+    struct avl_node* r=next(&i);
+    r=next(&i);
+    if(!r){
+      result[0].type=t_int;
+      result[0].data.number=0;
+      result[1].data.number=0;
+      result[1].data.number=0;
+    }else{
+      result[0]=r->key;
+      result[1]=create_prim_int(1);
+    }
+    if(i.current){
+      free(i.current);
+    }
+  }
+  return result;
+}
 void print_array(struct array* arr){
   printf("%ld{",arr->size);
   if(arr->packed){
