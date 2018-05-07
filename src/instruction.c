@@ -1549,6 +1549,18 @@ PRIM_SIG(p_array_next){
   free(tmp);
   return frame;
 }
+PRIM_SIG(p_array_prev){
+  struct stack_cell index=pop_data_stack(frame->stack),
+                    array=pop_data_stack(frame->stack),
+                    *tmp;
+  tmp=get_next_array_index(array.data.array,index);
+  push_data_stack(frame->stack,tmp[0]);
+  push_data_stack(frame->stack,tmp[1]);
+  free_stack_cell(array);
+  free_stack_cell(index);
+  free(tmp);
+  return frame;
+}
 PRIM** instructions=NULL;
 #define ASSOCIATE(NaMe) instructions[i_##NaMe]=p_##NaMe
 //Now this is an ugly hack <:(
@@ -1644,6 +1656,7 @@ PRIM** get_instructions(){
         ASSOCIATE(array_getitem);
         ASSOCIATE(array_appenditem);
         ASSOCIATE(array_next);
+        ASSOCIATE(array_prev);
         ASSOCIATE(array_sum);
         ASSOCIATE(pick);
         ASSOCIATE(array_delitem);

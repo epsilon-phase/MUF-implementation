@@ -47,6 +47,7 @@ struct stack_cell array_get_element(struct array*,struct stack_cell key);
 struct array* set_array_item(struct stack_cell value, struct array* array,struct stack_cell key);
 struct array* delete_array_item(struct array*,struct stack_cell);
 struct stack_cell* get_next_array_index(struct array* array, struct stack_cell key);
+struct stack_cell* get_prev_array_index(struct array* array, struct stack_cell key);
 void dump_array(struct array*,const char* fn);
 void print_array(struct array*);
 void free_stack_cell(struct stack_cell);

@@ -3,4 +3,7 @@
   dup 4 array_next pop array_next depth popn
   { 1 2 3 4 } array_make
   dup 0 array_next pop array_next
+  { 1 2 3 4 } var! len
+  len @ dupn len @ reverse len @ 
+  array_make_dict 3 array_prev
 ;

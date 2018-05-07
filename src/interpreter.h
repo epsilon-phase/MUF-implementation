@@ -28,6 +28,7 @@ enum instruction_opcode{
   i_array_make,
   i_array_make_dict,
   i_array_next,
+  i_array_prev,
   i_array_getitem,
   i_array_setitem,
   i_array_sum,
