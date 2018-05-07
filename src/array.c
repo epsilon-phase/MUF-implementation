@@ -152,9 +152,20 @@ struct stack_cell* get_next_array_index(struct array* array, struct stack_cell k
   result[1].type=t_invalid;
   result[1].data.str=NULL;
   if(array->packed){
-
+    if(array->size<=key.data.number){
+      result[0].type=t_int;
+      result[0].data.number=0;
+      result[1].type=t_int;
+      result[1].data.number=0;
+    }else{
+      result[0]=key;
+      result[0].data.number++;
+      result[1].type=t_int;
+      result[1].data.number=1;
+    }
   }else{
     struct avl_iterator i=create_iterator_at(array->data.dictionary,key);
+    //I don't know why /this/ is necessary.
     struct avl_node* r=next(&i);
     r=next(&i);
     if(!r){

@@ -1419,7 +1419,7 @@ PRIM_SIG(p_array_make){
   result.data.array=create_array(frame->stack->stack+frame->stack->size-n.data.number,
                                  n.data.number,0);
   result.type=t_array;
-  for(int i=0;i<n.data.number;i++)
+  for(int i=0;i<=n.data.number;i++)
     free_stack_cell(pop_data_stack(frame->stack));
   push_data_stack(frame->stack,result);
   result.data.array->links=1;
