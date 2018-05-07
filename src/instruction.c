@@ -1257,20 +1257,20 @@ PRIM_SIG(p_abs){
   return frame;
 }
 PRIM_SIG(p_call){
-    struct frame* result=malloc(sizeof(struct frame));
-    struct stack_cell r=pop_data_stack(frame->stack);
-    *result=create_frame(frame->program,NULL,frame);
-    for(size_t i=0;i<result->program->word_count;i++){
-        if(!strcmp(result->program->words[i].name,r.data.str->str)){
-            result->instr_pointer=result->program->words[i].position-1;
-            result->svars=malloc(result->program->words[i].local_vars*sizeof(struct stack_cell));
-            memset(result->svars,0,result->program->words[i].local_vars*sizeof(struct stack_cell));
-            result->svar_count=result->program->words[i].local_vars;
-            break;
-        }
+  struct frame* result=malloc(sizeof(struct frame));
+  struct stack_cell r=pop_data_stack(frame->stack);
+  *result=create_frame(frame->program,NULL,frame);
+  for(size_t i=0;i<result->program->word_count;i++){
+    if(!strcmp(result->program->words[i].name,r.data.str->str)){
+      result->instr_pointer=result->program->words[i].position-1;
+      result->svars=malloc(result->program->words[i].local_vars*sizeof(struct stack_cell));
+      memset(result->svars,0,result->program->words[i].local_vars*sizeof(struct stack_cell));
+      result->svar_count=result->program->words[i].local_vars;
+      break;
     }
-    free_stack_cell(r);
-    return result;
+  }
+  free_stack_cell(r);
+  return result;
 }
 //Need to write this later
 PRIM_SIG(p_debugline){
