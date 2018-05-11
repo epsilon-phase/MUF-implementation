@@ -1,7 +1,8 @@
 ifndef CC
 CC = gcc
 endif
-CFLAGS = -g -MP -MD -Wall -Wextra
+CFLAGS += -g -MP -MD -Wall -Wextra $(shell pcre-config --cflags) 
+LDFLAGS += $(shell pcre-config --libs) -lpthread
 ifdef RELEASE
 	CFLAGS+=-O3
 	LDFLAGS+=-flto
