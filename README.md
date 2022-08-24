@@ -1,6 +1,6 @@
 # Purpose
 
-This is the start of a project to create a JIT compiler for MUF.
+This was the start of a project to create a JIT compiler for MUF.
 
 This will use libgccjit.
 
