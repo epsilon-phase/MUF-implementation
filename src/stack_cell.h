@@ -1,3 +1,4 @@
+#pragma once
 #ifndef STACK_CELL_H
 #define STACK_CELL_H
 #include <stddef.h>
@@ -7,7 +8,7 @@ struct shared_string{
   unsigned int length;
   char str[];
 };
-enum{
+typedef enum{
     t_int,
     t_float,
     t_string,

@@ -45,7 +45,7 @@
 #define MAX_STACK_DEPTH 32
 char *read_file(const char* file);
 const char *argp_program_version=MUFJIT_VERSION;
-const char *argp_program_bug_address="<alexwhite42000@gmail.com>";
+const char *argp_program_bug_address="<violet.white.batt@gmail.com>";
 static char args_doc[]="FILE1 [input file] ARGUMENTS [passed in on the stack]";
 static char doc[]=
   "MUFJIT a MUF interpreter for the system, and one day, a JIT system/compiler for it.\
