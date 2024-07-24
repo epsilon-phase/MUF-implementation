@@ -106,7 +106,7 @@ struct program *build(struct tokenlist *tl, struct arguments *op) {
       i_tan, "atan2", i_atan2, "assert", i_assert, "atoi", i_atoi, "call",
       i_call, "ceil", i_ceil, "fabs", i_fabs, "floor", i_floor, "depth",
       i_depth, "dup", i_dup, "dupn", i_dupn, "exit", i_exit, "explode",
-      i_explode, "intostr", i_intostr, "instr", i_instr, "instring", i_instring,
+      i_explode, "intostr", i_intostr, "str?",i_is_str, "instr", i_instr, "instring", i_instring,
       "midstr", i_midstr, "nip", i_nip, "not", i_not, "notify", i_notify, "or",
       i_or, "over", i_over,"pick",i_pick, "pop", i_pop, "popn", i_popn, "pow", i_power,
       "read", i_read, "reverse", i_reverse, "log", i_log, "log10", i_log10,
@@ -329,7 +329,7 @@ struct program *build(struct tokenlist *tl, struct arguments *op) {
 #undef BUILTIN_WORD_MATCH
 struct position_stack *create_position_stack() {
   struct position_stack *result = malloc(sizeof(struct position_stack));
-  result->position = calloc(sizeof(size_t), 10);
+  result->position = calloc(10, sizeof(size_t));
   result->capacity = 10;
   result->size = 0;
   return result;
@@ -516,6 +516,7 @@ const char *obtain_bytecode_name(unsigned char t) {
                           "i_instr",
                           "i_instring",
                           "i_intostr",
+                          "i_is_str",
                           "i_jmp",
                           "i_jmp_if",
                           "i_jmp_not_if",

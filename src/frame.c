@@ -27,7 +27,9 @@ void execute_program(struct frame* frame,struct arguments* args){
   if(frame->program->words[frame->program->word_count-1].local_vars)
   frame->svars=malloc(sizeof(struct stack_cell)*
       frame->program->words[frame->program->word_count-1].local_vars);
-  memset(frame->svars,0,sizeof(struct stack_cell)*frame->program->words[frame->program->word_count-1].local_vars);
+  if(frame->svars){
+    memset(frame->svars,0,sizeof(struct stack_cell)*frame->program->words[frame->program->word_count-1].local_vars);
+  }
   PRIM** instructions=get_instructions();
   unsigned int max_opcode_name=0;
   for(int i=0;i<=LARGEST_INSTRUCTION_CODE;i++){

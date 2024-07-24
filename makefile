@@ -6,10 +6,9 @@ LDFLAGS += $(shell pcre-config --libs) -lpthread
 ifdef RELEASE
 	CFLAGS+=-O3
 	LDFLAGS+=-flto
-endif
-ifdef DEBUG
-CFLAGS+=-fsanitize=leak -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -O0
-LDFLAGS+=-lasan
+else
+	CFLAGS+=-fsanitize=leak -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -O0
+	LDFLAGS+=-lasan
 endif
 LDFLAGS+=-lm
 VPATH=./src
@@ -22,6 +21,9 @@ terp: $(OBJECTS)
 -include $(SOURCES:.c=.d)
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
-
+src/ansi.c: src/ansi.rl
+	ragel -C -o $@  $<
+ansi: src/ansi.c
+	$(CC) -DANSI_TEST src/ansi.c $(CFLAGS) -I src -o ansi
 clean:
 	rm -f $(EXEC) $(OBJECTS)

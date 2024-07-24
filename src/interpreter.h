@@ -64,6 +64,7 @@ enum instruction_opcode{
   i_instr,
   i_instring,
   i_intostr,
+  i_is_str,
   i_jmp,
   i_jmp_if,
   i_jmp_not_if,

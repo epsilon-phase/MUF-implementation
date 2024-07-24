@@ -1373,6 +1373,23 @@ PRIM_SIG(p_intostr) {
   free_stack_cell(f);
   return frame;
 }
+PRIM_SIG(p_is_str){
+  struct stack_cell r = pop_data_stack(frame->stack);
+  struct stack_cell f;
+  f.type=t_int;
+  switch(r.type){
+  case t_string:
+    f.data.number = 1;
+    break;
+  default:
+    f.data.number = 0;
+    break;
+  }
+  push_data_stack(frame->stack,f);
+  free_stack_cell(r);
+  free_stack_cell(f);
+  return frame;
+}
 PRIM_SIG(p_tolower){
   struct stack_cell x=pop_data_stack(frame->stack);
   char *r=malloc(x.data.str->length+1);
@@ -1594,6 +1611,7 @@ PRIM** get_instructions(){
         ASSOCIATE(instr);
         ASSOCIATE(instring);
         ASSOCIATE(intostr);
+        ASSOCIATE(is_str);
         ASSOCIATE(jmp);
         ASSOCIATE(jmp_if);
         ASSOCIATE(jmp_not_if);

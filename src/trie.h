@@ -1,8 +1,9 @@
 #ifndef TRIE_H
 #define TRIE_H
+#include <limits.h>
 struct trie{
   //Why 93? because it's the number of printable characters in ascii.
-  struct trie *children[93];
+  struct trie *children[UCHAR_MAX];
   int value;
 };
 void free_trie(struct trie*);

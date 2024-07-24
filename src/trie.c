@@ -3,8 +3,9 @@
 #include "trie.h"
 #include <stdarg.h>
 #include <stdio.h>
+
 void free_trie(struct trie* t){
-  for(int i=0;i<93;i++){
+  for(int i=0;i<UCHAR_MAX;i++){
     if(t->children[i]){
       free_trie(t->children[i]);
     }
@@ -14,15 +15,15 @@ void free_trie(struct trie* t){
 
 struct trie* create_trie(){
   struct trie* result=malloc(sizeof(struct trie));
-  memset(result->children,0,sizeof(struct trie*)*93);
+  memset(result->children,0,sizeof(struct trie*)*UCHAR_MAX);
   return result;
 }
 void add_to_trie(struct trie* t,const char* key,int value){
   if(key[0]){
-    if(!t->children[key[0]-33]){
-      t->children[key[0]-33]=create_trie();
+    if(!t->children[key[0]]){
+      t->children[key[0]]=create_trie();
     }
-    add_to_trie(t->children[key[0]-33],key+1,value);
+    add_to_trie(t->children[key[0]],key+1,value);
   }else{
     t->value=value;
   }   
@@ -31,7 +32,7 @@ void add_to_trie(struct trie* t,const char* key,int value){
 int get_value(struct trie* t,const char* c){
   while(c[0]){
     if(!t)return -1;
-    t=t->children[*(c++)-33];
+    t=t->children[*(c++)];
   }
   return t->value;
 }
@@ -51,15 +52,15 @@ void add_many_to_trie(struct trie* t,...){
 int childcount(struct trie* t){
   if(!t)return 0;
   int r=0;
-  for(int i=0;i<93;i++)if(t->children[i])r++;
+  for(int i=0;i<UCHAR_MAX;i++)if(t->children[i])r++;
   return r;
 }
 int dump_t(struct trie* t,FILE* f,int n,int g){
-  int nn=g,first=1,order[93],ids[93],filled=0;
-  memset(order,0,sizeof(int)*93);
+  int nn=g,first=1,order[UCHAR_MAX],ids[UCHAR_MAX],filled=0;
+  memset(order,0,sizeof(int)*UCHAR_MAX);
   fprintf(f,"struct%d [label=\"",n);
   fprintf(f,"{{<top> struct%d\n}|{",n);
-  for(int i=0;i<93;i++){
+  for(int i=0;i<UCHAR_MAX;i++){
     if(t->children[i]){
       if(!first){
         fprintf(f,"|");
